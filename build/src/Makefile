@@ -274,6 +274,30 @@ Engine/SpriteRenderer.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.s
 .PHONY : Engine/SpriteRenderer.cpp.s
 
+Engine/WeaponManager.o: Engine/WeaponManager.cpp.o
+.PHONY : Engine/WeaponManager.o
+
+# target to build an object file
+Engine/WeaponManager.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o
+.PHONY : Engine/WeaponManager.cpp.o
+
+Engine/WeaponManager.i: Engine/WeaponManager.cpp.i
+.PHONY : Engine/WeaponManager.i
+
+# target to preprocess a source file
+Engine/WeaponManager.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.i
+.PHONY : Engine/WeaponManager.cpp.i
+
+Engine/WeaponManager.s: Engine/WeaponManager.cpp.s
+.PHONY : Engine/WeaponManager.s
+
+# target to generate assembly for a file
+Engine/WeaponManager.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.s
+.PHONY : Engine/WeaponManager.cpp.s
+
 Engine/pItemRenderer.o: Engine/pItemRenderer.cpp.o
 .PHONY : Engine/pItemRenderer.o
 
@@ -349,6 +373,9 @@ help:
 	@echo "... Engine/SpriteRenderer.o"
 	@echo "... Engine/SpriteRenderer.i"
 	@echo "... Engine/SpriteRenderer.s"
+	@echo "... Engine/WeaponManager.o"
+	@echo "... Engine/WeaponManager.i"
+	@echo "... Engine/WeaponManager.s"
 	@echo "... Engine/pItemRenderer.o"
 	@echo "... Engine/pItemRenderer.i"
 	@echo "... Engine/pItemRenderer.s"

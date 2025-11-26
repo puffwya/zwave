@@ -7,6 +7,7 @@ set(SOURCES
     Engine/EnemyManager.cpp
     Engine/SpriteRenderer.cpp
     Engine/pItemRenderer.cpp
+    Engine/WeaponManager.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})
@@ -28,23 +29,18 @@ endif()
 
 target_link_libraries(RaycasterGame PRIVATE ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} ${SDL2IMAGE_LIBRARY})
 
-# Automatically copy enemy.png into bin/
-configure_file(
-    ${CMAKE_SOURCE_DIR}/src/enemy.png
-    ${CMAKE_BINARY_DIR}/enemy.png
-    COPYONLY
-)
+# Define source and destination Assets folder
+set(ASSETS_SRC_DIR "${CMAKE_SOURCE_DIR}/src/Assets")
+set(ASSETS_DST_DIR "${CMAKE_BINARY_DIR}/Assets")
 
-# Automatically copy Pistol.png into build folder
-configure_file(
-    ${CMAKE_SOURCE_DIR}/src/Pistol.png
-    ${CMAKE_BINARY_DIR}/Pistol.png
-    COPYONLY
-)
+# Create the destination directory in the build folder, only create if missing
+if(NOT EXISTS ${ASSETS_DST_DIR})
+    file(MAKE_DIRECTORY ${ASSETS_DST_DIR})
+endif()
 
-# Automatically copy Shotgun.png into build folder
-configure_file(
-    ${CMAKE_SOURCE_DIR}/src/Shotgun.png
-    ${CMAKE_BINARY_DIR}/Shotgun.png
-    COPYONLY
-)
+# Copy all files inside the Assets folder
+file(GLOB ASSET_FILES "${ASSETS_SRC_DIR}/*")
+foreach(asset ${ASSET_FILES})
+    configure_file(${asset} ${ASSETS_DST_DIR} COPYONLY)
+endforeach()
+

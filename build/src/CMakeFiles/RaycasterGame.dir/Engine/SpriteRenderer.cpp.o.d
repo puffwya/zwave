@@ -763,4 +763,8 @@ src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
   /Users/wyattpuff/Raycaster/src/Engine/Map.h \
-  /Users/wyattpuff/Raycaster/src/Engine/Player.h
+  /Users/wyattpuff/Raycaster/src/Engine/Player.h \
+  /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.h \
+  /opt/homebrew/include/SDL2/SDL_image.h \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
+  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree

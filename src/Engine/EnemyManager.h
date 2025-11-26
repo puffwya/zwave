@@ -9,13 +9,12 @@ class EnemyManager {
 public:
     static const int MAX_ENEMIES = 128;
 
-    Enemy enemies[MAX_ENEMIES];
-
     // Store spawn locations from the map (tile value = 2)
     struct SpawnPoint { int x, y; };
-    std::vector<SpawnPoint> spawnPoints;
 
     EnemyManager();
+
+    Enemy enemies[MAX_ENEMIES];
 
     void scanMapForSpawnPoints(const Map& map);
 
@@ -25,8 +24,12 @@ public:
 
     void update(float dt, const Player& player, const Map& map);
 
-    // Optional: Clear all active enemies at wave end
+    // Safety check to clear all active enemies at wave end
     void deactivateAll();
+
+private:
+    std::vector<SpawnPoint> spawnPoints;
+    int nextSpawnIndex = 0;  // keeps track of next spawn point
 };
 
 #endif

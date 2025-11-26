@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/main.cpp.o"

@@ -20,6 +20,8 @@ public:
     bool active;
     EnemyType type;
 
+    float lateralOffset = 0.0f;  // persistent offset for chasing
+
     SDL_Texture* sprite;
 
     Enemy();
@@ -31,6 +33,8 @@ public:
 
     // Deactivate enemy for memory-pool reuse
     void deactivate() { active = false; }
+
+    float distanceTo(const Player& player) const;
 };
 
 #endif
