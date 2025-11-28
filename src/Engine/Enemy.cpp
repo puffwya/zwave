@@ -44,44 +44,95 @@ void Enemy::activate(int tx, int ty, EnemyType t)
     }
 }
 
-void Enemy::update(float dt, const Player& player)
+bool Enemy::hasLineOfSight(const Player& player, const Map& map) const
 {
-    if (!active) return;
-
-    // Vector from enemy to player
     float dx = player.x - x;
     float dy = player.y - y;
 
-    // Distance to player (avoid division by zero)
     float dist = std::sqrt(dx*dx + dy*dy);
-    if (dist == 0.0f) return;
 
-    // Normalize direction to player
-    float dirX = dx / dist;
-    float dirY = dy / dist;
+    float step = 0.1f; // small step for accuracy
+    float steps = dist / step;
 
-    // Perpendicular vector for lateral offset
-    float perpX = -dirY;
-    float perpY = dirX;
+    float sx = x;
+    float sy = y;
 
-    // Target position adjusted by lateral offset
-    float targetX = player.x + perpX * lateralOffset;
-    float targetY = player.y + perpY * lateralOffset;
+    float incX = dx / steps;
+    float incY = dy / steps;
 
-    // Compute movement direction toward adjusted target
-    float moveX = targetX - x;
-    float moveY = targetY - y;
-    float moveDist = std::sqrt(moveX*moveX + moveY*moveY);
-    if (moveDist == 0.0f) return;
+    for (int i = 0; i < (int)steps; i++) {
+        sx += incX;
+        sy += incY;
 
-    float moveDirX = moveX / moveDist;
-    float moveDirY = moveY / moveDist;
+        int mx = int(sx);
+        int my = int(sy);
 
-    // Update enemy angle for rendering (optional)
-    angle = std::atan2(moveDirY, moveDirX);
+        // hit a wall
+        if (map.data[mx][my] == 1) {
+            return false;
+        }
+    }
 
-    // Move enemy
-    x += moveDirX * speed * dt;
-    y += moveDirY * speed * dt;
+    return true;
 }
 
+void Enemy::chasePlayer(float dt, const Player& player)
+{
+    float dx = player.x - x;
+    float dy = player.y - y;
+    angle = std::atan2(dy, dx);
+    x += std::cos(angle) * speed * dt;
+    y += std::sin(angle) * speed * dt;
+}
+
+void Enemy::wander(float dt)
+{
+    static float changeTimer = 0.0f;
+
+    changeTimer -= dt;
+
+    if (changeTimer <= 0.0f) {
+        // pick a new random movement direction
+        wanderAngle = ((std::rand() % 628) / 100.0f) - 3.14f;
+        changeTimer = 2.0f + (std::rand() % 200) / 100.0f; // 2–4 seconds
+    }
+
+    x += std::cos(wanderAngle) * speed * 0.3f * dt; // slower movement
+    y += std::sin(wanderAngle) * speed * 0.3f * dt;
+}
+
+void Enemy::update(float dt, const Player& player, const Map& map)
+{
+    if (!active) return;
+
+    bool seesPlayer = hasLineOfSight(player, map);
+
+    switch (state)
+    {
+        case EnemyState::Idle:
+            if (seesPlayer) {
+                state = EnemyState::Chasing;
+            } else {
+                wander(dt);   // small random movement
+            }
+            break;
+
+        case EnemyState::Chasing:
+            if (seesPlayer) {
+                chasePlayer(dt, player);
+                loseSightTimer = 1.0f; // 1 second delay after losing LOS
+            } else {
+                state = EnemyState::Searching;
+            }
+            break;
+
+        case EnemyState::Searching:
+            loseSightTimer -= dt;
+            chasePlayer(dt, player);   // keep chasing briefly
+
+            if (loseSightTimer <= 0.0f) {
+                state = EnemyState::Idle;
+            }
+            break;
+    }
+}

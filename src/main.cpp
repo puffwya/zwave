@@ -42,7 +42,7 @@ int main() {
     float* zBuffer = new float[SCREEN_WIDTH]; // allocate once outside game loop ideally
 
     enemyManager.spawnEnemy(EnemyType::Base);
-    enemyManager.spawnEnemy(EnemyType::Base);
+    enemyManager.spawnEnemy(EnemyType::Tank);
     enemyManager.initialize(renderer.getSDLRenderer());
 
     weaponManager.loadAssets(renderer.getSDLRenderer());

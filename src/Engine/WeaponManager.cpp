@@ -10,7 +10,9 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         "Assets/Pistol0.png",
         "Assets/Pistol1.png",
         "Assets/Pistol2.png",
-        "Assets/Pistol3.png"
+        "Assets/Pistol3.png",
+        "Assets/Pistol4.png",
+        "Assets/Pistol5.png"
     };
 
     for (const char* path : pistolPaths) {
@@ -32,7 +34,8 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         "Assets/Shotgun0.png",
         "Assets/Shotgun1.png",
         "Assets/Shotgun2.png",
-        "Assets/Shotgun3.png"
+        "Assets/Shotgun3.png",
+        "Assets/Shotgun4.png"
     };
     for (const char* path : shotgunPaths) {
         SDL_Texture* tex = IMG_LoadTexture(renderer, path);

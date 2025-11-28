@@ -28,7 +28,7 @@ void EnemyManager::initialize(SDL_Renderer* renderer) {
 
     enemyTextures[EnemyType::Base]  = IMG_LoadTexture(renderer, "Assets/enemy_base.png");
     // TO BE ADDED!!! enemyTextures[EnemyType::Fast]  = IMG_LoadTexture(renderer, "Assets/enemy_fast.png");
-    // TO BE ADDED!!! enemyTextures[EnemyType::Tank]  = IMG_LoadTexture(renderer, "Assets/enemy_tank.png");
+    enemyTextures[EnemyType::Tank]  = IMG_LoadTexture(renderer, "Assets/enemy_tank.png");
 
     // Check for loading errors
     for (auto& [type, tex] : enemyTextures) {
@@ -74,8 +74,8 @@ void EnemyManager::update(float dt, const Player& player, const Map& map) {
         Enemy& e = enemies[i];
         if (!e.active) continue;
 
-        // update movement (towards player)
-        e.update(dt, player);
+        // update enemy movement state
+        e.update(dt, player, map);
 
         // wall collision
         int px = int(e.x);

@@ -1,7 +1,4 @@
 #include "Player.h"
-#include "Map.h"
-#include <cmath>
-#include <SDL2/SDL.h>
 
 WeaponType Player::itemToWeapon(ItemType item) {
     switch (item) {
@@ -67,7 +64,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     // Pistol shooting
     if (currentItem == ItemType::Pistol) {
         if (keys[SDL_SCANCODE_SPACE] && fireCooldown <= 0.0f) {
-            shoot(enemyManager, weaponManager);
+            shoot(enemyManager, weaponManager, map);
             fireCooldown = 0.5f; // pistol fires once every 0.5 seconds
 
             // Start animation
@@ -80,7 +77,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     // Shotgun shooting
     if (currentItem == ItemType::Shotgun) {
         if (keys[SDL_SCANCODE_SPACE] && fireCooldown <= 0.0f) {
-            shoot(enemyManager, weaponManager);
+            shoot(enemyManager, weaponManager, map);
             fireCooldown = 0.5f; // Shotgun fires once every 0.5 seconds
 
             // Start animation
@@ -119,7 +116,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     int currentChunk = map.getChunkID(int(std::floor(x)), int(std::floor(y)));
 }
 
-void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager) {
+void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map) {
     const float maxAngle = 0.1f;   // tolerance in radians (~5-6 degrees)
     const float maxRange = 10.0f;  // max distance pistol can hit
 
@@ -144,6 +141,12 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager) {
         if (diff >  M_PI) diff -= 2*M_PI;
 
         if (std::fabs(diff) < maxAngle) {
+
+            // checks if enemy is behind a wall
+            if (!e.hasLineOfSight(*this, map)) {
+                continue;  // if enemy is behind a wall -> cannot be hit
+            }
+
             e.active = false; // enemy hit
             printf("Enemy hit!\n");
             break; // stop after hitting first enemy

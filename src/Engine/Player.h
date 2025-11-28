@@ -37,7 +37,7 @@ public:
 
     static constexpr float FIRE_FRAME_DURATION = 0.05f; // 50ms per frame
     static constexpr int PISTOL_FIRE_FRAMES = 6;        // idle + 5 Pistol firing frames
-    static constexpr int SHOTGUN_FIRE_FRAMES = 6;        // idle + 5 Shotgun firing frames
+    static constexpr int SHOTGUN_FIRE_FRAMES = 5;        // idle + 4 Shotgun firing frames
 
 
     int lastChunkID;
@@ -48,7 +48,7 @@ public:
     }
 
     void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager);
-    void shoot(EnemyManager& manager, WeaponManager& weaponManager);
+    void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map);
 
     void giveItem(ItemType item);
     void nextItem();
