@@ -28,10 +28,14 @@ public:
     float velX = 0.0f;
     float velY = 0.0f;
 
-    const float ACCEL = 14.0f;       // how fast you reach max speed
-    const float FRICTION = 8.0f;    // how fast you slide to a stop
+    const float ACCEL = 14.0f;       // how fast player reaches max speed
+    const float FRICTION = 8.0f;    // how fast player slides to a stop
     const float MAX_SPEED = 6.0f;   // top movement speed
 
+    float turnVel = 0.0f;
+    const float TURN_ACCEL = 10.0f;    // how fast turning speeds up
+    const float TURN_FRICTION = 14.0f; // how fast turning slows down
+    const float MAX_TURN_SPEED = 2.5f; // top turning speed
 
     ItemType currentItem = ItemType::None;
     std::vector<ItemType> inventory;

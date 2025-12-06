@@ -77,8 +77,36 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         velY = 0;
     }
 
-    if (keys[SDL_SCANCODE_LEFT])  angle -= 3.0f * delta;
-    if (keys[SDL_SCANCODE_RIGHT]) angle += 3.0f * delta;
+    // Turning acceleration
+    if (keys[SDL_SCANCODE_LEFT]) {
+        turnVel -= TURN_ACCEL * delta;
+    }
+    else if (keys[SDL_SCANCODE_RIGHT]) {
+        turnVel += TURN_ACCEL * delta;
+    }
+    else {
+        // apply friction when NO turning keys are pressed
+        if (fabs(turnVel) > 0.0001f) {
+            float drop = TURN_FRICTION * delta;
+            if (turnVel > 0) {
+                turnVel = std::max(0.0f, turnVel - drop);
+            } else {
+                turnVel = std::min(0.0f, turnVel + drop);
+            }
+        }
+    }
+
+    // clamp turning speed
+    if (turnVel >  MAX_TURN_SPEED) turnVel =  MAX_TURN_SPEED;
+    if (turnVel < -MAX_TURN_SPEED) turnVel = -MAX_TURN_SPEED;
+
+    // update angle
+    angle += turnVel * delta;
+
+    // wrap angle
+    if (angle < 0) angle += 2*M_PI;
+    if (angle >= 2*M_PI) angle -= 2*M_PI;
+
 
     // item switching debounce
     static bool canSwitchItem = true;
@@ -155,7 +183,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 }
 
 void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map) {
-    const float maxAngle = 0.1f;   // tolerance in radians (~5-6 degrees)
+    const float hitWidth = 0.08f;   // how wide the hit cone is
     const float maxRange = 10.0f;  // max distance pistol can hit
 
     WeaponType wt = itemToWeapon(currentItem);
@@ -164,7 +192,17 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     if (wt != WeaponType::None)
         weaponManager.playShootAnimation(wt);
 
-    for (int i = 0; i < manager.MAX_ENEMIES; ++i) {
+    // convert angle into direction vector
+    float dirX = std::cos(angle);
+    float dirY = std::sin(angle);
+
+    // camera plane (controls FOV)
+    const float fovScale = 0.66f;  // 66° FOV like DOOM
+    float planeX = -dirY * fovScale;
+    float planeY =  dirX * fovScale;
+
+
+    for (int i = 0; i < manager.MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
         if (!e.active) continue;
 
@@ -173,12 +211,19 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
         float dist = std::sqrt(dx*dx + dy*dy);
         if (dist > maxRange) continue;  // out of range
 
-        float angleToEnemy = std::atan2(dy, dx);
-        float diff = angleToEnemy - angle;
-        if (diff < -M_PI) diff += 2*M_PI;
-        if (diff >  M_PI) diff -= 2*M_PI;
+        // camera space transform
+        float invDet = 1.0f / (planeX * dirY - dirX * planeY);
 
-        if (std::fabs(diff) < maxAngle) {
+        float transformX = invDet * (dirY * dx - dirX * dy);
+        float transformY = invDet * (-planeY * dx + planeX * dy);
+
+        // If enemy is behind player
+        if (transformY <= 0) continue;
+
+        // Hit if enemy is near the center of the screen (= small X offset)
+        float lateral = transformX / transformY;
+
+        if (std::fabs(lateral) < hitWidth) {
 
             // checks if enemy is behind a wall
             if (!e.hasLineOfSight(*this, map)) {

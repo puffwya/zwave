@@ -48,25 +48,39 @@ void SpriteRenderer::renderEnemies(
         }
     }
 
+    // convert angle into direction vector
+    float dirX = std::cos(player.angle);
+    float dirY = std::sin(player.angle);
+
+    // camera plane (controls FOV)
+    const float fovScale = 0.66f;  // 66° FOV
+    float planeX = -dirY * fovScale;
+    float planeY =  dirX * fovScale;
+
+
     // Render enemies in sorted order
     for (int i = 0; i < count; i++) {
         Enemy* e = activeEnemies[i];
 
         float dx = e->x - player.x;
         float dy = e->y - player.y;
+
+        // Transform into camera space
+        float invDet = 1.0f / (planeX * dirY - dirX * planeY);
+
+        float transformX = invDet * ( dirY  * dx - dirX * dy );
+        float transformY = invDet * (-planeY * dx + planeX * dy );
+
+        // If behind the player, skip
+        if (transformY <= 0) continue;
+
+        int screenX = int((screenWidth / 2) * (1 + transformX / transformY));
         float dist = std::sqrt(dx*dx + dy*dy);
 
-        float spriteAngle = std::atan2(dy, dx) - player.angle;
-        if (spriteAngle < -M_PI) spriteAngle += 2*M_PI;
-        if (spriteAngle >  M_PI) spriteAngle -= 2*M_PI;
-
-        if (std::fabs(spriteAngle) > M_PI / 2) continue;
+        int spriteSize = std::max(10, int(screenHeight / dist));
 
         int texW, texH;
         SDL_QueryTexture(e->sprite, NULL, NULL, &texW, &texH);
-
-        int screenX = int(std::tan(spriteAngle) * (screenWidth / 2) + screenWidth / 2);
-        int spriteSize = std::max(10, int(screenHeight / dist));
 
         SDL_Rect dst{ screenX - spriteSize / 2, screenHeight / 2 - spriteSize / 2, spriteSize, spriteSize };
         SDL_Rect src{ 0, 0, texW, texH };
