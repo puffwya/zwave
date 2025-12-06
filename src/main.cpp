@@ -12,8 +12,8 @@
 #include <SDL2/SDL_image.h>
 #include <unordered_map>
 
-int SCREEN_WIDTH = 800;
-int SCREEN_HEIGHT = 600;
+int SCREEN_WIDTH = 1200;
+int SCREEN_HEIGHT = 900;
 
 int main() {
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
