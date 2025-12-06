@@ -1,4 +1,6 @@
 #include "WeaponManager.h"
+#include "Player.h"
+#include <cmath>
 #include <iostream>
 
 bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
@@ -62,7 +64,7 @@ void WeaponManager::playShootAnimation(WeaponType weapon) {
     anim.timer = 0.0f;
 }
 
-void WeaponManager::update(float delta) {
+void WeaponManager::update(float delta, const Player& player) {
     for (auto& [weapon, anim] : animations) {
         if (!anim.playing) continue;
 
@@ -77,6 +79,17 @@ void WeaponManager::update(float delta) {
                 anim.playing = false; // stop after 1 cycle
             }
         }
+    }
+
+    // determine if player is moving
+    bool moving = std::fabs(player.velX) > 0.05f || std::fabs(player.velY) > 0.05f;
+
+    if (moving) {
+        bobTimer += delta * 6.0f;   // bobbing speed
+        bobAmount = 25.0f;        // pixel magnitude
+    } else {
+        // reduce amplitude smoothy (frame rate dependent)
+        bobAmount = std::lerp(bobAmount, 0.0f, 5.0f * delta);
     }
 }
 

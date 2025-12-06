@@ -763,10 +763,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_misc.h \
   /Users/wyattpuff/Raycaster/src/Engine/Player.h \
   /Users/wyattpuff/Raycaster/src/Engine/EnemyManager.h \
-  /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.h \
-  /opt/homebrew/include/SDL2/SDL_image.h \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
-  /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__tree \
+  /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/random \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/bernoulli_distribution.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/uniform_real_distribution.h \

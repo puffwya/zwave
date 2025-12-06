@@ -1,6 +1,7 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include "Player.h"
+#include "WeaponManager.h"
 
 class pItemRenderer {
 public:
@@ -8,6 +9,7 @@ public:
                              SDL_Texture* itemTex,
                              int screenWidth,
                              int screenHeight,
-                             ItemType itemType);
+                             ItemType itemType,
+                             const WeaponManager& wm);
 };
 

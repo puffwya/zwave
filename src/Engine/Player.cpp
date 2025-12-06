@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "WeaponManager.h"
 
 WeaponType Player::itemToWeapon(ItemType item) {
     switch (item) {
@@ -9,38 +10,75 @@ WeaponType Player::itemToWeapon(ItemType item) {
 }
 
 void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager) {
-    float moveStep = speed * delta;
-    float dx = std::cos(angle) * moveStep;
-    float dy = std::sin(angle) * moveStep;
-
-    float newX = x;
-    float newY = y;
+    // Apply acceleration
+    float inputX = 0.0f;
+    float inputY = 0.0f;
 
     if (keys[SDL_SCANCODE_UP]) {
-        // check axis separately but using floor for conversion to tile coords
-        int tx = int(std::floor(x + dx));
-        int ty = int(std::floor(y));
-        if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) newX = x + dx;
-
-        tx = int(std::floor(x));
-        ty = int(std::floor(y + dy));
-        if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) newY = y + dy;
-    } else if (keys[SDL_SCANCODE_DOWN]) {
-        int tx = int(std::floor(x - dx));
-        int ty = int(std::floor(y));
-        if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) newX = x - dx;
-
-        tx = int(std::floor(x));
-        ty = int(std::floor(y - dy));
-        if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) newY = y - dy;
+        inputX += std::cos(angle);
+        inputY += std::sin(angle);
+    }
+    if (keys[SDL_SCANCODE_DOWN]) {
+        inputX -= std::cos(angle);
+        inputY -= std::sin(angle);
     }
 
-    // apply new pos
-    x = newX;
-    y = newY;
+    // Normalize input so diagonal isn’t faster
+    float len = std::sqrt(inputX*inputX + inputY*inputY);
+    if (len > 0.01f) {
+        inputX /= len;
+        inputY /= len;
 
-    if (keys[SDL_SCANCODE_LEFT])  angle -= 2.0f * delta;
-    if (keys[SDL_SCANCODE_RIGHT]) angle += 2.0f * delta;
+        velX += inputX * ACCEL * delta;
+        velY += inputY * ACCEL * delta;
+    }
+
+    // Apply friction if no movement keys
+    if (!keys[SDL_SCANCODE_UP] && !keys[SDL_SCANCODE_DOWN]) {
+
+        float speed = std::sqrt(velX*velX + velY*velY);
+
+        if (speed > 0.0001f) {
+            float drop = FRICTION * delta;
+            float newSpeed = speed - drop;
+            if (newSpeed < 0) newSpeed = 0;
+
+            float ratio = newSpeed / speed;
+            velX *= ratio;
+            velY *= ratio;
+        }
+    }
+
+    // Clamp max speed
+    float speedNow = std::sqrt(velX*velX + velY*velY);
+    if (speedNow > MAX_SPEED) {
+        velX = (velX / speedNow) * MAX_SPEED;
+        velY = (velY / speedNow) * MAX_SPEED;
+    }
+
+    // Proposed new position
+    float newX = x + velX * delta;
+    float newY = y + velY * delta;
+
+    // Collision
+    int tx = int(std::floor(newX));
+    int ty = int(std::floor(y));
+    if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) {
+        x = newX;
+    } else {
+        velX = 0;
+    }
+
+    tx = int(std::floor(x));
+    ty = int(std::floor(newY));
+    if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) {
+        y = newY;
+    } else {
+        velY = 0;
+    }
+
+    if (keys[SDL_SCANCODE_LEFT])  angle -= 3.0f * delta;
+    if (keys[SDL_SCANCODE_RIGHT]) angle += 3.0f * delta;
 
     // item switching debounce
     static bool canSwitchItem = true;

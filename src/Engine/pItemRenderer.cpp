@@ -4,10 +4,17 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
                                   SDL_Texture* itemTex,
                                   int screenWidth,
                                   int screenHeight,
-                                  ItemType itemType)
+                                  ItemType itemType,
+                                  const WeaponManager& wm)
 {
+    // Normal weapon offset
     int xOffset = 0;
     int yOffset = 0;
+
+    // "bobbing" offset
+    float bobOffsetX = std::sin(wm.bobTimer) * wm.bobAmount;        // horizontal sway
+    float bobOffsetY = std::fabs(std::cos(wm.bobTimer)) * (wm.bobAmount * 0.4f); // vertical bob
+
     bool isGun = false;
 
     // scale
@@ -38,8 +45,8 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
     SDL_Rect dst;
     dst.w = w;
     dst.h = h;
-    dst.x = (screenWidth / 2) - (w / 2) + xOffset;
-    dst.y = screenHeight - h + yOffset;
+    dst.x = (screenWidth / 2) - (w / 2) + xOffset + bobOffsetX;
+    dst.y = screenHeight - h + yOffset + bobOffsetY;
 
     SDL_RenderCopy(renderer, itemTex, NULL, &dst);
 

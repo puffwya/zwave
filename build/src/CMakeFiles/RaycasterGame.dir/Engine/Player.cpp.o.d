@@ -763,6 +763,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_version.h \
   /opt/homebrew/include/SDL2/SDL_locale.h \
   /opt/homebrew/include/SDL2/SDL_misc.h \
+  /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.h \
   /opt/homebrew/include/SDL2/SDL_image.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \

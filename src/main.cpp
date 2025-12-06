@@ -65,7 +65,7 @@ int main() {
 
         enemyManager.update(dt, player, worldMap);
         
-        weaponManager.update(dt);
+        weaponManager.update(dt, player);
 
         // clear buffer
         for (int i = 0; i < 800*600; i++)
@@ -95,7 +95,7 @@ int main() {
         // Get the current animation frame for that weapon
         SDL_Texture* itemTex = weaponManager.getCurrentFrame(wType);
 
-        pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem);
+        pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem, weaponManager);
 
         renderer.present();
     }

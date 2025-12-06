@@ -3,18 +3,19 @@
 #include <SDL2/SDL_image.h>
 #include <map>
 #include <vector>
+#include "WeaponTypes.h"
 
-enum class WeaponType {
-    None,
-    Pistol,
-    Shotgun,
-    // Rifle,
-};
+class Player;
 
 class WeaponManager {
 public:
+
+    // Bobbing vars
+    float bobTimer = 0.0f;
+    float bobAmount = 0.0f;   // final computed sway amount
+
     bool loadAssets(SDL_Renderer* renderer);
-    void update(float delta);
+    void update(float delta, const Player& player);
     SDL_Texture* getCurrentFrame(WeaponType weapon);
 
     void playShootAnimation(WeaponType weapon);
