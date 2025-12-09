@@ -68,7 +68,7 @@ bool Enemy::hasLineOfSight(const Player& player, const Map& map) const
         int my = int(sy);
 
         // hit a wall
-        if (map.data[mx][my] == 1) {
+        if (map.get(mx,my).type == Map::TileType::Wall) {
             return false;
         }
     }

@@ -1,15 +1,29 @@
 #include "Raycaster.h"
-
-// Gives access to trig functions cos(), sin(), etc.
 #include <cmath>
+#include <vector>
+#include <algorithm>
+
+// Draw a vertical line on the screen
+inline void drawVerticalLine(uint32_t* pixels, int screenW, int screenH, int x, int startY, int endY, uint32_t 
+color) {
+    if (startY < 0) startY = 0;
+    if (endY >= screenH) endY = screenH - 1;
+    for (int y = startY; y <= endY; y++)
+        pixels[y * screenW + x] = color;
+}
+
+struct WallHit {
+    float dist;
+    float height;
+    int side;
+};
 
 void Raycaster::render(uint32_t* pixels, int screenW, int screenH,
                        const Player& player, const Map& map, float* zBuffer)
 {
-    for (int x = 0; x < screenW; x++) 
+    for (int x = 0; x < screenW; x++)
     {
         float cameraX = 2.0f * x / float(screenW) - 1.0f;
-
         float rayDirX = cos(player.angle) + cameraX * -sin(player.angle);
         float rayDirY = sin(player.angle) + cameraX *  cos(player.angle);
 
@@ -22,79 +36,79 @@ void Raycaster::render(uint32_t* pixels, int screenW, int screenH,
         float sideDistX, sideDistY;
         int stepX, stepY;
 
-        int hit = 0;
-        int side = 0;
+        if (rayDirX < 0) { stepX = -1; sideDistX = (player.x - mapX) * deltaDistX; }
+        else { stepX = 1; sideDistX = (mapX + 1.0 - player.x) * deltaDistX; }
 
-        // initial step
-        if (rayDirX < 0) {
-            stepX = -1;
-            sideDistX = (player.x - mapX) * deltaDistX;
-        } else {
-            stepX = 1;
-            sideDistX = (mapX + 1.0 - player.x) * deltaDistX;
-        }
+        if (rayDirY < 0) { stepY = -1; sideDistY = (player.y - mapY) * deltaDistY; }
+        else { stepY = 1; sideDistY = (mapY + 1.0 - player.y) * deltaDistY; }
 
-        if (rayDirY < 0) {
-            stepY = -1;
-            sideDistY = (player.y - mapY) * deltaDistY;
-        } else {
-            stepY = 1;
-            sideDistY = (mapY + 1.0 - player.y) * deltaDistY;
-        }
+        std::vector<WallHit> hits;
 
-        // DDA
-        while (!hit) {
-            if (sideDistX < sideDistY) {
-                sideDistX += deltaDistX;
-                mapX += stepX;
-                side = 0;
-            } else {
-                sideDistY += deltaDistY;
-                mapY += stepY;
-                side = 1;
-            }
+        int currentMapX = mapX;
+        int currentMapY = mapY;
+        float currentSideDistX = sideDistX;
+        float currentSideDistY = sideDistY;
 
-            if (mapX < 0 || mapX >= Map::SIZE ||
-                mapY < 0 || mapY >= Map::SIZE)
-            {
-                hit = 1;
+        // Cast the ray, storing all hits along the way
+        while (true)
+        {
+            int hitSide = (currentSideDistX < currentSideDistY) ? 0 : 1;
+
+            if (hitSide == 0) { currentSideDistX += deltaDistX; currentMapX += stepX; }
+            else { currentSideDistY += deltaDistY; currentMapY += stepY; }
+
+            if (currentMapX < 0 || currentMapX >= Map::SIZE || currentMapY < 0 || currentMapY >= Map::SIZE)
                 break;
-            }
 
-            if (map.data[mapX][mapY] == 1)
-                hit = 1;
+            const Map::Cell& cell = map.get(currentMapX, currentMapY);
+            if (cell.type == Map::TileType::Wall && cell.height > 0.0f) {
+                float dist = (hitSide == 0) ? currentSideDistX - deltaDistX : currentSideDistY - deltaDistY;
+                hits.push_back({ dist, cell.height, hitSide });
+
+                // Stop if wall is full height
+                if (cell.height >= 1.0f)
+                    break;
+            }
         }
 
-        float perpWallDist;
-        if (side == 0)
-            perpWallDist = sideDistX - deltaDistX;
-        else
-            perpWallDist = sideDistY - deltaDistY;
+        // If nothing hit, draw ceiling/floor and skip
+        if (hits.empty()) {
+            zBuffer[x] = 1e6f;
+            for (int y = 0; y < screenH/2; y++) pixels[y*screenW + x] = 0xFF202040; // ceiling
+            for (int y = screenH/2; y < screenH; y++) pixels[y*screenW + x] = 0xFF404020; // floor
+            continue;
+        }
 
-        if (perpWallDist <= 0) perpWallDist = 1e-4f;
+        // Draw from back to front
+        std::sort(hits.begin(), hits.end(), [](const WallHit& a, const WallHit& b){ return a.dist > b.dist; });
 
-        zBuffer[x] = perpWallDist;
+        int prevDrawEnd = 0;
 
-        int lineHeight = int(screenH / perpWallDist);
+        for (const WallHit& hit : hits)
+        {
+            if (hit.dist <= 0.0f) continue;
+            zBuffer[x] = hit.dist;
 
-        int drawStart = -lineHeight / 2 + screenH / 2;
-        if (drawStart < 0) drawStart = 0;
+            int fullLineHeight = int(screenH / hit.dist);
 
-        int drawEnd = lineHeight / 2 + screenH / 2;
-        if (drawEnd >= screenH) drawEnd = screenH - 1;
+            // Compute draw positions
+            int drawEnd = (screenH / 2) + (fullLineHeight / 2);                  // bottom
+            int drawStart = drawEnd - int(fullLineHeight * hit.height);          // top of wall segment
 
-        // fill ceiling
-        for (int y = 0; y < drawStart; y++)
-            pixels[y * screenW + x] = 0xFF202040;
+            // Draw ceiling only for the space above this wall
+            for (int y = prevDrawEnd; y < drawStart; y++)
+                pixels[y*screenW + x] = 0xFF202040; // ceiling
 
-        // wall
-        uint32_t color = (side == 0) ? 0xFF0000FF : 0xFF000088;
-        for (int y = drawStart; y < drawEnd; y++)
-            pixels[y * screenW + x] = color;
+            // Draw the wall segment
+            uint32_t color = (hit.side == 0) ? 0xFF00AAFF : 0xFF0055FF;
+            drawVerticalLine(pixels, screenW, screenH, x, drawStart, drawEnd, color);
 
-        // fill floor
-        for (int y = drawEnd; y < screenH; y++)
-            pixels[y * screenW + x] = 0xFF404020;
+            prevDrawEnd = drawEnd; // track bottom for next segment
+        }
+
+        // Fill floor below last wall
+        for (int y = prevDrawEnd; y < screenH; y++)
+            pixels[y*screenW + x] = 0xFF404020;
     }
 }
 

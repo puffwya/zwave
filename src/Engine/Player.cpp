@@ -63,7 +63,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     // Collision
     int tx = int(std::floor(newX));
     int ty = int(std::floor(y));
-    if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) {
+    if (map.get(tx, ty).type != Map::TileType::Wall) {
         x = newX;
     } else {
         velX = 0;
@@ -71,7 +71,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
     tx = int(std::floor(x));
     ty = int(std::floor(newY));
-    if (map.data[tx][ty] == 0 || map.data[tx][ty] == 2) {
+    if (map.get(tx, ty).type != Map::TileType::Wall) {
         y = newY;
     } else {
         velY = 0;

@@ -15,7 +15,7 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
 
     for (int x = 0; x < map.SIZE; x++) {
         for (int y = 0; y < map.SIZE; y++) {
-            if (map.data[x][y] == 2) {
+            if (map.get(x,y).type == Map::TileType::Spawn) {
                 spawnPoints.push_back({ x, y });
             }
         }
@@ -80,7 +80,7 @@ void EnemyManager::update(float dt, const Player& player, const Map& map) {
         // wall collision
         int px = int(e.x);
         int py = int(e.y);
-        if (map.data[px][py] == 1) {
+        if (map.get(px,py).type == Map::TileType::Wall) {
             e.x -= std::cos(e.angle) * e.speed * dt;
             e.y -= std::sin(e.angle) * e.speed * dt;
         }
