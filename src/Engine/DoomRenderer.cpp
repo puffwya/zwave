@@ -30,50 +30,42 @@ void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int scr
 }
 
 void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
-                               const Player& player,
-                               float wx, float wy, float sizeWorld, float tileHeight,
-                               uint32_t color)
+                                      const Player& player,
+                                      float wx, float wy, float sizeWorld, float tileHeight,
+                                      uint32_t color)
 {
-    // Tile AABB in world XY
     const float minX = wx;
     const float maxX = wx + sizeWorld;
     const float minY = wy;
     const float maxY = wy + sizeWorld;
 
-    // Precompute trig
     const float sa = std::sin(player.angle);
     const float ca = std::cos(player.angle);
 
     const float cx = screenW * 0.5f;
     const float cy = screenH * 0.5f;
+    const float EPS = 1e-6f;
 
-    // For each screen column, build the ray direction in world XY
     for (int sx = 0; sx < screenW; ++sx) {
-        // normalized screen coordinate s = (screenX - cx) / cx  => s in [-1,1]
-        float s = (float(sx) - cx) / cx; // left=-1, center=0, right=1
+        // normalized screen coordinate in [-1,1]
+        float s = (float(sx) - cx) / cx;
 
-        // camera-space direction (camX, camY) proportional to (s, 1)
-        // world-space direction = s*right + 1*forward
-        // right  = (-sin, cos)
-        // forward= (cos, sin)
-        float dirx = s * (-sa) + ca; // s*right.x + forward.x
-        float diry = s * ( ca) + sa; // s*right.y + forward.y
+        // camera-space direction in world XY for this column (dirx, diry)
+        // right  = (-sin, cos), forward = (cos, sin)
+        float dirx = s * (-sa) + ca;
+        float diry = s * ( ca) + sa;
 
-        // Ray origin in world XY
+        // ray origin in world XY
         float ox = player.x;
         float oy = player.y;
 
-        // Ray-AABB slab intersection for 2D (x and y)
-        // Solve for t where ox + t*dirx in [minX,maxX] and oy + t*diry in [minY,maxY].
-        // If dir component is near zero, use special handling.
-        const float EPS = 1e-6f;
+        // ray-AABB slab test in 2D
         float tmin = -INFINITY;
-        float tmax = INFINITY;
+        float tmax =  INFINITY;
 
         // X slab
         if (fabs(dirx) < EPS) {
-            // Ray parallel to X slabs: must be inside slab to intersect
-            if (ox < minX || ox > maxX) continue; // no intersection for this column
+            if (ox < minX || ox > maxX) continue; // parallel and outside -> no hit
         } else {
             float tx1 = (minX - ox) / dirx;
             float tx2 = (maxX - ox) / dirx;
@@ -93,51 +85,40 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             tmax = std::min(tmax, ty2);
         }
 
-        // If slabs miss
-        if (tmax < tmin) continue;
+        if (tmax < tmin) continue; // miss
 
-        // We want intersections forward of the camera (t > 0)
+        // want forward hits only
         float t_enter = tmin;
         float t_exit  = tmax;
-        if (t_exit <= 1e-5f) continue;            // entire tile behind camera
-        if (t_enter < 1e-5f) t_enter = 1e-5f;     // clamp to just in front of camera
+        if (t_exit <= 1e-5f) continue;       // fully behind camera
+        if (t_enter < 1e-5f) t_enter = 1e-5f;
 
-        // Now compute screen Y for both t_enter and t_exit using camY = t (see derivation)
-        // camY = forward distance along camera forward axis for the point at parameter t.
-        // In our ray construction the camY equals t (because dot(dir, forward) == 1).
-        // So we can use camY_enter = t_enter, camY_exit = t_exit.
+        // camY ~ forward distance; in our ray dir construction camY == t (proportional)
         float camY_enter = t_enter;
         float camY_exit  = t_exit;
 
-        // Compute projected screen Y: screenY = cy - (tileHeight - player.z) * (screenH / camY)
-        // Note: larger camY -> projected y approaches cy
-        float screenY_enter_f = cy - ((tileHeight - player.z) * ( (float)screenH / camY_enter ));
-        float screenY_exit_f  = cy - ((tileHeight - player.z) * ( (float)screenH / camY_exit ));
+        // Project vertical position for plane height at both t values:
+        float screenY_enter = cy - ((tileHeight - player.z) * (float(screenH) / camY_enter));
+        float screenY_exit  = cy - ((tileHeight - player.z) * (float(screenH) / camY_exit));
 
-        // Convert to integer pixel Y and clamp
-        int yTop = int(std::ceil(std::min(screenY_enter_f, screenY_exit_f)));
-        int yBottom = int(std::floor(std::max(screenY_enter_f, screenY_exit_f)));
+        int yTop = int(std::ceil(std::min(screenY_enter, screenY_exit)));
+        int yBottom = int(std::floor(std::max(screenY_enter, screenY_exit)));
 
-        if (yBottom < 0 || yTop >= screenH) {
-            // completely outside vertical range
-            continue;
-        }
-
+        if (yBottom < 0 || yTop >= screenH) continue;
         if (yTop < 0) yTop = 0;
         if (yBottom >= screenH) yBottom = screenH - 1;
 
-        // Z-buffer test: we use the nearest depth for the column (t_enter)
-        // If something already nearer, skip entire column span.
+        // Z-buffer test for column: if something nearer already, skip
         if (t_enter >= zBuffer[sx]) continue;
 
-        // Fill vertical span from yTop..yBottom with color and update zBuffer
-        // (We set zBuffer[sx] to t_enter so further geometry is occluded.)
-        uint32_t* px = pixels + (yTop * screenW + sx);
+        // Fill vertical span for this column
+        uint32_t* px = pixels + yTop * screenW + sx;
         for (int y = yTop; y <= yBottom; ++y) {
             *px = color;
             px += screenW;
         }
-        zBuffer[sx] = t_enter;
+        // update zBuffer with nearest depth for this column
+        zBuffer[sx] = t_exit;
     }
 }
 
@@ -305,9 +286,33 @@ void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
 
     // draw all segments lying on the plane (node->onPlane)
     for (const auto& seg : node->onPlane) {
-        // seg.tileX / tileY exist on GridSegment; we use that to query map for height if available
+        // --- draw horizontal tile plane for the tile this segment belongs to ---
+        // Use tile min-corner world coordinates. Adjust sizeWorld if your tiles are not 1.0 world unit.
+        const float sizeWorld = 1.0f;
+        int tx = seg.tileX;
+        int ty = seg.tileY;
+
+        // fetch tile height from map (use your existing map accessor)
+        float tileHeight = WALL_WORLD_HEIGHT; // fallback
+        if (tx >= 0 && tx < Map::SIZE && ty >= 0 && ty < Map::SIZE) {
+            const Map::Cell& c = map.get(tx, ty);
+            tileHeight = c.height; // assumes height in world units (if your map stores fractional, scale as needed)
+        }
+
+        // choose a top surface color
+        const uint32_t TILE_COLOR = 0xFF0055FF; // eventually compute based on sector
+
+        // Render tile AABB anchored at tile corner (tx,ty)
+        renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
+                                  /*wx*/ float(tx), /*wy*/ float(ty),
+                                  /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
+                                  TILE_COLOR);
+        // --- end horizontal plane draw ---
+
+        // Now draw the vertical wall segment as before
         rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer);
     }
+
 
     if (first) traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer);
 }
@@ -329,7 +334,7 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     }
 
     // draw horizontal tile at world tile (4,8), size=1.0, at height 0.25
-    renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player, 5.0f, 8.0f, 1.0f, 0.25f, 0xFF00CC00);
+    // renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player, 5.0f, 8.0f, 1.0f, 0.25f, 0xFF00CC00);
 
     // Traverse BSP and draw segments front-to-back
     traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer);

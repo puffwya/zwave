@@ -21,10 +21,10 @@ private:
     std::vector<GridSegment> m_segments;
     std::unique_ptr<BSPNode> m_bspRoot;
 
-    void renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
-                               const Player& player,
-                               float wx, float wy, float sizeWorld, float tileHeight,
-                               uint32_t color);
+    static void renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
+                                      const Player& player,
+                                      float wx, float wy, float sizeWorld, float tileHeight,
+                                      uint32_t color);
 
     // helper drawing
     void drawSegmentColumnSolid(uint32_t* pixels, int screenW, int screenH,
