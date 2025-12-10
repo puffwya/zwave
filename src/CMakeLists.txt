@@ -8,6 +8,9 @@ set(SOURCES
     Engine/SpriteRenderer.cpp
     Engine/pItemRenderer.cpp
     Engine/WeaponManager.cpp
+    Engine/MapToSegments.cpp
+    Engine/BSP.cpp
+    Engine/DoomRenderer.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})

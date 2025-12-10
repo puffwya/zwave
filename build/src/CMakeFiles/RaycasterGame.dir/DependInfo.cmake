@@ -8,8 +8,11 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
+  "/Users/wyattpuff/Raycaster/src/Engine/BSP.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Enemy.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/EnemyManager.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Engine/MapToSegments.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Player.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Raycaster.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Renderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o.d"

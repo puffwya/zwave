@@ -8,9 +8,13 @@
 #include "Engine/SpriteRenderer.h"
 #include "Engine/pItemRenderer.h"
 #include "Engine/WeaponManager.h"
+#include "Engine/MapToSegments.h"
+#include "Engine/BSP.h"
+#include "Engine/DoomRenderer.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <unordered_map>
+#include <vector> 
 
 int SCREEN_WIDTH = 1200;
 int SCREEN_HEIGHT = 900;
@@ -24,6 +28,25 @@ int main() {
     WeaponManager weaponManager;
     enemyManager.initialize(renderer.getSDLRenderer());
     enemyManager.scanMapForSpawnPoints(worldMap);
+
+    // build segments from grid map
+    std::vector<GridSegment> segments = buildSegmentsFromGrid(worldMap);
+
+    // build BSP
+    std::unique_ptr<BSPNode> bspRoot = buildBSP(segments);
+   
+    // extract subsectors (each subsector contains the segments lying in that leaf)
+    std::vector<std::vector<GridSegment>> subsectors;
+    collectSubsectors(bspRoot, subsectors); 
+
+    // store renderer as global
+    DoomRenderer doomRenderer(segments, std::move(bspRoot));
+
+    // debug: print counts
+    printf("segments: %zu, subsectors (leaves): %zu\n", segments.size(), subsectors.size());
+    for (size_t i=0;i<subsectors.size();++i) {
+        printf(" subsector %zu has %zu segs\n", i, subsectors[i].size());
+    }
 
     // Give player guns for testing
     player.giveItem(ItemType::Pistol);   // give the player a pistol
@@ -71,8 +94,7 @@ int main() {
         for (int i = 0; i < 800*600; i++)
             pixels[i] = 0xFF202020;
 
-        // render world
-        raycaster.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
+        doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
 
         renderer.updateTexture(pixels);
 

@@ -21,7 +21,7 @@ enum class ItemType {
 
 class Player {
 public:
-    float x, y;
+    float x, y, z;
     float angle;
     float speed;
 
@@ -56,8 +56,8 @@ public:
 
     int lastChunkID;
 
-    Player(float startX = 3.5f, float startY = 3.5f, float startAngle = 0.0f)
-        : x(startX), y(startY), angle(startAngle), speed(3.0f) {
+    Player(float startX = 3.5f, float startY = 3.5f, float startZ = 0.5f, float startAngle = 0.0f)
+        : x(startX), y(startY), angle(startAngle), speed(3.0f), z(startZ) {
         lastChunkID = -1;
     }
 

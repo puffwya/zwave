@@ -130,6 +130,54 @@ RaycasterGame/fast:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/build
 .PHONY : RaycasterGame/fast
 
+Engine/BSP.o: Engine/BSP.cpp.o
+.PHONY : Engine/BSP.o
+
+# target to build an object file
+Engine/BSP.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o
+.PHONY : Engine/BSP.cpp.o
+
+Engine/BSP.i: Engine/BSP.cpp.i
+.PHONY : Engine/BSP.i
+
+# target to preprocess a source file
+Engine/BSP.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.i
+.PHONY : Engine/BSP.cpp.i
+
+Engine/BSP.s: Engine/BSP.cpp.s
+.PHONY : Engine/BSP.s
+
+# target to generate assembly for a file
+Engine/BSP.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.s
+.PHONY : Engine/BSP.cpp.s
+
+Engine/DoomRenderer.o: Engine/DoomRenderer.cpp.o
+.PHONY : Engine/DoomRenderer.o
+
+# target to build an object file
+Engine/DoomRenderer.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o
+.PHONY : Engine/DoomRenderer.cpp.o
+
+Engine/DoomRenderer.i: Engine/DoomRenderer.cpp.i
+.PHONY : Engine/DoomRenderer.i
+
+# target to preprocess a source file
+Engine/DoomRenderer.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.i
+.PHONY : Engine/DoomRenderer.cpp.i
+
+Engine/DoomRenderer.s: Engine/DoomRenderer.cpp.s
+.PHONY : Engine/DoomRenderer.s
+
+# target to generate assembly for a file
+Engine/DoomRenderer.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.s
+.PHONY : Engine/DoomRenderer.cpp.s
+
 Engine/Enemy.o: Engine/Enemy.cpp.o
 .PHONY : Engine/Enemy.o
 
@@ -177,6 +225,30 @@ Engine/EnemyManager.s: Engine/EnemyManager.cpp.s
 Engine/EnemyManager.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.s
 .PHONY : Engine/EnemyManager.cpp.s
+
+Engine/MapToSegments.o: Engine/MapToSegments.cpp.o
+.PHONY : Engine/MapToSegments.o
+
+# target to build an object file
+Engine/MapToSegments.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o
+.PHONY : Engine/MapToSegments.cpp.o
+
+Engine/MapToSegments.i: Engine/MapToSegments.cpp.i
+.PHONY : Engine/MapToSegments.i
+
+# target to preprocess a source file
+Engine/MapToSegments.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.i
+.PHONY : Engine/MapToSegments.cpp.i
+
+Engine/MapToSegments.s: Engine/MapToSegments.cpp.s
+.PHONY : Engine/MapToSegments.s
+
+# target to generate assembly for a file
+Engine/MapToSegments.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.s
+.PHONY : Engine/MapToSegments.cpp.s
 
 Engine/Player.o: Engine/Player.cpp.o
 .PHONY : Engine/Player.o
@@ -355,12 +427,21 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... RaycasterGame"
+	@echo "... Engine/BSP.o"
+	@echo "... Engine/BSP.i"
+	@echo "... Engine/BSP.s"
+	@echo "... Engine/DoomRenderer.o"
+	@echo "... Engine/DoomRenderer.i"
+	@echo "... Engine/DoomRenderer.s"
 	@echo "... Engine/Enemy.o"
 	@echo "... Engine/Enemy.i"
 	@echo "... Engine/Enemy.s"
 	@echo "... Engine/EnemyManager.o"
 	@echo "... Engine/EnemyManager.i"
 	@echo "... Engine/EnemyManager.s"
+	@echo "... Engine/MapToSegments.o"
+	@echo "... Engine/MapToSegments.i"
+	@echo "... Engine/MapToSegments.s"
 	@echo "... Engine/Player.o"
 	@echo "... Engine/Player.i"
 	@echo "... Engine/Player.s"
