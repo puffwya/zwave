@@ -32,7 +32,7 @@ void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int scr
 void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                       const Player& player,
                                       float wx, float wy, float sizeWorld, float tileHeight,
-                                      uint32_t color)
+                                      uint32_t color, float* spanDepth)
 {
     const float minX = wx;
     const float maxX = wx + sizeWorld;
@@ -111,14 +111,19 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         // Z-buffer test for column: if something nearer already, skip
         if (t_enter >= zBuffer[sx]) continue;
 
+        // HACK: stores the depth of this horizontal span in the per-column array so that walls that should be 
+        // behind it do not appear in front when horizontal spans zBuffer is set to INFINITY...yikes
+        spanDepth[sx] = t_exit;
+
         // Fill vertical span for this column
         uint32_t* px = pixels + yTop * screenW + sx;
         for (int y = yTop; y <= yBottom; ++y) {
             *px = color;
             px += screenW;
         }
+
         // update zBuffer with nearest depth for this column
-        zBuffer[sx] = t_exit;
+        zBuffer[sx] = INFINITY;
     }
 }
 
@@ -141,7 +146,7 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                     uint32_t* pixels, int screenW, int screenH,
-                                    const Player& player, const Map& map, float* zBuffer)
+                                    const Player& player, const Map& map, float* zBuffer, float* spanDepth)
 {
     // Project endpoints
     float a_camX, a_camY, b_camX, b_camY;
@@ -230,6 +235,9 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         float depth = a_camY + t * (b_camY - a_camY);
         if (depth <= 0.0001f) continue;
 
+        // Hack: skip wall columns behind horizontal span as their zBuffer is set to infinite
+        if (depth >= spanDepth[sx]) continue;
+
         // Z-buffer test: if this depth is farther than zBuffer, skip (behind something previously drawn)
         if (depth >= zBuffer[sx]) continue;
 
@@ -275,6 +283,9 @@ void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
 {
     if (!node) return;
 
+    // allocate once per frame / per traverse
+    std::vector<float> spanDepth(screenW, INFINITY);
+
     // determine which side player is on relative to split line
     float side = sideOfLine(node->splitA.x, node->splitA.y, node->splitB.x, node->splitB.y, player.x, player.y);
     // if side > 0 => player on left/front side (we'll treat front as left)
@@ -306,11 +317,11 @@ void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
         renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
                                   /*wx*/ float(tx), /*wy*/ float(ty),
                                   /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
-                                  TILE_COLOR);
+                                  TILE_COLOR, spanDepth.data());
         // --- end horizontal plane draw ---
 
         // Now draw the vertical wall segment as before
-        rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer);
+        rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer, spanDepth.data());
     }
 
 
