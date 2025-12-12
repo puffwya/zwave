@@ -122,7 +122,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             px += screenW;
         }
 
-        // update zBuffer with nearest depth for this column
+        // update zBuffer to infinity as to not override anything in the column
         zBuffer[sx] = INFINITY;
     }
 }
@@ -236,10 +236,14 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         if (depth <= 0.0001f) continue;
 
         // Hack: skip wall columns behind horizontal span as their zBuffer is set to infinite
-        if (depth >= spanDepth[sx]) continue;
+        // Double Hack: skip hack for fractional-height walls
+        bool isPartialWall = fabs(seg.frontHeight - seg.backHeight) > 1e-6f && seg.frontHeight < 1.0f;
+        if (!(isPartialWall && depth >= spanDepth[sx])) {
+            if (depth >= spanDepth[sx]) continue;
+        }
 
         // Z-buffer test: if this depth is farther than zBuffer, skip (behind something previously drawn)
-        if (depth >= zBuffer[sx]) continue;
+        // if (depth >= zBuffer[sx]) continue;
 
         // Interpolate top and bottom screen Y for this column
         float colFloorY   = a_sy_floor   + t * (b_sy_floor   - a_sy_floor);
@@ -264,7 +268,13 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         drawSegmentColumnSolid(pixels, screenW, screenH, sx, drawStart, drawEnd, color);
 
         // Update zBuffer so nearer things will occlude later
-        zBuffer[sx] = depth;
+        // If is a partial wall set zbuffer to infinity + 1...wtf
+        if (isPartialWall) {
+            zBuffer[sx] = INFINITY + 1;
+        }
+        else {
+            zBuffer[sx] = depth;
+        }
     }
 }
 
@@ -303,11 +313,11 @@ void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
         int tx = seg.tileX;
         int ty = seg.tileY;
 
-        // fetch tile height from map (use your existing map accessor)
+        // fetch tile height from map (uses existing map accessor)
         float tileHeight = WALL_WORLD_HEIGHT; // fallback
         if (tx >= 0 && tx < Map::SIZE && ty >= 0 && ty < Map::SIZE) {
             const Map::Cell& c = map.get(tx, ty);
-            tileHeight = c.height; // assumes height in world units (if your map stores fractional, scale as needed)
+            tileHeight = c.height; // height in world units
         }
 
         // choose a top surface color
