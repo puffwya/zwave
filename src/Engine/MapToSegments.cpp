@@ -18,7 +18,16 @@ std::vector<GridSegment> buildSegmentsFromGrid(const Map& map)
     for (int y = 0; y < Map::SIZE; ++y) {
         for (int x = 0; x < Map::SIZE; ++x) {
             const auto& cell = map.get(x, y);
-            if (cell.type != Map::TileType::Wall) continue;
+
+            const float h = map.get(x, y).height;
+
+            edges.push_back({
+                { x + 0.5f, y + 0.5f },
+                { x + 0.5f, y + 0.5f },
+                x, y,
+                h, h,
+                GridSegment::Dir::North
+            });
 
             // Top edge: north
             {

@@ -40,7 +40,7 @@ void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int scr
 void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                       const Player& player,
                                       float wx, float wy, float sizeWorld, float tileHeight,
-                                      uint32_t color, float* spanDepth, const Map& map)
+                                      uint32_t color, const Map& map)
 {
 
     const float minX = wx;
@@ -120,10 +120,6 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         // Z-buffer test for column: if something nearer already, skip
         if (t_exit >= zBuffer[sx]) continue;
 
-        // HACK: stores the depth of this horizontal span in the per-column array so that walls that should be 
-        // behind it do not appear in front when horizontal spans zBuffer is set to INFINITY...yikes
-        spanDepth[sx] = t_exit;
-
         // Fill vertical span for this column
         uint32_t* px = pixels + yTop * screenW + sx;
         for (int y = yTop; y <= yBottom; ++y) {
@@ -154,7 +150,7 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                     uint32_t* pixels, int screenW, int screenH,
-                                    const Player& player, const Map& map, float* zBuffer, float* spanDepth, float* spanInvDepth)
+                                    const Player& player, const Map& map, float* zBuffer)
 {
     // Project endpoints
     float a_camX, a_camY, b_camX, b_camY;
@@ -243,15 +239,6 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         float depth = a_camY + t * (b_camY - a_camY);
         if (depth <= 0.0001f) continue;
 
-        // Hack: skip wall columns behind horizontal span as their zBuffer is set to infinite
-        // Double Hack: skip hack for fractional-height walls
-        bool isPartialWall = fabs(seg.frontHeight - seg.backHeight) > 1e-6f && seg.frontHeight < 1.0f;
-        /*
-        if (!(isPartialWall && depth >= spanDepth[sx])) {
-            if (depth >= spanDepth[sx]) continue;
-        }
-        */
-
         // Z-buffer test: if this depth is farther than zBuffer, skip (behind something previously drawn)
         // if (depth >= zBuffer[sx]) continue;
 
@@ -278,18 +265,7 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         drawSegmentColumnSolid(pixels, screenW, screenH, sx, drawStart, drawEnd, color);
 
         // Update zBuffer so nearer things will occlude later
-        // If is a partial wall set zbuffer to infinity...wtf
-        if (isPartialWall && depth >= spanDepth[sx]) {
-            if (tileH > 0.0f) {
-                zBuffer[sx] = INFINITY;
-            }
-        }
-        else if (tileH < 0.0f) {
-            continue;
-        }
-        else {
-            zBuffer[sx] = depth;
-        }
+        zBuffer[sx] = depth;
     }
 }
 
@@ -307,11 +283,6 @@ void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
                                const Map& map, float* zBuffer)
 {
     if (!node) return;
-
-    // allocate once per frame / per traverse
-    std::vector<float> spanDepth(screenW, INFINITY);
-
-    std::vector<float> spanInvDepth(screenW, 0.0f);
 
     // determine which side player is on relative to split line
     float side = sideOfLine(node->splitA.x, node->splitA.y, node->splitB.x, node->splitB.y, player.x, player.y);
@@ -340,17 +311,39 @@ void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
         // choose top surface color
         uint32_t TILE_COLOR = 0xFF0055FF; // eventually compute based on sector
 
-        if (tileHeight != 1.0f) {
-            // Render tile AABB anchored at tile corner (tx,ty)
+        if (tileHeight < 0.0f) {
             renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
                                   /*wx*/ float(tx), /*wy*/ float(ty),
                                   /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
-                                  TILE_COLOR, spanDepth.data(), map);
-        }
-        // --- end horizontal plane draw ---
+                                  TILE_COLOR, map);
 
-        // Now draw the vertical wall segment as before
-        rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer, spanDepth.data(), spanInvDepth.data());
+            rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer);
+            continue;
+        }
+
+        else if (tileHeight == 0.0f) {
+            const uint32_t FLOOR_COLOR = 0xFF404020;
+            renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
+                                      /*wx*/ float(tx), /*wy*/ float(ty),
+                                      /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
+                                      FLOOR_COLOR, map);
+            continue;
+        }
+
+        else if (tileHeight > 0.0f) {
+            // Render tile AABB anchored at tile corner (tx,ty)
+            if (tileHeight != 1.0f) {
+                renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
+                                      /*wx*/ float(tx), /*wy*/ float(ty),
+                                      /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
+                                      TILE_COLOR, map);
+            }
+
+            // Now draw the vertical wall segment
+            rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer);
+            continue;
+        }
+
     }
 
 
@@ -365,8 +358,6 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     const uint32_t CEIL_COLOR  = 0xFF202040;
     const uint32_t FLOOR_COLOR = 0xFF404020;
 
-    std::vector<float> floorDepth(screenW, 0);
-
     for (int x = 0; x < screenW; ++x) {
         for (int y = 0; y < screenH/2; ++y) pixels[y * screenW + x] = CEIL_COLOR;
         zBuffer[x] = 1e6f; // initialize as far away
@@ -374,15 +365,6 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
 
     // Traverse BSP and draw segments front-to-back
     traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer);
-
-    // Draw empty or spawn floor tiles as horizontal spans
-    for (int x = 0; x < map.SIZE; ++x) {
-        for (int y = 0; y < map.SIZE; ++y) {
-            if (map.get(x, y).type != Map::TileType::Wall) {
-                renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player, float(x), float(y), 1.0f, 0.0f, FLOOR_COLOR, floorDepth.data(), map);
-            }
-        }
-    }
 
     // Note: sprite rendering (sorted by depth) to be added.
 }

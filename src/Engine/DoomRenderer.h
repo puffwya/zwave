@@ -24,7 +24,7 @@ private:
     static void renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                       const Player& player,
                                       float wx, float wy, float sizeWorld, float tileHeight,
-                                      uint32_t color, float* spanDepth, const Map& map);
+                                      uint32_t color, const Map& map);
 
     // helper drawing
     void drawSegmentColumnSolid(uint32_t* pixels, int screenW, int screenH,
@@ -37,7 +37,7 @@ private:
     // Rasterize segment between two projected endpoints (screen Xs / depths)
     void rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                           uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, const Map& map, float* zBuffer, float* spanDepth, float* spanInvDepth);
+                          const Player& player, const Map& map, float* zBuffer);
 
     // BSP traversal
     void traverseBSP(const BSPNode* node, const Player& player,
