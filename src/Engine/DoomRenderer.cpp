@@ -278,76 +278,82 @@ float DoomRenderer::sideOfLine(float ax, float ay, float bx, float by, float px,
 }
 
 // traverse BSP front->back relative to player's position
-void DoomRenderer::traverseBSP(const BSPNode* node, const Player& player,
-                               uint32_t* pixels, int screenW, int screenH,
-                               const Map& map, float* zBuffer)
-{
+void DoomRenderer::traverseBSP(
+    const BSPNode* node,
+    const Player& player,
+    uint32_t* pixels,
+    int screenW,
+    int screenH,
+    const Map& map,
+    float* zBuffer,
+    uint32_t floorStamp[Map::SIZE][Map::SIZE],
+    uint32_t currentStamp
+) {
     if (!node) return;
 
-    // determine which side player is on relative to split line
-    float side = sideOfLine(node->splitA.x, node->splitA.y, node->splitB.x, node->splitB.y, player.x, player.y);
-    // if side > 0 => player on left/front side (we'll treat front as left)
-    const BSPNode* first = (side > 0.0f) ? node->front.get() : node->back.get();
+    // Determine which side the player is on
+    float side = sideOfLine(node->splitA.x, node->splitA.y,
+                            node->splitB.x, node->splitB.y,
+                            player.x, player.y);
+
+    const BSPNode* first  = (side > 0.0f) ? node->front.get() : node->back.get();
     const BSPNode* second = (side > 0.0f) ? node->back.get()  : node->front.get();
 
-    // traverse far side first (second), then draw onPlane segments, then near side (first)
-    if (second) traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer);
+    // Traverse far side first
+    if (second) traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, floorStamp, currentStamp);
 
-    // draw all segments lying on the plane (node->onPlane)
+    // Draw vertical walls and pit walls
     for (const auto& seg : node->onPlane) {
-        // --- draw horizontal tile plane for the tile this segment belongs to ---
-        // Use tile min-corner world coordinates. Adjust sizeWorld if your tiles are not 1.0 world unit.
-        const float sizeWorld = 1.0f;
         int tx = seg.tileX;
         int ty = seg.tileY;
+        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE) continue;
 
-        // fetch tile height from map (uses existing map accessor)
-        float tileHeight = WALL_WORLD_HEIGHT; // fallback
-        if (tx >= 0 && tx < Map::SIZE && ty >= 0 && ty < Map::SIZE) {
-            const Map::Cell& c = map.get(tx, ty);
-            tileHeight = c.height; // height in world units
-        }
+        const Map::Cell& c = map.get(tx, ty);
+        float tileHeight = c.height;
 
-        // choose top surface color
-        uint32_t TILE_COLOR = 0xFF0055FF; // eventually compute based on sector
-
-        if (tileHeight < 0.0f) {
-            renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
-                                  /*wx*/ float(tx), /*wy*/ float(ty),
-                                  /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
-                                  TILE_COLOR, map);
-
-            rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer);
-            continue;
-        }
-
-        else if (tileHeight == 0.0f) {
-            const uint32_t FLOOR_COLOR = 0xFF404020;
-            renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
-                                      /*wx*/ float(tx), /*wy*/ float(ty),
-                                      /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
-                                      FLOOR_COLOR, map);
-            continue;
-        }
-
-        else if (tileHeight > 0.0f) {
-            // Render tile AABB anchored at tile corner (tx,ty)
-            if (tileHeight != 1.0f) {
+        if (tileHeight > 0.0f) {
+            // Normal walls
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
+            if (tileHeight != WALL_WORLD_HEIGHT) {
                 renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
-                                      /*wx*/ float(tx), /*wy*/ float(ty),
-                                      /*sizeWorld*/ sizeWorld, /*tileHeight*/ tileHeight,
-                                      TILE_COLOR, map);
+                                          float(tx), float(ty),
+                                          1.0f, tileHeight,
+                                          0xFF0055FF, map);
             }
+        } else if (tileHeight < 0.0f) {
+            // Pit walls (draw vertical walls first)
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
 
-            // Now draw the vertical wall segment
-            rasterizeSegment(seg, seg.tileX, seg.tileY, pixels, screenW, screenH, player, map, zBuffer);
-            continue;
+            // Pit top surface: draw at 0 height (floor plane) to avoid overwriting walls
+            renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
+                                      float(tx), float(ty),
+                                      1.0f, tileHeight,
+                                      0xFF0055FF, map);
         }
-
     }
 
+    // Draw floors (positive and zero-height)
+    for (const auto& seg : node->onPlane) {
+        int tx = seg.tileX;
+        int ty = seg.tileY;
+        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE) continue;
+        if (floorStamp[tx][ty] == currentStamp) continue;
+        floorStamp[tx][ty] = currentStamp;
 
-    if (first) traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer);
+        const Map::Cell& c = map.get(tx, ty);
+        float tileHeight = c.height;
+
+        // Skip pits — already handled above
+        if (tileHeight < 0.0f) continue;
+
+        renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
+                                  float(tx), float(ty),
+                                  1.0f, tileHeight,
+                                  0xFF404020, map);
+    }
+
+    // Traverse near side last
+    if (first) traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, floorStamp, currentStamp);
 }
 
 // Main render entry
@@ -363,8 +369,12 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
         zBuffer[x] = 1e6f; // initialize as far away
     }
 
+    static uint32_t floorStamp[Map::SIZE][Map::SIZE];
+    static uint32_t currentStamp = 1;
+    currentStamp++;
+
     // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer);
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, floorStamp, currentStamp);
 
     // Note: sprite rendering (sorted by depth) to be added.
 }
