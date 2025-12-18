@@ -10,8 +10,6 @@ static constexpr float WALL_WORLD_HEIGHT = 1.0f; // world units for a full-heigh
 static constexpr uint32_t COLOR_SIDE_X = 0xFF00AAFF;
 static constexpr uint32_t COLOR_SIDE_Y = 0xFF0055FF;
 static constexpr uint32_t COLOR_TOP    = 0xFF808080;
-const uint32_t CEIL_COLOR  = 0xFF202040;
-const uint32_t FLOOR_COLOR = 0xFF404020;
 
 DoomRenderer::DoomRenderer(const std::vector<GridSegment>& segments,
                            std::unique_ptr<BSPNode> bspRoot)
@@ -127,7 +125,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             px += screenW;
         }
 
-        zBuffer[sx] = INFINITY;
+        zBuffer[sx] = t_exit;
     }
 }
 
@@ -145,8 +143,8 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
     return out_camY > 1e-5f; // in front of camera
 }
 
-// Rasterize a single segment (as vertical wall) in screen columns.
-// We approximate per-column depth by linear interpolation between endpoints' camY.
+// Rasterize a single segment (as vertical wall) in screen columns
+// approximate per-column depth by linear interpolation between endpoints' camY
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                     uint32_t* pixels, int screenW, int screenH,
@@ -257,7 +255,7 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         if (drawStart < 0) drawStart = 0;
         if (drawEnd >= screenH) drawEnd = screenH - 1;
 
-        // choose color by segment side (approx)
+        // choose color by segment side
         // We have seg.a->seg.b world orientation. Use whether segment mainly aligned x or y for tint.
         uint32_t color = (fabs(seg.a.x - seg.b.x) > fabs(seg.a.y - seg.b.y)) ? COLOR_SIDE_X : COLOR_SIDE_Y;
 
@@ -285,75 +283,108 @@ void DoomRenderer::traverseBSP(
     int screenW,
     int screenH,
     const Map& map,
-    float* zBuffer,
-    uint32_t floorStamp[Map::SIZE][Map::SIZE],
-    uint32_t currentStamp
+    float* zBuffer
 ) {
     if (!node) return;
 
-    // Determine which side the player is on
-    float side = sideOfLine(node->splitA.x, node->splitA.y,
-                            node->splitB.x, node->splitB.y,
-                            player.x, player.y);
+    // Determine traversal order
+    float side = sideOfLine(
+        node->splitA.x, node->splitA.y,
+        node->splitB.x, node->splitB.y,
+        player.x, player.y
+    );
 
     const BSPNode* first  = (side > 0.0f) ? node->front.get() : node->back.get();
     const BSPNode* second = (side > 0.0f) ? node->back.get()  : node->front.get();
 
     // Traverse far side first
-    if (second) traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, floorStamp, currentStamp);
+    if (second)
+        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer);
 
-    // Draw vertical walls and pit walls
+    // Pass 1: vertical walls only
     for (const auto& seg : node->onPlane) {
         int tx = seg.tileX;
         int ty = seg.tileY;
-        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE) continue;
 
-        const Map::Cell& c = map.get(tx, ty);
-        float tileHeight = c.height;
+        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
+            continue;
 
-        if (tileHeight > 0.0f) {
-            // Normal walls
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
-            if (tileHeight != WALL_WORLD_HEIGHT) {
-                renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
-                                          float(tx), float(ty),
-                                          1.0f, tileHeight,
-                                          0xFF0055FF, map);
-            }
-        } else if (tileHeight < 0.0f) {
-            // Pit walls (draw vertical walls first)
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
+        const Map::Cell& cell = map.get(tx, ty);
+        float h = cell.height;
 
-            // Pit top surface: draw at 0 height (floor plane) to avoid overwriting walls
-            renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
-                                      float(tx), float(ty),
-                                      1.0f, tileHeight,
-                                      0xFF0055FF, map);
+        // Draw vertical walls (normal or pit)
+        if (h != 0.0f) {
+            rasterizeSegment(
+                seg, tx, ty,
+                pixels, screenW, screenH,
+                player, map, zBuffer
+            );
         }
     }
 
-    // Draw floors (positive and zero-height)
+    // Pass 2: floors, pits, wall tops
+    bool tileDrawn[Map::SIZE][Map::SIZE] = {};
+
     for (const auto& seg : node->onPlane) {
         int tx = seg.tileX;
         int ty = seg.tileY;
-        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE) continue;
-        if (floorStamp[tx][ty] == currentStamp) continue;
-        floorStamp[tx][ty] = currentStamp;
 
-        const Map::Cell& c = map.get(tx, ty);
-        float tileHeight = c.height;
+        if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
+            continue;
 
-        // Skip pits — already handled above
-        if (tileHeight < 0.0f) continue;
+        if (tileDrawn[tx][ty])
+            continue;
 
-        renderWorldTileRasterized(pixels, zBuffer, screenW, screenH, player,
-                                  float(tx), float(ty),
-                                  1.0f, tileHeight,
-                                  0xFF404020, map);
+        tileDrawn[tx][ty] = true;
+
+        const Map::Cell& cell = map.get(tx, ty);
+        float h = cell.height;
+
+        // Floor / pit bottom
+        uint32_t floorColor;
+
+        if (h < 0.0f) {
+            // Pit floor
+            floorColor = 0xFF0055FF;
+        }
+        else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
+            // Wall top surface
+            floorColor = 0xFF0055FF;
+        }
+        else {
+            // Normal flat floor
+            floorColor = 0xFF404020;
+        }
+
+        renderWorldTileRasterized(
+            pixels, zBuffer,
+            screenW, screenH,
+            player,
+            float(tx), float(ty),
+            1.0f,
+            h,
+            floorColor,
+            map
+        );
+
+        // Wall top (if partial height)
+        if (h > 0.0f && h < WALL_WORLD_HEIGHT) {
+            renderWorldTileRasterized(
+                pixels, zBuffer,
+                screenW, screenH,
+                player,
+                float(tx), float(ty),
+                1.0f,
+                h,
+                0xFF0055FF,
+                map
+            );
+        }
     }
 
     // Traverse near side last
-    if (first) traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, floorStamp, currentStamp);
+    if (first)
+        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer);
 }
 
 // Main render entry
@@ -362,19 +393,14 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
 {
     // Prepare background (ceiling/floor simple fill)
     const uint32_t CEIL_COLOR  = 0xFF202040;
-    const uint32_t FLOOR_COLOR = 0xFF404020;
 
     for (int x = 0; x < screenW; ++x) {
         for (int y = 0; y < screenH/2; ++y) pixels[y * screenW + x] = CEIL_COLOR;
         zBuffer[x] = 1e6f; // initialize as far away
     }
 
-    static uint32_t floorStamp[Map::SIZE][Map::SIZE];
-    static uint32_t currentStamp = 1;
-    currentStamp++;
-
     // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, floorStamp, currentStamp);
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer);
 
     // Note: sprite rendering (sorted by depth) to be added.
 }
