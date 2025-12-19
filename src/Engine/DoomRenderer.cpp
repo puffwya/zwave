@@ -346,29 +346,34 @@ void DoomRenderer::traverseBSP(
         if (h < 0.0f) {
             // Pit floor
             floorColor = 0xFF0055FF;
+            renderWorldTileRasterized(
+                pixels, zBuffer, 
+                screenW, screenH,
+                player,
+                float(tx), float(ty),
+                1.0f,
+                h,
+                floorColor,
+                map
+            );
         }
         else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
             // Wall top surface
             floorColor = 0xFF0055FF;
+            renderWorldTileRasterized(
+                pixels, zBuffer, 
+                screenW, screenH,
+                player,
+                float(tx), float(ty),
+                1.0f,
+                h,
+                floorColor,
+                map
+            );
         }
         else {
             // Normal flat floor
             floorColor = 0xFF404020;
-        }
-
-        renderWorldTileRasterized(
-            pixels, zBuffer,
-            screenW, screenH,
-            player,
-            float(tx), float(ty),
-            1.0f,
-            h,
-            floorColor,
-            map
-        );
-
-        // Wall top (if partial height)
-        if (h > 0.0f && h < WALL_WORLD_HEIGHT) {
             renderWorldTileRasterized(
                 pixels, zBuffer,
                 screenW, screenH,
@@ -376,7 +381,7 @@ void DoomRenderer::traverseBSP(
                 float(tx), float(ty),
                 1.0f,
                 h,
-                0xFF0055FF,
+                floorColor,
                 map
             );
         }
