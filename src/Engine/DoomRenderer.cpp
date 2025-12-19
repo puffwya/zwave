@@ -36,10 +36,11 @@ void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int scr
 }
 
 void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
-                                      const Player& player,
-                                      float wx, float wy, float sizeWorld, float tileHeight,
-                                      uint32_t color, const Map& map)
+                                             const Player& player,
+                                             float wx, float wy, float sizeWorld, float tileHeight,
+                                             uint32_t color, const Map& map)
 {
+    if (tileHeight == 1.0f) return; // no need to render full-height wall tops
 
     const float minX = wx;
     const float maxX = wx + sizeWorld;
@@ -53,78 +54,56 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     const float cy = screenH * 0.5f;
     const float EPS = 1e-6f;
 
-    for (int sx = 0; sx < screenW; ++sx) {        
-
-        // If "normal" wall skip (no top)
-        if (tileHeight == 1.0f) {
-            continue;
-        }
-
-        // normalized screen coordinate in [-1,1]
+    for (int sx = 0; sx < screenW; ++sx) {
         float s = (float(sx) - cx) / cx;
 
-        // camera-space direction in world XY for this column (dirx, diry)
-        // right  = (-sin, cos), forward = (cos, sin)
+        // Camera-space direction
         float dirx = s * (-sa) + ca;
         float diry = s * ( ca) + sa;
 
-        // ray origin in world XY
+        // Ray origin
         float ox = player.x;
         float oy = player.y;
 
-        // ray-AABB slab test in 2D
-        float tmin = -INFINITY;
-        float tmax =  INFINITY;
+        // 2D AABB slab test
+        float tmin = -INFINITY, tmax = INFINITY;
 
         // X slab
-        if (fabs(dirx) < EPS) {
-            if (ox < minX || ox > maxX) continue; // parallel and outside -> no hit
-        } else {
+        if (fabs(dirx) >= EPS) {
             float tx1 = (minX - ox) / dirx;
             float tx2 = (maxX - ox) / dirx;
             if (tx1 > tx2) std::swap(tx1, tx2);
             tmin = std::max(tmin, tx1);
             tmax = std::min(tmax, tx2);
-        }
+        } else if (ox < minX || ox > maxX) continue;
 
         // Y slab
-        if (fabs(diry) < EPS) {
-            if (oy < minY || oy > maxY) continue;
-        } else {
+        if (fabs(diry) >= EPS) {
             float ty1 = (minY - oy) / diry;
             float ty2 = (maxY - oy) / diry;
             if (ty1 > ty2) std::swap(ty1, ty2);
             tmin = std::max(tmin, ty1);
             tmax = std::min(tmax, ty2);
-        }
+        } else if (oy < minY || oy > maxY) continue;
 
         if (tmax < tmin) continue; // miss
 
-        // want forward hits only
-        float t_enter = tmin;
-        float t_exit  = tmax;
-        if (t_exit <= 1e-5f) continue;       // fully behind camera
-        if (t_enter < 1e-5f) t_enter = 1e-5f;
+        float t_enter = std::max(tmin, 1e-5f);
+        if (tmax <= 1e-5f) continue; // fully behind camera
 
-        // camY ~ forward distance; in our ray dir construction camY == t (proportional)
-        float camY_enter = t_enter;
-        float camY_exit  = t_exit;
+        // Project vertical position
+        float screenY_enter = cy - ((tileHeight - player.z) * screenH / t_enter);
+        float screenY_exit  = cy - ((tileHeight - player.z) * screenH / tmax);
 
-        // Project vertical position for plane height at both t values:
-        float screenY_enter = cy - ((tileHeight - player.z) * (float(screenH) / camY_enter));
-        float screenY_exit  = cy - ((tileHeight - player.z) * (float(screenH) / camY_exit));
-
-        int yTop = int(std::ceil(std::min(screenY_enter, screenY_exit)));
-        int yBottom = int(std::floor(std::max(screenY_enter, screenY_exit)));
+        int yTop = std::max(0, int(std::ceil(std::min(screenY_enter, screenY_exit))));
+        int yBottom = std::min(screenH - 1, int(std::floor(std::max(screenY_enter, screenY_exit))));
 
         if (yBottom < 0 || yTop >= screenH) continue;
-        if (yTop < 0) yTop = 0;
-        if (yBottom >= screenH) yBottom = screenH - 1;
 
-        // Z-buffer test for column: if something nearer already, skip
+        // Z-buffer test (horizontal spans do NOT update zBuffer)
         if (t_enter >= zBuffer[sx]) continue;
 
-        // Fill vertical span for this column
+        // Draw vertical span
         uint32_t* px = pixels + yTop * screenW + sx;
         for (int y = yTop; y <= yBottom; ++y) {
             *px = color;
@@ -151,119 +130,72 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
 // approximate per-column depth by linear interpolation between endpoints' camY
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
-                                    uint32_t* pixels, int screenW, int screenH,
-                                    const Player& player, const Map& map, float* zBuffer)
+                                     uint32_t* pixels, int screenW, int screenH,
+                                     const Player& player, const Map& map, float* zBuffer)
 {
-    // Project endpoints
+    // Project endpoints to camera space
     float a_camX, a_camY, b_camX, b_camY;
     bool aFront = projectPointToCamera(seg.a.x, seg.a.y, player, a_camX, a_camY);
     bool bFront = projectPointToCamera(seg.b.x, seg.b.y, player, b_camX, b_camY);
 
-    // If both endpoints are behind camera, skip
     if (!aFront && !bFront) return;
 
-    // If one endpoint is behind, clip the segment against near plane (camY ~= small positive)
-    // Simple linear clip T between endpoints when camY crosses tiny threshold
-    float clipNear = 0.001f;
-    float tClip = 0.0f;
-    bool clipped = false;
-    if (!aFront && bFront) {
-        // find t where camY == clipNear
-        float da = b_camY - a_camY;
-        if (fabs(da) > EPS) {
-            tClip = (clipNear - a_camY) / da;
-            tClip = std::clamp(tClip, 0.0f, 1.0f);
-            // compute new a as a + tClip*(b-a) in world space
-            float newX = seg.a.x + tClip * (seg.b.x - seg.a.x);
-            float newY = seg.a.y + tClip * (seg.b.y - seg.a.y);
-            // reproject
+    const float clipNear = 0.001f;
+    if (!aFront || !bFront) {
+        // Clip segment against near plane
+        float t = (clipNear - a_camY) / (b_camY - a_camY);
+        t = std::clamp(t, 0.0f, 1.0f);
+        if (!aFront) {
+            float newX = seg.a.x + t * (seg.b.x - seg.a.x);
+            float newY = seg.a.y + t * (seg.b.y - seg.a.y);
             projectPointToCamera(newX, newY, player, a_camX, a_camY);
-            clipped = true;
-        }
-    } else if (aFront && !bFront) {
-        float da = b_camY - a_camY;
-        if (fabs(da) > EPS) {
-            tClip = (clipNear - a_camY) / da;
-            tClip = std::clamp(tClip, 0.0f, 1.0f);
-            float newX = seg.a.x + tClip * (seg.b.x - seg.a.x);
-            float newY = seg.a.y + tClip * (seg.b.y - seg.a.y);
+        } else {
+            float newX = seg.a.x + t * (seg.b.x - seg.a.x);
+            float newY = seg.a.y + t * (seg.b.y - seg.a.y);
             projectPointToCamera(newX, newY, player, b_camX, b_camY);
-            clipped = true;
         }
     }
 
-    // Now project to screen X
+    // Project to screen X
     float sxA = (a_camX / a_camY) * (screenW * 0.5f) + (screenW * 0.5f);
     float sxB = (b_camX / b_camY) * (screenW * 0.5f) + (screenW * 0.5f);
 
-    // If both screen X are outside and to same side, skip
+    // Skip if entirely off-screen horizontally
     if ((sxA < -screenW && sxB < -screenW) || (sxA > 2*screenW && sxB > 2*screenW)) return;
 
-    // Determine integer column range
     int x0 = std::clamp(int(std::floor(std::min(sxA, sxB))), 0, screenW - 1);
     int x1 = std::clamp(int(std::ceil (std::max(sxA, sxB))), 0, screenW - 1);
     if (x1 < x0) std::swap(x0, x1);
 
-    // Get wall heights for this segment from the tile it belongs to
-    // We use tile's stored height; if out-of-range, default to full height (1.0)
+    // Wall heights for this tile
     float tileH = map.get(mapTileX, mapTileY).height;
+    float floorZ = (tileH < 0.0f) ? tileH : 0.0f;
+    float ceilZ  = (tileH < 0.0f) ? 0.0f : tileH;
 
-    // vertical positions: bottom at floor, top at tileH if tileH > 0 otherwise bottom at tileH and top at floor
-    float floorZ = 0.0f;
-    float ceilingZ = tileH;
-    if (tileH < 0) {
-        floorZ = tileH;
-        ceilingZ = 0.0f;
-    }
+    // Project top/bottom for endpoints
+    float a_sy_floor   = (screenH * 0.5f) - (floorZ  - player.z) * (screenH / a_camY);
+    float a_sy_ceiling = (screenH * 0.5f) - (ceilZ   - player.z) * (screenH / a_camY);
+    float b_sy_floor   = (screenH * 0.5f) - (floorZ  - player.z) * (screenH / b_camY);
+    float b_sy_ceiling = (screenH * 0.5f) - (ceilZ   - player.z) * (screenH / b_camY);
 
-    float topZ    = std::max(floorZ, ceilingZ);
-    float bottomZ = std::min(floorZ, ceilingZ);
-
-    // For endpoints, compute projected Y positions of floor & ceiling
-    // sy = screenH/2 - dz * (screenH / camY)   (same formula used earlier)
-    float a_sy_floor   = (screenH * 0.5f) - (floorZ  - player.z) * (float(screenH) / a_camY);
-    float a_sy_ceiling = (screenH * 0.5f) - (ceilingZ - player.z) * (float(screenH) / a_camY);
-    float b_sy_floor   = (screenH * 0.5f) - (floorZ  - player.z) * (float(screenH) / b_camY);
-    float b_sy_ceiling = (screenH * 0.5f) - (ceilingZ - player.z) * (float(screenH) / b_camY);
-
-    // For each screen column between x0..x1, interpolate along segment in screen X
     for (int sx = x0; sx <= x1; ++sx) {
-        // compute interpolation t along screen X between endpoints
-        float t;
-        if (fabs(sxB - sxA) > 1e-6f) t = (sx - sxA) / (sxB - sxA);
-        else t = 0.0f;
+        float t = (fabs(sxB - sxA) > 1e-6f) ? (sx - sxA) / (sxB - sxA) : 0.0f;
+        t = std::clamp(t, 0.0f, 1.0f);
 
-        // clamp t
-        if (t < 0.0f) t = 0.0f;
-        if (t > 1.0f) t = 1.0f;
-
-        // Interpolate depth (camY) linearly between endpoints
         float depth = a_camY + t * (b_camY - a_camY);
         if (depth <= 0.0001f) continue;
 
-        // Interpolate top and bottom screen Y for this column
         float colFloorY   = a_sy_floor   + t * (b_sy_floor   - a_sy_floor);
         float colCeilY    = a_sy_ceiling + t * (b_sy_ceiling - a_sy_ceiling);
 
-        // Convert to ints and clamp
-        int drawStart = int(std::ceil(colCeilY));
-        int drawEnd   = int(std::floor(colFloorY));
-        if (drawEnd < 0 || drawStart >= screenH) {
-            // nothing visible in column
-            // but if top slice visual is needed we could still draw very thin; skip
-            continue;
-        }
-        if (drawStart < 0) drawStart = 0;
-        if (drawEnd >= screenH) drawEnd = screenH - 1;
+        int drawStart = std::max(0, int(std::ceil(colCeilY)));
+        int drawEnd   = std::min(screenH - 1, int(std::floor(colFloorY)));
+        if (drawEnd < 0 || drawStart >= screenH) continue;
 
-        // choose color by segment side
-        // We have seg.a->seg.b world orientation. Use whether segment mainly aligned x or y for tint.
         uint32_t color = (fabs(seg.a.x - seg.b.x) > fabs(seg.a.y - seg.b.y)) ? COLOR_SIDE_X : COLOR_SIDE_Y;
 
-        // Draw vertical line in this column
         drawSegmentColumnSolid(pixels, screenW, screenH, sx, drawStart, drawEnd, color);
 
-        // Update zBuffer so nearer things will occlude later
         zBuffer[sx] = depth;
     }
 }
@@ -310,17 +242,10 @@ void DoomRenderer::traverseBSP(
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
 
-        const Map::Cell& cell = map.get(tx, ty);
-        float h = cell.height;
+        float h = map.get(tx, ty).height;
 
-        // Draw vertical walls (normal or pit)
-        if (h != 0.0f) {
-            rasterizeSegment(
-                seg, tx, ty,
-                pixels, screenW, screenH,
-                player, map, zBuffer
-            );
-        }
+        if (h != 0.0f)
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
     }
 
     // Pass 2: floors, pits, wall tops
@@ -332,60 +257,26 @@ void DoomRenderer::traverseBSP(
 
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
-
         if (tileDrawn[tx][ty])
             continue;
 
         tileDrawn[tx][ty] = true;
-
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
 
-        // Floor / pit bottom
-        uint32_t floorColor;
+        // Determine floor color for now (texture later)
+        uint32_t floorColor = (h < 0.0f || (h > 0.0f && h != WALL_WORLD_HEIGHT)) ? 0xFF0055FF : 0xFF404020;
 
-        if (h < 0.0f) {
-            // Pit floor
-            floorColor = 0xFF0055FF;
-            renderWorldTileRasterized(
-                pixels, zBuffer, 
-                screenW, screenH,
-                player,
-                float(tx), float(ty),
-                1.0f,
-                h,
-                floorColor,
-                map
-            );
-        }
-        else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
-            // Wall top surface
-            floorColor = 0xFF0055FF;
-            renderWorldTileRasterized(
-                pixels, zBuffer, 
-                screenW, screenH,
-                player,
-                float(tx), float(ty),
-                1.0f,
-                h,
-                floorColor,
-                map
-            );
-        }
-        else {
-            // Normal flat floor
-            floorColor = 0xFF404020;
-            renderWorldTileRasterized(
-                pixels, zBuffer,
-                screenW, screenH,
-                player,
-                float(tx), float(ty),
-                1.0f,
-                h,
-                floorColor,
-                map
-            );
-        }
+        renderWorldTileRasterized(
+            pixels, zBuffer,
+            screenW, screenH,
+            player,
+            float(tx), float(ty),
+            1.0f,
+            h,
+            floorColor,
+            map
+        );
     }
 
     // Traverse near side last
