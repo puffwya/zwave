@@ -13,8 +13,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o.d"
-  "CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o"
-  "CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o"

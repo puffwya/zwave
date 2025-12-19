@@ -86,24 +86,10 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/RaycasterGame.dir/main.cpp.s"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/wyattpuff/Raycaster/src/main.cpp -o CMakeFiles/RaycasterGame.dir/main.cpp.s
 
-src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
-src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/Raycaster.cpp
-src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o"
-	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/Raycaster.cpp
-
-src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.i"
-	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/wyattpuff/Raycaster/src/Engine/Raycaster.cpp > CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.i
-
-src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.s"
-	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/wyattpuff/Raycaster/src/Engine/Raycaster.cpp -o CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.s
-
 src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/Renderer.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/Renderer.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.i: cmake_force
@@ -117,7 +103,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/Player.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/Player.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.i: cmake_force
@@ -131,7 +117,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/Enemy.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/Enemy.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.i: cmake_force
@@ -145,7 +131,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/EnemyManager.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/EnemyManager.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.i: cmake_force
@@ -159,7 +145,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.i: cmake_force
@@ -173,7 +159,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/pItemRenderer.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/pItemRenderer.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.i: cmake_force
@@ -187,7 +173,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.i: cmake_force
@@ -201,7 +187,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/MapToSegments.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/MapToSegments.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.i: cmake_force
@@ -215,7 +201,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/BSP.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/BSP.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.i: cmake_force
@@ -229,7 +215,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.s: cmake_force
 src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/flags.make
 src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: /Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.cpp
 src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: src/CMakeFiles/RaycasterGame.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o"
 	cd /Users/wyattpuff/Raycaster/build/src && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o -MF CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o.d -o CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o -c /Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.cpp
 
 src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.i: cmake_force
@@ -243,7 +229,6 @@ src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.s: cmake_force
 # Object files for target RaycasterGame
 RaycasterGame_OBJECTS = \
 "CMakeFiles/RaycasterGame.dir/main.cpp.o" \
-"CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o" \
 "CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o" \
 "CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o" \
 "CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o" \
@@ -259,7 +244,6 @@ RaycasterGame_OBJECTS = \
 RaycasterGame_EXTERNAL_OBJECTS =
 
 bin/RaycasterGame: src/CMakeFiles/RaycasterGame.dir/main.cpp.o
-bin/RaycasterGame: src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o
 bin/RaycasterGame: src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o
 bin/RaycasterGame: src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o
 bin/RaycasterGame: src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o
@@ -275,7 +259,7 @@ bin/RaycasterGame: /opt/homebrew/lib/libSDL2.dylib
 bin/RaycasterGame: /opt/homebrew/lib/libSDL2main.a
 bin/RaycasterGame: /opt/homebrew/lib/libSDL2_image.dylib
 bin/RaycasterGame: src/CMakeFiles/RaycasterGame.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX executable ../bin/RaycasterGame"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Linking CXX executable ../bin/RaycasterGame"
 	cd /Users/wyattpuff/Raycaster/build/src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/RaycasterGame.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -274,30 +274,6 @@ Engine/Player.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.s
 .PHONY : Engine/Player.cpp.s
 
-Engine/Raycaster.o: Engine/Raycaster.cpp.o
-.PHONY : Engine/Raycaster.o
-
-# target to build an object file
-Engine/Raycaster.cpp.o:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.o
-.PHONY : Engine/Raycaster.cpp.o
-
-Engine/Raycaster.i: Engine/Raycaster.cpp.i
-.PHONY : Engine/Raycaster.i
-
-# target to preprocess a source file
-Engine/Raycaster.cpp.i:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.i
-.PHONY : Engine/Raycaster.cpp.i
-
-Engine/Raycaster.s: Engine/Raycaster.cpp.s
-.PHONY : Engine/Raycaster.s
-
-# target to generate assembly for a file
-Engine/Raycaster.cpp.s:
-	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/Raycaster.cpp.s
-.PHONY : Engine/Raycaster.cpp.s
-
 Engine/Renderer.o: Engine/Renderer.cpp.o
 .PHONY : Engine/Renderer.o
 
@@ -445,9 +421,6 @@ help:
 	@echo "... Engine/Player.o"
 	@echo "... Engine/Player.i"
 	@echo "... Engine/Player.s"
-	@echo "... Engine/Raycaster.o"
-	@echo "... Engine/Raycaster.i"
-	@echo "... Engine/Raycaster.s"
 	@echo "... Engine/Renderer.o"
 	@echo "... Engine/Renderer.i"
 	@echo "... Engine/Renderer.s"

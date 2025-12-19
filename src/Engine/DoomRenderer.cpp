@@ -208,7 +208,7 @@ float DoomRenderer::sideOfLine(float ax, float ay, float bx, float by, float px,
     return vx * wy - vy * wx;
 }
 
-// traverse BSP front->back relative to player's position
+// traverse BSP front to back relative to player's position 
 void DoomRenderer::traverseBSP(
     const BSPNode* node,
     const Player& player,
@@ -242,14 +242,17 @@ void DoomRenderer::traverseBSP(
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
 
-        float h = map.get(tx, ty).height;
+        const Map::Cell& cell = map.get(tx, ty);
+        float h = cell.height;
 
-        if (h != 0.0f)
+        // Draw vertical walls (normal or pit)
+        if (h != 0.0f) {
             rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
+        }
     }
 
     // Pass 2: floors, pits, wall tops
-    bool tileDrawn[Map::SIZE][Map::SIZE] = {};
+    bool tileDrawn[Map::SIZE * Map::SIZE] = {}; // 1D array for cache-friendly access
 
     for (const auto& seg : node->onPlane) {
         int tx = seg.tileX;
@@ -257,15 +260,29 @@ void DoomRenderer::traverseBSP(
 
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
-        if (tileDrawn[tx][ty])
-            continue;
 
-        tileDrawn[tx][ty] = true;
+        int idx = tx + ty * Map::SIZE;
+        if (tileDrawn[idx])
+            continue;
+        tileDrawn[idx] = true;
+
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
 
-        // Determine floor color for now (texture later)
-        uint32_t floorColor = (h < 0.0f || (h > 0.0f && h != WALL_WORLD_HEIGHT)) ? 0xFF0055FF : 0xFF404020;
+        uint32_t floorColor;
+
+        if (h < 0.0f) {
+            // Pit floor
+            floorColor = 0xFF0055FF;
+        }
+        else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
+            // Wall top
+            floorColor = 0xFF0055FF;
+        }
+        else {
+            // Normal flat floor
+            floorColor = 0xFF404020;
+        }
 
         renderWorldTileRasterized(
             pixels, zBuffer,
@@ -288,17 +305,23 @@ void DoomRenderer::traverseBSP(
 void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
                           const Player& player, const Map& map, float* zBuffer)
 {
-    // Prepare background (ceiling/floor simple fill)
-    const uint32_t CEIL_COLOR  = 0xFF202040;
+    const uint32_t CEIL_COLOR = 0xFF202040; // World ceiling color (change to texture in the future)
+    // const uint32_t FLOOR_COLOR = 0xFF404020; // World floor color, could use for filling below horizon
 
+    // Prepare background: ceiling (top half) and initialize zBuffer
     for (int x = 0; x < screenW; ++x) {
-        for (int y = 0; y < screenH/2; ++y) pixels[y * screenW + x] = CEIL_COLOR;
         zBuffer[x] = 1e6f; // initialize as far away
+        for (int y = 0; y < screenH / 2; ++y)
+            pixels[y * screenW + x] = CEIL_COLOR;
     }
+
+    // fill floor (bottom half) not needed at the moment
+    // for (int x = 0; x < screenW; ++x)
+    //     for (int y = screenH / 2; y < screenH; ++y)
+    //         pixels[y * screenW + x] = FLOOR_COLOR;
 
     // Traverse BSP and draw segments front-to-back
     traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer);
 
-    // Note: sprite rendering (sorted by depth) to be added.
+    // Note: sprite rendering (sorted by depth) to be added later
 }
-

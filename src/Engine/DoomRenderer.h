@@ -9,11 +9,11 @@
 
 class DoomRenderer {
 public:
-    // Provide segments and BSP root to the renderer (built by earlier steps).
+    // Provide segments and BSP root to the renderer (built by earlier steps)
     DoomRenderer(const std::vector<GridSegment>& segments,
                  std::unique_ptr<BSPNode> bspRoot);
 
-    // Render into pixels buffer. zBuffer must be length screenW.
+    // Render into pixels buffer. zBuffer must be length screenW
     void render(uint32_t* pixels, int screenW, int screenH,
                 const Player& player, const Map& map, float* zBuffer);
 
@@ -30,7 +30,7 @@ private:
     void drawSegmentColumnSolid(uint32_t* pixels, int screenW, int screenH,
                                 int sx, int drawStart, int drawEnd, uint32_t color);
 
-    // Project endpoints to camera space; returns false if completely behind camera
+    // Project endpoints to camera space...returns false if completely behind camera
     bool projectPointToCamera(float wx, float wy, const Player& player,
                               float& out_camX, float& out_camY);
 
@@ -44,7 +44,7 @@ private:
                      uint32_t* pixels, int screenW, int screenH,
                      const Map& map, float* zBuffer);
 
-    // small helpers
+    // small side test helper
     static float sideOfLine(float ax, float ay, float bx, float by, float px, float py);
 };
 

@@ -319,7 +319,6 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_version.h \
   /opt/homebrew/include/SDL2/SDL_locale.h \
   /opt/homebrew/include/SDL2/SDL_misc.h \
-  /Users/wyattpuff/Raycaster/src/Engine/Raycaster.h \
   /Users/wyattpuff/Raycaster/src/Engine/Player.h \
   /Users/wyattpuff/Raycaster/src/Engine/Map.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/algorithm \

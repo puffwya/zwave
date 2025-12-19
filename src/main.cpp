@@ -1,7 +1,6 @@
 // Draw world (walls) first using a raycaster then draw billboarded sprites
 
 #include "Engine/Renderer.h"
-#include "Engine/Raycaster.h"
 #include "Engine/Player.h"
 #include "Engine/Map.h"
 #include "Engine/EnemyManager.h"
@@ -21,7 +20,6 @@ int SCREEN_HEIGHT = 900;
 
 int main() {
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
-    Raycaster raycaster;
     Player player;
     Map worldMap;
     EnemyManager enemyManager;

@@ -3,6 +3,10 @@
 #include <vector>
 #include <algorithm>
 
+// ------------------------------------
+// OLD RAYCASTER ENGINE NO LONGER IN USE
+// ------------------------------------
+
 // Draw a vertical line on the screen
 inline void drawVerticalLine(uint32_t* pixels, int screenW, int screenH, int x, int startY, int endY, uint32_t 
 color) {

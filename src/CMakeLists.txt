@@ -1,6 +1,5 @@
 set(SOURCES
     main.cpp
-    Engine/Raycaster.cpp
     Engine/Renderer.cpp
     Engine/Player.cpp
     Engine/Enemy.cpp
