@@ -54,6 +54,12 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     const float EPS = 1e-6f;
 
     for (int sx = 0; sx < screenW; ++sx) {        
+
+        // If "normal" wall skip (no top)
+        if (tileHeight == 1.0f) {
+            continue;
+        }
+
         // normalized screen coordinate in [-1,1]
         float s = (float(sx) - cx) / cx;
 
@@ -116,7 +122,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         if (yBottom >= screenH) yBottom = screenH - 1;
 
         // Z-buffer test for column: if something nearer already, skip
-        if (t_exit >= zBuffer[sx]) continue;
+        if (t_enter >= zBuffer[sx]) continue;
 
         // Fill vertical span for this column
         uint32_t* px = pixels + yTop * screenW + sx;
@@ -124,8 +130,6 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             *px = color;
             px += screenW;
         }
-
-        zBuffer[sx] = t_exit;
     }
 }
 
@@ -236,9 +240,6 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         // Interpolate depth (camY) linearly between endpoints
         float depth = a_camY + t * (b_camY - a_camY);
         if (depth <= 0.0001f) continue;
-
-        // Z-buffer test: if this depth is farther than zBuffer, skip (behind something previously drawn)
-        // if (depth >= zBuffer[sx]) continue;
 
         // Interpolate top and bottom screen Y for this column
         float colFloorY   = a_sy_floor   + t * (b_sy_floor   - a_sy_floor);
