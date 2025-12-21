@@ -7,6 +7,12 @@
 
 class Player;
 
+enum class SwapState {
+    Idle,
+    Lowering,
+    Raising
+};
+
 class WeaponManager {
 public:
 
@@ -20,7 +26,23 @@ public:
 
     void playShootAnimation(WeaponType weapon);
 
+    void startSwap(WeaponType newWeapon);
+
+    int getDrawOffsetY() const;
+
+    //WeaponType getCurrentWeapon() const { return currentWeapon; }
+
 private:
+
+    WeaponType currentWeapon;
+    WeaponType pendingWeapon;
+
+    SwapState swapState = SwapState::Idle;
+
+    float swapOffsetY = 0.0f;
+    float swapSpeed = 1000.0f;       // pixels per second
+    float maxLowerOffset = 250.0f;  // how far gun drops
+
     struct Animation {
         std::vector<SDL_Texture*> frames;
         float frameTime = 0.1f;   // 100ms per frame

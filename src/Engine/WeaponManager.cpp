@@ -54,6 +54,18 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
     return true;
 }
 
+void WeaponManager::startSwap(WeaponType newWeapon) {
+    if (swapState != SwapState::Idle)
+        return;
+
+    if (newWeapon == currentWeapon)
+        return;
+
+    pendingWeapon = newWeapon;
+
+    swapState = SwapState::Lowering;
+}
+
 void WeaponManager::playShootAnimation(WeaponType weapon) {
     auto it = animations.find(weapon);
     if (it == animations.end() || it->second.frames.empty()) return; // safe early exit
@@ -64,7 +76,39 @@ void WeaponManager::playShootAnimation(WeaponType weapon) {
     anim.timer = 0.0f;
 }
 
+int WeaponManager::getDrawOffsetY() const {
+    float bob = std::sin(bobTimer) * bobAmount;
+    return (int)(swapOffsetY + bob);
+}
+
 void WeaponManager::update(float delta, const Player& player) {
+
+    switch (swapState) {
+        case SwapState::Idle:
+            swapOffsetY = 0.0f;
+            break;
+
+        case SwapState::Lowering:
+            swapOffsetY += swapSpeed * delta;
+            if (swapOffsetY >= maxLowerOffset) {
+                swapOffsetY = maxLowerOffset;
+
+                // weapon change
+                currentWeapon = pendingWeapon;
+
+                swapState = SwapState::Raising;
+            }
+            break;
+
+        case SwapState::Raising:
+            swapOffsetY -= swapSpeed * delta;
+            if (swapOffsetY <= 0.0f) {
+                swapOffsetY = 0.0f;
+                swapState = SwapState::Idle;
+            }
+            break;
+    }
+
     for (auto& [weapon, anim] : animations) {
         if (!anim.playing) continue;
 

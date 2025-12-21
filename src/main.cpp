@@ -10,10 +10,12 @@
 #include "Engine/MapToSegments.h"
 #include "Engine/BSP.h"
 #include "Engine/DoomRenderer.h"
+#include "Engine/HUD.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <unordered_map>
 #include <vector> 
+#include <iostream>
 
 int SCREEN_WIDTH = 1200;
 int SCREEN_HEIGHT = 900;
@@ -22,6 +24,7 @@ int main() {
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
     Player player;
     Map worldMap;
+    HUD hud;
     EnemyManager enemyManager;
     WeaponManager weaponManager;
     enemyManager.initialize(renderer.getSDLRenderer());
@@ -39,12 +42,6 @@ int main() {
 
     // store renderer as global
     DoomRenderer doomRenderer(segments, std::move(bspRoot));
-
-    // debug: print counts
-    printf("segments: %zu, subsectors (leaves): %zu\n", segments.size(), subsectors.size());
-    for (size_t i=0;i<subsectors.size();++i) {
-        printf(" subsector %zu has %zu segs\n", i, subsectors[i].size());
-    }
 
     // Give player guns for testing
     player.giveItem(ItemType::Pistol);   // give the player a pistol
@@ -67,6 +64,11 @@ int main() {
     enemyManager.initialize(renderer.getSDLRenderer());
 
     weaponManager.loadAssets(renderer.getSDLRenderer());
+
+    if (!hud.loadDigitTextures(renderer.getSDLRenderer())) {
+        std::cerr << "Failed to initialize HUD" << std::endl;
+        return -1;
+    }
 
     while (running) {
         Uint32 now = SDL_GetTicks();
@@ -116,6 +118,8 @@ int main() {
         SDL_Texture* itemTex = weaponManager.getCurrentFrame(wType);
 
         pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem, weaponManager);
+
+        hud.render(renderer.getSDLRenderer(), player, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         renderer.present();
     }

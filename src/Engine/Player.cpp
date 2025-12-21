@@ -113,12 +113,16 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
     if (keys[SDL_SCANCODE_Q]) {
         if (canSwitchItem) {
-            previousItem();
+            ItemType p = previousItem();
+            weaponManager.startSwap(itemToWeapon(p));
+            currentItem = p;
             canSwitchItem = false;
         }
     } else if (keys[SDL_SCANCODE_E]) {
         if (canSwitchItem) {
-            nextItem();
+            ItemType n = nextItem();
+            weaponManager.startSwap(itemToWeapon(n));
+            currentItem = n;
             canSwitchItem = false;
         }
     } else {
@@ -137,6 +141,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             isFiringAnim = true;
             fireFrame = 0;
             fireFrameTimer = FIRE_FRAME_DURATION;
+            ammo -= 1;
         }
     }
 
@@ -244,25 +249,29 @@ void Player::giveItem(ItemType item) {
     inventory.push_back(item);
 }
 
-void Player::nextItem() {
-    if (inventory.empty()) return;
+// Returns next item
+ItemType Player::nextItem() const {
+    if (inventory.empty())
+        return currentItem;
 
     auto it = std::find(inventory.begin(), inventory.end(), currentItem);
-    
+
     if (it == inventory.end() || ++it == inventory.end())
-        currentItem = inventory[0];
-    else
-        currentItem = *it;
+        return inventory[0];
+
+    return *it;
 }
 
-void Player::previousItem() {
-    if (inventory.empty()) return;
+// Returns prev item
+ItemType Player::previousItem() const {
+    if (inventory.empty())
+        return currentItem;
 
     auto it = std::find(inventory.begin(), inventory.end(), currentItem);
 
     if (it == inventory.begin() || it == inventory.end())
-        currentItem = inventory.back();
-    else
-        currentItem = *(--it);
+        return inventory.back();
+
+    return *(--it);
 }
 

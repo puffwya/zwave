@@ -18,18 +18,23 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
     bool isGun = false;
 
     // scale
-    float scale = 2.0f; // default size of an item
+    float baseItemScale = screenHeight / 350.0f;
+
+    // default item scale
+    float itemScale = 1.3f;
 
     // determine offsets and gun status
     switch (itemType) {
         case ItemType::Pistol:
             xOffset = -100;
-            yOffset = 5;
-            scale = 2.25;
+            yOffset = 30;
+            itemScale = 1.1f;
             isGun = true;
             break;
         case ItemType::Shotgun:
             isGun = true;
+            itemScale = 1.2f;
+            yOffset = 25;
             break;
         default:
             isGun = false;
@@ -39,14 +44,16 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
     int w, h;
     SDL_QueryTexture(itemTex, NULL, NULL, &w, &h);
 
-    w = int(w * scale);
-    h = int(h * scale);
+    float finalScale = baseItemScale * itemScale;
+
+    w = int(w * finalScale);
+    h = int(h * finalScale);
 
     SDL_Rect dst;
     dst.w = w;
     dst.h = h;
     dst.x = (screenWidth / 2) - (w / 2) + xOffset + bobOffsetX;
-    dst.y = screenHeight - h + yOffset + bobOffsetY;
+    dst.y = screenHeight - h + yOffset + bobOffsetY + wm.getDrawOffsetY();
 
     SDL_RenderCopy(renderer, itemTex, NULL, &dst);
 

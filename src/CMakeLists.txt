@@ -10,6 +10,7 @@ set(SOURCES
     Engine/MapToSegments.cpp
     Engine/BSP.cpp
     Engine/DoomRenderer.cpp
+    Engine/HUD.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})
@@ -35,14 +36,7 @@ target_link_libraries(RaycasterGame PRIVATE ${SDL2_LIBRARY} ${SDL2MAIN_LIBRARY} 
 set(ASSETS_SRC_DIR "${CMAKE_SOURCE_DIR}/src/Assets")
 set(ASSETS_DST_DIR "${CMAKE_BINARY_DIR}/Assets")
 
-# Create the destination directory in the build folder, only create if missing
-if(NOT EXISTS ${ASSETS_DST_DIR})
-    file(MAKE_DIRECTORY ${ASSETS_DST_DIR})
-endif()
-
-# Copy all files inside the Assets folder
-file(GLOB ASSET_FILES "${ASSETS_SRC_DIR}/*")
-foreach(asset ${ASSET_FILES})
-    configure_file(${asset} ${ASSETS_DST_DIR} COPYONLY)
-endforeach()
+# Copy entire Assets directory (including subfolders)
+file(COPY ${ASSETS_SRC_DIR}
+     DESTINATION ${CMAKE_BINARY_DIR})
 

@@ -21,6 +21,13 @@ enum class ItemType {
 
 class Player {
 public:
+    int health = 100;
+    int maxHealth = 100;
+    int armor = 50;
+    int maxArmor = 100;
+    int ammo = 25;
+    int maxAmmo = 200;
+
     float x, y, z;
     float angle;
     float speed;
@@ -65,8 +72,8 @@ public:
     void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map);
 
     void giveItem(ItemType item);
-    void nextItem();
-    void previousItem();
+    ItemType nextItem() const;
+    ItemType previousItem() const;
 
     WeaponType itemToWeapon(ItemType item);
 

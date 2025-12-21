@@ -226,6 +226,30 @@ Engine/EnemyManager.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.s
 .PHONY : Engine/EnemyManager.cpp.s
 
+Engine/HUD.o: Engine/HUD.cpp.o
+.PHONY : Engine/HUD.o
+
+# target to build an object file
+Engine/HUD.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o
+.PHONY : Engine/HUD.cpp.o
+
+Engine/HUD.i: Engine/HUD.cpp.i
+.PHONY : Engine/HUD.i
+
+# target to preprocess a source file
+Engine/HUD.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.i
+.PHONY : Engine/HUD.cpp.i
+
+Engine/HUD.s: Engine/HUD.cpp.s
+.PHONY : Engine/HUD.s
+
+# target to generate assembly for a file
+Engine/HUD.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.s
+.PHONY : Engine/HUD.cpp.s
+
 Engine/MapToSegments.o: Engine/MapToSegments.cpp.o
 .PHONY : Engine/MapToSegments.o
 
@@ -415,6 +439,9 @@ help:
 	@echo "... Engine/EnemyManager.o"
 	@echo "... Engine/EnemyManager.i"
 	@echo "... Engine/EnemyManager.s"
+	@echo "... Engine/HUD.o"
+	@echo "... Engine/HUD.i"
+	@echo "... Engine/HUD.s"
 	@echo "... Engine/MapToSegments.o"
 	@echo "... Engine/MapToSegments.i"
 	@echo "... Engine/MapToSegments.s"
