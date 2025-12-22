@@ -37,7 +37,13 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         "Assets/Shotgun1.png",
         "Assets/Shotgun2.png",
         "Assets/Shotgun3.png",
-        "Assets/Shotgun4.png"
+        "Assets/Shotgun4.png",
+        "Assets/Shotgun5.png",
+        "Assets/Shotgun6.png",
+        "Assets/Shotgun7.png",
+        "Assets/Shotgun8.png",
+        "Assets/Shotgun9.png",
+        "Assets/Shotgun10.png"
     };
     for (const char* path : shotgunPaths) {
         SDL_Texture* tex = IMG_LoadTexture(renderer, path);
@@ -48,7 +54,7 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         }
         shotgunAnim.frames.push_back(tex);
     }
-    shotgunAnim.frameTime = 0.1f;
+    shotgunAnim.frameTime = 0.12f;
     animations[WeaponType::Shotgun] = shotgunAnim;
 
     return true;
@@ -66,13 +72,31 @@ void WeaponManager::startSwap(WeaponType newWeapon) {
     swapState = SwapState::Lowering;
 }
 
+void WeaponManager::playReloadAnimation(WeaponType weapon)
+{
+    auto it = animations.find(weapon);
+    if (it == animations.end() || it->second.frames.empty()) return;
+
+    Animation& anim = it->second;
+    
+    // Set reload frame range
+    if (weapon == WeaponType::Shotgun) {
+        anim.startFrame = 4;
+        anim.endFrame = 11; // exclusive, frames 4-10
+    }
+    // ... to add other weapons
+    
+    anim.current = anim.startFrame;  // only set once here
+    anim.timer = 0.0f;
+    anim.playing = true;
+}
+
 void WeaponManager::playShootAnimation(WeaponType weapon) {
     auto it = animations.find(weapon);
     if (it == animations.end() || it->second.frames.empty()) return; // safe early exit
 
     Animation& anim = it->second;
     anim.playing = true;
-    anim.current = 0;
     anim.timer = 0.0f;
 }
 
@@ -118,7 +142,15 @@ void WeaponManager::update(float delta, const Player& player) {
             anim.timer = 0.0f;
             anim.current++;
 
-            if (anim.current >= (int)anim.frames.size()) {
+            int endFrame;
+            if (currentWeapon == WeaponType::Shotgun && !(player.reloading)) {
+                endFrame = 4;
+            }
+            else {
+                endFrame = (int)anim.frames.size();
+            }
+
+            if (anim.current >= endFrame) {
                 anim.current = 0;
                 anim.playing = false; // stop after 1 cycle
             }

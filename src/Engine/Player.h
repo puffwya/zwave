@@ -25,8 +25,6 @@ public:
     int maxHealth = 100;
     int armor = 50;
     int maxArmor = 100;
-    int ammo = 25;
-    int maxAmmo = 200;
 
     float x, y, z;
     float angle;
@@ -58,8 +56,14 @@ public:
 
     static constexpr float FIRE_FRAME_DURATION = 0.05f; // 50ms per frame
     static constexpr int PISTOL_FIRE_FRAMES = 6;        // idle + 5 Pistol firing frames
-    static constexpr int SHOTGUN_FIRE_FRAMES = 5;        // idle + 4 Shotgun firing frames
+    static constexpr int SHOTGUN_FIRE_FRAMES = 4;        // idle + 3 Shotgun firing frames
 
+    // Reload Anim 
+    bool reloading = false;
+    bool reloadKeyPressed = false;
+    int reloadFrame = 0;
+    float reloadFrameTimer = 0.0f;
+    const float RELOAD_FRAME_DURATION = 0.1f;
 
     int lastChunkID;
 
@@ -68,7 +72,7 @@ public:
         lastChunkID = -1;
     }
 
-    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager);
+    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon);
     void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map);
 
     void giveItem(ItemType item);

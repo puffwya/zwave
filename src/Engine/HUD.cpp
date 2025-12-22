@@ -3,7 +3,7 @@
 #include <iostream>
 
 bool HUD::loadDigitTextures(SDL_Renderer* renderer) {
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 11; ++i) {
         // Construct path
         std::string path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
 
@@ -26,31 +26,43 @@ bool HUD::loadDigitTextures(SDL_Renderer* renderer) {
     return true;
 }
 
-void HUD::drawDigits(SDL_Renderer* renderer,
-                     int value,
-                     int x,
-                     int y,
-                     bool rightAlign)
+void HUD::drawAmmo(SDL_Renderer* renderer,
+                   int clip,
+                   int reserve,
+                   int x,
+                   int y,
+                   int scale)
 {
-    std::string str = std::to_string(value);
+    // convert both numbers to strings
+    std::string clipStr = std::to_string(clip);
+    std::string reserveStr = std::to_string(reserve);
 
-    int scale = 2;               // tweak later
     int spacing = 2 * scale;
-    int totalW =
-        str.size() * (digitW * scale + spacing) - spacing;
 
-    int drawX = rightAlign ? (x - totalW) : x;
+    // calculate total width: clip + separator + reserve
+    int totalW = (clipStr.size() + 1 + reserveStr.size()) * (digitW * scale) 
+                 + ((clipStr.size() + 1 + reserveStr.size() - 1) * spacing);
 
-    for (char c : str) {
+    // right align at x
+    int drawX = x - totalW;
+
+    // draw clip digits
+    for (char c : clipStr) {
         int d = c - '0';
+        SDL_Rect dst{ drawX, y, digitW * scale, digitH * scale };
+        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dst);
+        drawX += digitW * scale + spacing;
+    }
 
-        SDL_Rect dst{
-            drawX,
-            y,
-            digitW * scale,
-            digitH * scale
-        };
+    // draw separator "/"
+    SDL_Rect slashDst{ drawX, y, digitW * scale, digitH * scale };
+    SDL_RenderCopy(renderer, digitTextures[10], nullptr, &slashDst); // digitTextures[10] = "/"
+    drawX += digitW * scale + spacing;
 
+    // draw reserve digits
+    for (char c : reserveStr) {
+        int d = c - '0';
+        SDL_Rect dst{ drawX, y, digitW * scale, digitH * scale };
         SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dst);
         drawX += digitW * scale + spacing;
     }
@@ -78,7 +90,7 @@ void HUD::drawBar(SDL_Renderer* renderer,
 void HUD::render(SDL_Renderer* renderer,
                  const Player& player,
                  int screenW,
-                 int screenH)
+                 int screenH, Weapon& weapon)
 {
     const int margin = 20;
     const int barW = 200;
@@ -101,12 +113,20 @@ void HUD::render(SDL_Renderer* renderer,
             { 40, 40, 200 });
 
     // ammo count
-    int ammo = player.ammo;
-
-    drawDigits(renderer,
-           ammo,
-           screenW - 16,
-           screenH - 48,
-           true);
+    if (player.currentItem == ItemType::Pistol) {
+        drawAmmo(renderer,
+             weapon.pClipAmmo,
+             weapon.pReserveAmmo,
+             screenW - 16,
+             screenH - 48,
+             2);
+    }
+    else if (player.currentItem == ItemType::Shotgun) {
+        drawAmmo(renderer,
+             weapon.sClipAmmo,
+             weapon.sReserveAmmo,
+             screenW - 16,
+             screenH - 48,
+             2);  
+    }
 }
-

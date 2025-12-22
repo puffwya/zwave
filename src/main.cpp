@@ -7,6 +7,7 @@
 #include "Engine/SpriteRenderer.h"
 #include "Engine/pItemRenderer.h"
 #include "Engine/WeaponManager.h"
+#include "Engine/WeaponTypes.h"
 #include "Engine/MapToSegments.h"
 #include "Engine/BSP.h"
 #include "Engine/DoomRenderer.h"
@@ -27,6 +28,7 @@ int main() {
     HUD hud;
     EnemyManager enemyManager;
     WeaponManager weaponManager;
+    Weapon weapon;
     enemyManager.initialize(renderer.getSDLRenderer());
     enemyManager.scanMapForSpawnPoints(worldMap);
 
@@ -84,7 +86,7 @@ int main() {
                 running = false;
 
         const Uint8* keys = SDL_GetKeyboardState(NULL);
-        player.update(dt, keys, worldMap, enemyManager, weaponManager);
+        player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon);
 
         enemyManager.update(dt, player, worldMap);
         
@@ -119,7 +121,7 @@ int main() {
 
         pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem, weaponManager);
 
-        hud.render(renderer.getSDLRenderer(), player, SCREEN_WIDTH, SCREEN_HEIGHT);
+        hud.render(renderer.getSDLRenderer(), player, SCREEN_WIDTH, SCREEN_HEIGHT, weapon);
 
         renderer.present();
     }

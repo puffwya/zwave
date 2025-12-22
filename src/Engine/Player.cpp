@@ -9,7 +9,7 @@ WeaponType Player::itemToWeapon(ItemType item) {
     }
 }
 
-void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager) {
+void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon) {
     // Apply acceleration
     float inputX = 0.0f;
     float inputY = 0.0f;
@@ -134,29 +134,69 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     // Pistol shooting
     if (currentItem == ItemType::Pistol) {
         if (keys[SDL_SCANCODE_SPACE] && fireCooldown <= 0.0f) {
-            shoot(enemyManager, weaponManager, map);
-            fireCooldown = 0.5f; // pistol fires once every 0.5 seconds
+            if (weapon.pClipAmmo <= 0) {
+                // Will play clicking sound in future
+                weapon.pClipAmmo = 0;
+            }
+            else {
+                shoot(enemyManager, weaponManager, map);
+                fireCooldown = 0.5f; // pistol fires once every 0.5 seconds
 
-            // Start animation
-            isFiringAnim = true;
-            fireFrame = 0;
-            fireFrameTimer = FIRE_FRAME_DURATION;
-            ammo -= 1;
+                // Start animation
+                isFiringAnim = true;
+                fireFrame = 0;
+                fireFrameTimer = FIRE_FRAME_DURATION;
+                weapon.pClipAmmo -= 1;
+            }
         }
     }
 
     // Shotgun shooting
     if (currentItem == ItemType::Shotgun) {
         if (keys[SDL_SCANCODE_SPACE] && fireCooldown <= 0.0f) {
-            shoot(enemyManager, weaponManager, map);
-            fireCooldown = 0.5f; // Shotgun fires once every 0.5 seconds
+            if (weapon.sClipAmmo <= 0) {
+                // Will play clicking sound in future  
+                //weapon.sClipAmmo = 0;
+            }
+            else {
+                shoot(enemyManager, weaponManager, map);
+                fireCooldown = 0.5f; // Shotgun fires once every 0.5 seconds
 
-            // Start animation
-            isFiringAnim = true;
-            fireFrame = 0;
-            fireFrameTimer = FIRE_FRAME_DURATION;
+                // Start animation
+                isFiringAnim = true;
+                fireFrame = 0;
+                fireFrameTimer = FIRE_FRAME_DURATION;
+                weapon.sClipAmmo -= 2;
+            }
         }
     }
+
+    // Reload guns
+    if (keys[SDL_SCANCODE_R]) {
+        if (!reloadKeyPressed) {
+            if (currentItem == ItemType::Shotgun && weapon.sClipAmmo < weapon.sClipSize && weapon.sReserveAmmo != 0) {
+                reloading = true;
+                reloadFrame = 0;
+                reloadFrameTimer = RELOAD_FRAME_DURATION;
+                reloadKeyPressed = true;
+                weaponManager.playReloadAnimation(itemToWeapon(currentItem));
+
+                // Checks if reserve is less than max clip size and if so sets clip size to reserve
+                if (weapon.sReserveAmmo < weapon.sClipSize && weapon.sReserveAmmo > 0) {
+                    weapon.sClipAmmo = weapon.sReserveAmmo;
+                    weapon.sReserveAmmo = 0;
+                }
+                // "normal case" takes from reserve the max clip size and adds it to clip size
+                else {
+                    weapon.sClipAmmo = weapon.sClipSize;
+                    weapon.sReserveAmmo -= weapon.sClipSize;
+                }
+            }
+        }
+    } else {
+        reloadKeyPressed = false;
+    }
+    
 
     // Reduce cooldown
     if (fireCooldown > 0.0f)
@@ -178,6 +218,22 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 // Shotgun animation over, return to idle
                 fireFrame = 0;
                 isFiringAnim = false;
+            }
+        }
+    }
+
+    if (reloading) {
+        reloadFrameTimer -= delta;
+        if (reloadFrameTimer <= 0.0f) {
+            reloadFrame++;
+            reloadFrameTimer = RELOAD_FRAME_DURATION;
+
+            const int RELOAD_FRAMES = (currentItem == ItemType::Shotgun) ? 7 : 0; // e.g., frames 4-10
+
+            if (reloadFrame >= RELOAD_FRAMES) {
+                // Reload finished
+                reloadFrame = 0;
+                reloading = false; 
             }
         }
     }

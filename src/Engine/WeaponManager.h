@@ -26,6 +26,8 @@ public:
 
     void playShootAnimation(WeaponType weapon);
 
+    void playReloadAnimation(WeaponType weapon);
+
     void startSwap(WeaponType newWeapon);
 
     int getDrawOffsetY() const;
@@ -49,6 +51,8 @@ private:
         float timer = 0.0f;
         int current = 0;
         bool playing = false;
+        int startFrame = 0;
+        int endFrame = -1;
     };
 
     std::map<WeaponType, Animation> animations;
