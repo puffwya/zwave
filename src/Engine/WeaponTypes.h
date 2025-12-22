@@ -12,7 +12,7 @@ public:
     int pClipAmmo = 8;
     int pClipSize = 8;
 
-    int pReserveAmmo = 0;
+    int pReserveAmmo = 32;
     int pMaxReserve = 200;
 
     // Shotgun ammo vars

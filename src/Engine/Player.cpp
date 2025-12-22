@@ -192,6 +192,30 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                     weapon.sReserveAmmo -= weapon.sClipSize;
                 }
             }
+            else if (currentItem == ItemType::Pistol && weapon.pClipAmmo < weapon.pClipSize && weapon.pReserveAmmo != 0) {
+                reloading = true;
+                reloadFrame = 0;
+                reloadFrameTimer = RELOAD_FRAME_DURATION;
+                reloadKeyPressed = true;
+                weaponManager.playReloadAnimation(itemToWeapon(currentItem));
+                
+                // Checks if reserve is less than max clip size and if so sets clip size to reserve
+                if (weapon.pReserveAmmo < weapon.pClipSize && weapon.pReserveAmmo > 0) {
+                    weapon.pClipAmmo = weapon.pReserveAmmo;
+                    weapon.pReserveAmmo = 0;
+                }
+                // Partial reloads (not on fully empty clip)
+                else if (weapon.pClipAmmo != 0) {
+                    weapon.pReserveAmmo += weapon.pClipAmmo;
+                    weapon.pClipAmmo = weapon.pClipSize;
+                    weapon.pReserveAmmo -= weapon.pClipSize;
+                }
+                // "normal case" takes from reserve the max clip size and adds it to clip size
+                else {
+                    weapon.pClipAmmo = weapon.pClipSize;
+                    weapon.pReserveAmmo -= weapon.pClipSize;
+                }
+            }
         }
     } else {
         reloadKeyPressed = false;
@@ -228,7 +252,14 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             reloadFrame++;
             reloadFrameTimer = RELOAD_FRAME_DURATION;
 
-            const int RELOAD_FRAMES = (currentItem == ItemType::Shotgun) ? 7 : 0; // e.g., frames 4-10
+            int RELOAD_FRAMES = 0;
+
+            if (currentItem == ItemType::Shotgun) {
+                RELOAD_FRAMES = 7;   // frames 4–10
+            }
+            else if (currentItem == ItemType::Pistol) {
+                RELOAD_FRAMES = 7;   // frames 6–12
+            }
 
             if (reloadFrame >= RELOAD_FRAMES) {
                 // Reload finished

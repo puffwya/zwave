@@ -14,7 +14,14 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         "Assets/Pistol2.png",
         "Assets/Pistol3.png",
         "Assets/Pistol4.png",
-        "Assets/Pistol5.png"
+        "Assets/Pistol5.png",
+        "Assets/Pistol6.png",
+        "Assets/Pistol7.png",
+        "Assets/Pistol8.png",
+        "Assets/Pistol9.png",
+        "Assets/Pistol10.png",
+        "Assets/Pistol11.png",
+        "Assets/Pistol12.png"
     };
 
     for (const char* path : pistolPaths) {
@@ -27,7 +34,7 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         pistolAnim.frames.push_back(tex);
     }
 
-    pistolAnim.frameTime = 0.07f; // fast DOOM-style <70ms
+    pistolAnim.frameTime = 0.07f; // fast <70ms
     animations[WeaponType::Pistol] = pistolAnim;
 
     // Load shotgun frames
@@ -83,6 +90,11 @@ void WeaponManager::playReloadAnimation(WeaponType weapon)
     if (weapon == WeaponType::Shotgun) {
         anim.startFrame = 4;
         anim.endFrame = 11; // exclusive, frames 4-10
+    }
+    // Set reload frame range
+    else if (weapon == WeaponType::Pistol) {
+        anim.startFrame = 6;
+        anim.endFrame = 13;
     }
     // ... to add other weapons
     
@@ -145,6 +157,9 @@ void WeaponManager::update(float delta, const Player& player) {
             int endFrame;
             if (currentWeapon == WeaponType::Shotgun && !(player.reloading)) {
                 endFrame = 4;
+            }
+            else if (currentWeapon == WeaponType::Pistol && !(player.reloading)) {
+                endFrame = 6;
             }
             else {
                 endFrame = (int)anim.frames.size();
