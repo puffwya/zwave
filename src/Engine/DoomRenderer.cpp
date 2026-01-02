@@ -216,7 +216,8 @@ void DoomRenderer::traverseBSP(
     int screenW,
     int screenH,
     const Map& map,
-    float* zBuffer
+    float* zBuffer,
+    uint8_t* tileDrawn
 ) {
     if (!node) return;
 
@@ -232,7 +233,7 @@ void DoomRenderer::traverseBSP(
 
     // Traverse far side first
     if (second)
-        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer);
+        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn);
 
     // Pass 1: vertical walls only
     for (const auto& seg : node->onPlane) {
@@ -252,8 +253,6 @@ void DoomRenderer::traverseBSP(
     }
 
     // Pass 2: floors, pits, wall tops
-    bool tileDrawn[Map::SIZE * Map::SIZE] = {}; // 1D array for cache-friendly access
-
     for (const auto& seg : node->onPlane) {
         int tx = seg.tileX;
         int ty = seg.tileY;
@@ -264,7 +263,24 @@ void DoomRenderer::traverseBSP(
         int idx = tx + ty * Map::SIZE;
         if (tileDrawn[idx])
             continue;
-        tileDrawn[idx] = true;
+        if (map.get(tx+1,ty).height < 0 || map.get(tx,ty+1).height < 0 || map.get(tx,ty-1).height < 0 || map.get(tx-1,ty).height < 0) {
+            tileDrawn[idx] = false;
+        }
+        else if (map.get(tx+2,ty).height < 0 || map.get(tx,ty+2).height < 0 || map.get(tx,ty-2).height < 0 || map.get(tx-2,ty).height < 0) {
+            tileDrawn[idx] = false;
+        }
+        else if (map.get(tx+3,ty).height < 0 || map.get(tx,ty+3).height < 0 || map.get(tx,ty-3).height < 0 || map.get(tx-3,ty).height < 0) {
+            tileDrawn[idx] = false;
+        }
+        else if (map.get(tx+4,ty).height < 0 || map.get(tx,ty+4).height < 0 || map.get(tx,ty-4).height < 0 || map.get(tx-4,ty).height < 0) {
+            tileDrawn[idx] = false;
+        }
+        else if (map.get(tx+5,ty).height < 0 || map.get(tx,ty+5).height < 0 || map.get(tx,ty-5).height < 0 || map.get(tx-5,ty).height < 0) {
+            tileDrawn[idx] = false;
+        }
+        else {
+            tileDrawn[idx] = true;
+        }
 
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
@@ -298,7 +314,7 @@ void DoomRenderer::traverseBSP(
 
     // Traverse near side last
     if (first)
-        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer);
+        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn);
 }
 
 // Main render entry
@@ -320,8 +336,11 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     //     for (int y = screenH / 2; y < screenH; ++y)
     //         pixels[y * screenW + x] = FLOOR_COLOR;
 
+    static std::vector<uint8_t> tileDrawn;
+    tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
+
     // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer);
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data());
 
     // Note: sprite rendering (sorted by depth) to be added later
 }

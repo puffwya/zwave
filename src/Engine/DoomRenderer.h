@@ -42,7 +42,7 @@ private:
     // BSP traversal
     void traverseBSP(const BSPNode* node, const Player& player,
                      uint32_t* pixels, int screenW, int screenH,
-                     const Map& map, float* zBuffer);
+                     const Map& map, float* zBuffer, uint8_t* tileDrawn);
 
     // small side test helper
     static float sideOfLine(float ax, float ay, float bx, float by, float px, float py);
