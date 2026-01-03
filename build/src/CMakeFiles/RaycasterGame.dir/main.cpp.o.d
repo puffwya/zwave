@@ -765,6 +765,7 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
+  /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
   /Users/wyattpuff/Raycaster/src/Engine/pItemRenderer.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.h \
@@ -775,9 +776,9 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Engine/BSP.h \
   /Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.h \
   /Users/wyattpuff/Raycaster/src/Engine/HUD.h \
-  /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Menu/MainMenu.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/GameState.h \
+  /Users/wyattpuff/Raycaster/src/Menu/PauseMenu.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__locale \

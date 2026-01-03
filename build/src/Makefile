@@ -418,6 +418,30 @@ Menu/MainMenu.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.s
 .PHONY : Menu/MainMenu.cpp.s
 
+Menu/PauseMenu.o: Menu/PauseMenu.cpp.o
+.PHONY : Menu/PauseMenu.o
+
+# target to build an object file
+Menu/PauseMenu.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o
+.PHONY : Menu/PauseMenu.cpp.o
+
+Menu/PauseMenu.i: Menu/PauseMenu.cpp.i
+.PHONY : Menu/PauseMenu.i
+
+# target to preprocess a source file
+Menu/PauseMenu.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.i
+.PHONY : Menu/PauseMenu.cpp.i
+
+Menu/PauseMenu.s: Menu/PauseMenu.cpp.s
+.PHONY : Menu/PauseMenu.s
+
+# target to generate assembly for a file
+Menu/PauseMenu.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.s
+.PHONY : Menu/PauseMenu.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -487,6 +511,9 @@ help:
 	@echo "... Menu/MainMenu.o"
 	@echo "... Menu/MainMenu.i"
 	@echo "... Menu/MainMenu.s"
+	@echo "... Menu/PauseMenu.o"
+	@echo "... Menu/PauseMenu.i"
+	@echo "... Menu/PauseMenu.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

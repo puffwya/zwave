@@ -764,6 +764,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Engine/Player.h \
   /Users/wyattpuff/Raycaster/src/Engine/EnemyManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
+  /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/random \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/bernoulli_distribution.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__random/uniform_real_distribution.h \

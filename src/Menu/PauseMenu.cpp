@@ -1,8 +1,8 @@
-#include "MainMenu.h"
+#include "PauseMenu.h"
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
+bool PauseMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
     const float buttonWidth = screenW * 0.20f;
     const float buttonGap = screenH * 0.06f;
 
@@ -165,7 +165,7 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
     return true;
 }
 
-void MainMenu::handleInput(const SDL_Event& e, GameState& gs, bool& running, bool& mRunning) {
+void PauseMenu::handleInput(const SDL_Event& e, GameState& gs, bool& running) {
     if (e.type != SDL_KEYDOWN) return;
 
     switch (e.key.keysym.sym) {
@@ -182,19 +182,19 @@ void MainMenu::handleInput(const SDL_Event& e, GameState& gs, bool& running, boo
             break;
 
         case SDLK_RETURN:
-            activateSelected(gs, running, mRunning);
+            activateSelected(gs, running);
             break;
     }
 }
 
-void MainMenu::updateCursor() {
+void PauseMenu::updateCursor() {
     const SDL_Rect& target = menuRects[selectedIndex];
 
     cursorRect.x = target.x + target.w + 12; // to the RIGHT of button
     cursorRect.y = target.y + (target.h / 2) - (cursorRect.h / 2);
 }
 
-void MainMenu::activateSelected(GameState& gs, bool& running, bool& mRunning) {
+void PauseMenu::activateSelected(GameState& gs, bool& running) {
     if (selectedIndex == MENU_START) {
         gs = GameState::Playing;
     }
@@ -202,15 +202,15 @@ void MainMenu::activateSelected(GameState& gs, bool& running, bool& mRunning) {
         gs = GameState::MainMenu;
     }
     else if (selectedIndex == MENU_QUIT) {
+        gs = GameState::MainMenu;
         running = false;
-        mRunning = false;
     }
 }
 
-void MainMenu::render(SDL_Renderer* renderer) {
-    SDL_RenderClear(renderer);
+void PauseMenu::render(SDL_Renderer* renderer) {
+    //SDL_RenderClear(renderer);
 
-    SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
+    //SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
     SDL_RenderCopy(renderer, mainLogoTexture, nullptr, &mainLogoRect);
     SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
     SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);

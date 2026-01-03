@@ -2,12 +2,12 @@
 #include <SDL2/SDL.h>
 #include "../Engine/GameState.h"
 
-class MainMenu {
+class PauseMenu {
 public:
     bool init(SDL_Renderer* renderer, int screenW, int screenH);
-    void handleInput(const SDL_Event& e, GameState& gs, bool& running, bool& mRunning);
+    void handleInput(const SDL_Event& e, GameState& gs, bool& running);
     void updateCursor();
-    void activateSelected(GameState& gs, bool& running, bool& mRunning);
+    void activateSelected(GameState& gs, bool& running);
     void render(SDL_Renderer* renderer);
     void shutdown();
 
@@ -45,4 +45,3 @@ private:
     int screenW = 0;
     int screenH = 0;
 };
-

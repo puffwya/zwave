@@ -14,6 +14,7 @@
 #include "Engine/HUD.h"
 #include "Engine/GameState.h"
 #include "Menu/MainMenu.h"
+#include "Menu/PauseMenu.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <unordered_map>
@@ -35,6 +36,8 @@ int main() {
     enemyManager.scanMapForSpawnPoints(worldMap);
     MainMenu mainMenu;
     mainMenu.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
+    PauseMenu pauseMenu;
+    pauseMenu.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // build segments from grid map
     std::vector<GridSegment> segments = buildSegmentsFromGrid(worldMap);
@@ -78,79 +81,164 @@ int main() {
 
     GameState gameState = GameState::MainMenu;
 
-    if (gameState == GameState::MainMenu) {
+    static float pauseT = 0.0f;
 
-        while(running && gameState == GameState::MainMenu) {
-            // handle events
-            SDL_Event e;
-            while (SDL_PollEvent(&e)) {
-                if (e.type == SDL_QUIT) {
-                    running = false;
+    bool mainRun = true;
+
+    while (mainRun) {
+        running = true;
+        if (gameState == GameState::MainMenu) {
+
+            while(running && gameState == GameState::MainMenu) {
+                // handle events
+                SDL_Event e;
+                while (SDL_PollEvent(&e)) {
+                    if (e.type == SDL_QUIT) {
+                        running = false;
+                        mainRun = false;
+                    }
+
+                    mainMenu.handleInput(e, gameState, running, mainRun);
                 }
+                mainMenu.updateCursor();
+                mainMenu.render(renderer.getSDLRenderer());
 
-                mainMenu.handleInput(e, gameState, running);
+                renderer.present();
             }
-            mainMenu.updateCursor();
-            mainMenu.render(renderer.getSDLRenderer());
-
-            renderer.present();
         }
-    }
 
 
-    if (gameState == GameState::Playing) {
-        while (running) {
-            Uint32 now = SDL_GetTicks();
-            // Delta Time
-            float dt = (now - last) / 1000.f;
-            last = now;
+        else if (gameState == GameState::Playing) {
+            while (running) {
+                Uint32 now = SDL_GetTicks();
+                // Delta Time
+                float dt = (now - last) / 1000.f;
+                last = now;
 
+                if (gameState == GameState::Paused) {
+                    pauseT = std::min(pauseT + 0.1f, 1.0f);
 
-            // handle events
-            SDL_Event e;
-            while (SDL_PollEvent(&e))
-                if (e.type == SDL_QUIT)
-                    running = false;
+                    doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
 
-            const Uint8* keys = SDL_GetKeyboardState(NULL);
-            player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon);
+                    renderer.updateTexture(pixels);
 
-            enemyManager.update(dt, player, worldMap);
-        
-            weaponManager.update(dt, player);
+                    renderer.beginFrame();
 
-            // clear buffer
-            for (int i = 0; i < 800*600; i++)
-                pixels[i] = 0xFF202020;
+                    renderer.drawScreenTexture();
 
-            doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
+                    SpriteRenderer::renderEnemies(renderer.getSDLRenderer(), enemyManager, player, zBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-            renderer.updateTexture(pixels);
+                    // draw player item
 
-            renderer.beginFrame();
+                    // Determine what weapon the player is holding
+                    WeaponType wType = WeaponType::None;
 
-            renderer.drawScreenTexture();
+                    if (player.currentItem == ItemType::Pistol)
+                        wType = WeaponType::Pistol;
+                    else if (player.currentItem == ItemType::Shotgun)
+                        wType = WeaponType::Shotgun;
 
-            SpriteRenderer::renderEnemies(renderer.getSDLRenderer(), enemyManager, player, zBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
+                    // Get the current animation frame for that weapon
+                    SDL_Texture* itemTex = weaponManager.getCurrentFrame(wType);
 
-            // draw player item
+                    pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem, weaponManager);
 
-            // Determine what weapon the player is holding
-            WeaponType wType = WeaponType::None;
+                    hud.render(renderer.getSDLRenderer(), player, SCREEN_WIDTH, SCREEN_HEIGHT, weapon);
 
-            if (player.currentItem == ItemType::Pistol)
-                wType = WeaponType::Pistol;
-            else if (player.currentItem == ItemType::Shotgun)
-                wType = WeaponType::Shotgun;
+                    SDL_Renderer* sdl = renderer.getSDLRenderer();
+                    SDL_Texture* screen = renderer.getScreenTexture();
 
-            // Get the current animation frame for that weapon
-            SDL_Texture* itemTex = weaponManager.getCurrentFrame(wType);
+                    // Enable blending
+                    SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_BLEND);
 
-            pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem, weaponManager);
+                    // Subtle blur
+                    int blurRadius = (int)(pauseT * 3);
+                    Uint8 blurAlpha = (Uint8)(pauseT * 12);
 
-            hud.render(renderer.getSDLRenderer(), player, SCREEN_WIDTH, SCREEN_HEIGHT, weapon);
+                    for (int x = -blurRadius; x <= blurRadius; x += 2) {
+                        for (int y = -blurRadius; y <= blurRadius; y += 2) {
+                            if (x == 0 && y == 0) continue; // keep center sharp
+                            SDL_Rect dst = { x, y, SCREEN_WIDTH, SCREEN_HEIGHT };
+                            SDL_SetTextureAlphaMod(screen, blurAlpha);
+                            SDL_RenderCopy(sdl, screen, nullptr, &dst);
+                        }
+                    }
 
-            renderer.present();
+                    // Reset texture alpha
+                    SDL_SetTextureAlphaMod(screen, 255);
+
+                    // Dim overlay
+                    Uint8 dimAlpha = (Uint8)(pauseT * 120);
+                    SDL_SetRenderDrawBlendMode(sdl, SDL_BLENDMODE_BLEND);
+                    SDL_SetRenderDrawColor(sdl, 0, 0, 0, dimAlpha);
+                    SDL_RenderFillRect(sdl, nullptr);
+
+                    // handle events
+                    SDL_Event e;
+                    while (SDL_PollEvent(&e)) { 
+                        if (e.type == SDL_QUIT) {
+                            running = false;
+                            mainRun = false;
+                        }
+                        pauseMenu.handleInput(e, gameState, running);
+                    }
+                    pauseMenu.updateCursor();
+                    pauseMenu.render(renderer.getSDLRenderer());
+
+                    renderer.present();
+                }
+                else {
+                    pauseT = 0.0f;
+                    // handle events
+                    SDL_Event e;
+                    while (SDL_PollEvent(&e)) {
+                        if (e.type == SDL_QUIT) {
+                            running = false;
+                            mainRun = false;
+                        }
+                    }
+
+                    const Uint8* keys = SDL_GetKeyboardState(NULL);
+                    player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState);
+
+                    enemyManager.update(dt, player, worldMap);
+    
+                    weaponManager.update(dt, player);
+
+                    // clear buffer
+                    for (int i = 0; i < 800*600; i++)
+                        pixels[i] = 0xFF202020;
+            
+                    doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
+
+                    renderer.updateTexture(pixels);
+
+                    renderer.beginFrame();
+
+                    renderer.drawScreenTexture();
+
+                    SpriteRenderer::renderEnemies(renderer.getSDLRenderer(), enemyManager, player, zBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+                    // draw player item
+
+                    // Determine what weapon the player is holding
+                    WeaponType wType = WeaponType::None;
+
+                    if (player.currentItem == ItemType::Pistol)
+                        wType = WeaponType::Pistol;
+                    else if (player.currentItem == ItemType::Shotgun)
+                        wType = WeaponType::Shotgun;
+
+                    // Get the current animation frame for that weapon
+                    SDL_Texture* itemTex = weaponManager.getCurrentFrame(wType);
+
+                    pItemRenderer::renderPItem(renderer.getSDLRenderer(), itemTex, SCREEN_WIDTH, SCREEN_HEIGHT, player.currentItem, weaponManager);
+
+                    hud.render(renderer.getSDLRenderer(), player, SCREEN_WIDTH, SCREEN_HEIGHT, weapon);
+
+                    renderer.present();
+                }
+            }
         }
     }
     delete[] zBuffer;

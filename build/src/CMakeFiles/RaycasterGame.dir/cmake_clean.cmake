@@ -25,6 +25,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/main.cpp.o"
   "CMakeFiles/RaycasterGame.dir/main.cpp.o.d"
 )

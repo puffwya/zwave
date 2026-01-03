@@ -263,19 +263,19 @@ void DoomRenderer::traverseBSP(
         int idx = tx + ty * Map::SIZE;
         if (tileDrawn[idx])
             continue;
-        if (map.get(tx+1,ty).height < 0 || map.get(tx,ty+1).height < 0 || map.get(tx,ty-1).height < 0 || map.get(tx-1,ty).height < 0) {
+        if (map.get(tx+1,ty).height < 0 || map.get(tx,ty+1).height < 0 || map.get(tx,ty-1).height < 0 || map.get(tx-1,ty).height < 0 || map.get(tx+1,ty+1).height < 0 || map.get(tx-1,ty-1).height < 0) {
             tileDrawn[idx] = false;
         }
-        else if (map.get(tx+2,ty).height < 0 || map.get(tx,ty+2).height < 0 || map.get(tx,ty-2).height < 0 || map.get(tx-2,ty).height < 0) {
+        else if (map.get(tx+2,ty).height < 0 || map.get(tx,ty+2).height < 0 || map.get(tx,ty-2).height < 0 || map.get(tx-2,ty).height < 0 || map.get(tx+2,ty+2).height < 0 || map.get(tx-2,ty-2).height < 0) {
             tileDrawn[idx] = false;
         }
-        else if (map.get(tx+3,ty).height < 0 || map.get(tx,ty+3).height < 0 || map.get(tx,ty-3).height < 0 || map.get(tx-3,ty).height < 0) {
+        else if (map.get(tx+3,ty).height < 0 || map.get(tx,ty+3).height < 0 || map.get(tx,ty-3).height < 0 || map.get(tx-3,ty).height < 0 || map.get(tx+3,ty+3).height < 0 || map.get(tx-3,ty-3).height < 0) {
             tileDrawn[idx] = false;
         }
-        else if (map.get(tx+4,ty).height < 0 || map.get(tx,ty+4).height < 0 || map.get(tx,ty-4).height < 0 || map.get(tx-4,ty).height < 0) {
+        else if (map.get(tx+4,ty).height < 0 || map.get(tx,ty+4).height < 0 || map.get(tx,ty-4).height < 0 || map.get(tx-4,ty).height < 0 || map.get(tx+4,ty+4).height < 0 || map.get(tx-4,ty-4).height < 0) {
             tileDrawn[idx] = false;
         }
-        else if (map.get(tx+5,ty).height < 0 || map.get(tx,ty+5).height < 0 || map.get(tx,ty-5).height < 0 || map.get(tx-5,ty).height < 0) {
+        else if (map.get(tx+5,ty).height < 0 || map.get(tx,ty+5).height < 0 || map.get(tx,ty-5).height < 0 || map.get(tx-5,ty).height < 0 || map.get(tx+5,ty+5).height < 0 || map.get(tx-5,ty-5).height < 0) {
             tileDrawn[idx] = false;
         }
         else {
@@ -322,7 +322,6 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
                           const Player& player, const Map& map, float* zBuffer)
 {
     const uint32_t CEIL_COLOR = 0xFF202040; // World ceiling color (change to texture in the future)
-    // const uint32_t FLOOR_COLOR = 0xFF404020; // World floor color, could use for filling below horizon
 
     // Prepare background: ceiling (top half) and initialize zBuffer
     for (int x = 0; x < screenW; ++x) {

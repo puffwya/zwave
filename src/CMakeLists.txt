@@ -12,6 +12,7 @@ set(SOURCES
     Engine/DoomRenderer.cpp
     Engine/HUD.cpp
     Menu/MainMenu.cpp
+    Menu/PauseMenu.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})

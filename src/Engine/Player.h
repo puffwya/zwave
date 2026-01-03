@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include "WeaponTypes.h"
+#include "GameState.h"
 
 class WeaponManager;
 
@@ -67,12 +68,12 @@ public:
 
     int lastChunkID;
 
-    Player(float startX = 3.5f, float startY = 3.5f, float startZ = 0.5f, float startAngle = 0.0f)
+    Player(float startX = 9.5f, float startY = 4.5f, float startZ = 0.5f, float startAngle = 0.0f)
         : x(startX), y(startY), angle(startAngle), speed(3.0f), z(startZ) {
         lastChunkID = -1;
     }
 
-    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon);
+    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs);
     void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map);
 
     void giveItem(ItemType item);

@@ -9,7 +9,7 @@ WeaponType Player::itemToWeapon(ItemType item) {
     }
 }
 
-void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon) {
+void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs) {
     // Apply acceleration
     float inputX = 0.0f;
     float inputY = 0.0f;
@@ -107,6 +107,10 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (angle < 0) angle += 2*M_PI;
     if (angle >= 2*M_PI) angle -= 2*M_PI;
 
+    // Pause Handling
+    if (keys[SDL_SCANCODE_P]) {
+        gs = GameState::Paused;
+    }
 
     // item switching debounce
     static bool canSwitchItem = true;
