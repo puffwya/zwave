@@ -394,6 +394,30 @@ Engine/pItemRenderer.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.s
 .PHONY : Engine/pItemRenderer.cpp.s
 
+Menu/MainMenu.o: Menu/MainMenu.cpp.o
+.PHONY : Menu/MainMenu.o
+
+# target to build an object file
+Menu/MainMenu.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o
+.PHONY : Menu/MainMenu.cpp.o
+
+Menu/MainMenu.i: Menu/MainMenu.cpp.i
+.PHONY : Menu/MainMenu.i
+
+# target to preprocess a source file
+Menu/MainMenu.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.i
+.PHONY : Menu/MainMenu.cpp.i
+
+Menu/MainMenu.s: Menu/MainMenu.cpp.s
+.PHONY : Menu/MainMenu.s
+
+# target to generate assembly for a file
+Menu/MainMenu.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.s
+.PHONY : Menu/MainMenu.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -460,6 +484,9 @@ help:
 	@echo "... Engine/pItemRenderer.o"
 	@echo "... Engine/pItemRenderer.i"
 	@echo "... Engine/pItemRenderer.s"
+	@echo "... Menu/MainMenu.o"
+	@echo "... Menu/MainMenu.i"
+	@echo "... Menu/MainMenu.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

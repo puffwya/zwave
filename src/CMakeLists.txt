@@ -11,6 +11,7 @@ set(SOURCES
     Engine/BSP.cpp
     Engine/DoomRenderer.cpp
     Engine/HUD.cpp
+    Menu/MainMenu.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})
@@ -21,7 +22,7 @@ target_include_directories(RaycasterGame PRIVATE /opt/homebrew/include)
 # SDL2 libraries (Homebrew)
 find_library(SDL2_LIBRARY SDL2 PATHS /opt/homebrew/lib)
 find_library(SDL2MAIN_LIBRARY SDL2main PATHS /opt/homebrew/lib)
-find_library(SDL2IMAGE_LIBRARY SDL2_image PATHS /opt/homebrew/lib)  # <-- Add this
+find_library(SDL2IMAGE_LIBRARY SDL2_image PATHS /opt/homebrew/lib)
 
 if(NOT SDL2_LIBRARY)
     message(FATAL_ERROR "SDL2 library not found. Install with: brew install sdl2")
