@@ -2,6 +2,49 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
+void MainMenu::spawnAshParticle()
+{
+    AshParticle p;
+
+    // Spawn around the main logo
+    p.x = mainLogoRect.x + rand() % mainLogoRect.w;
+    p.y = mainLogoRect.y + (rand() % (mainLogoRect.h / 2));
+
+    // Slow upward drift
+    p.vx = ((rand() % 100) / 100.0f - 0.5f) * 4.0f;
+    p.vy = -2.0f - (rand() % 2);
+
+    p.life = 0.0f;
+    p.maxLife = 6.5f + (rand() % 100) / 100.0f;
+
+    ashParticles.push_back(p);
+}
+
+void MainMenu::updateAndRenderAsh(SDL_Renderer* renderer, float dt)
+{
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    for (int i = ashParticles.size() - 1; i >= 0; --i) {
+        AshParticle& p = ashParticles[i];
+
+        p.life += dt;
+        if (p.life >= p.maxLife) {
+            ashParticles.erase(ashParticles.begin() + i);
+            continue;
+        }
+
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+
+        float alpha = 1.0f - (p.life / p.maxLife);
+        Uint8 a = (Uint8)(alpha * 180);
+
+        SDL_SetRenderDrawColor(renderer, 255, 183, 11, a);
+        SDL_Rect r = {(int)p.x, (int)p.y, 2, 2};
+        SDL_RenderFillRect(renderer, &r);
+    }
+}
+
 bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
     const float buttonWidth = screenW * 0.20f;
     const float buttonGap = screenH * 0.06f;
@@ -33,13 +76,13 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
 
     // Main Logo
 
-    surface = IMG_Load("assets/pixDigit/mainLogoPix.png");
+    surface = IMG_Load("assets/pixDigit/main_logo_fg.png");
     if (!surface) {
-        std::cerr << "Failed to load main logo: " << IMG_GetError() << std::endl;
+        std::cerr << "Failed to load main logo fg: " << IMG_GetError() << std::endl;
         return false;
     }   
         
-    mainLogoTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    mainLogoFgTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
     float logoAspect  = (float)surface->h / surface->w;
 
@@ -51,7 +94,22 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
      
     SDL_FreeSurface(surface);
     
-    if (!mainLogoTexture) {
+    if (!mainLogoFgTexture) {
+        std::cerr << "Failed to create main logo texture\n";
+        return false;
+    }
+
+    surface = IMG_Load("assets/pixDigit/main_logo_bg.png");
+    if (!surface) {
+        std::cerr << "Failed to load main logo bg: " << IMG_GetError() << std::endl;
+        return false;
+    }
+
+    mainLogoBgTexture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_FreeSurface(surface);
+    
+    if (!mainLogoBgTexture) {
         std::cerr << "Failed to create main logo texture\n";
         return false;
     }
@@ -207,13 +265,40 @@ void MainMenu::activateSelected(GameState& gs, bool& running, bool& mRunning) {
     }
 }
 
-void MainMenu::render(SDL_Renderer* renderer) {
+void MainMenu::render(SDL_Renderer* renderer)
+{
     SDL_RenderClear(renderer);
 
+    float t = SDL_GetTicks() * 0.001f;
+    float dt = 1.0f / 60.0f;
+
+    // Fire glow pulse
+    float pulse = 0.75f + 0.25f * sinf(t * 2.5f);
+    pulse = fmaxf(0.6f, fminf(1.2f, pulse));
+    Uint8 glow = (Uint8)(255 * pulse);
+
+    SDL_SetTextureBlendMode(mainLogoBgTexture, SDL_BLENDMODE_BLEND);
+    SDL_SetTextureColorMod(mainLogoBgTexture, glow, glow, glow);
+    SDL_SetTextureAlphaMod(mainLogoBgTexture, 235);
+
     SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
-    SDL_RenderCopy(renderer, mainLogoTexture, nullptr, &mainLogoRect);
+
+    // Ash particles
+    if (rand() % 100 < 3) {
+        spawnAshParticle();
+    }
+    updateAndRenderAsh(renderer, dt);
+
+    // Logo background
+    SDL_RenderCopy(renderer, mainLogoBgTexture, nullptr, &mainLogoRect);
+
+    // Logo foreground
+    SDL_RenderCopy(renderer, mainLogoFgTexture, nullptr, &mainLogoRect);
+
+    // Menu UI
     SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
     SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);
     SDL_RenderCopy(renderer, quitTexture, nullptr, &quitRect);
     SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
 }
+

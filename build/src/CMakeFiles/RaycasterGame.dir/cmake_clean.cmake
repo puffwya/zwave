@@ -27,6 +27,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/main.cpp.o"
   "CMakeFiles/RaycasterGame.dir/main.cpp.o.d"
 )

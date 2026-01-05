@@ -1,4 +1,4 @@
-// Draw world (walls) first using a raycaster then draw billboarded sprites
+// (OLD) Draw world (walls) first using a raycaster then draw billboarded sprites
 
 #include "Engine/Renderer.h"
 #include "Engine/Player.h"
@@ -20,6 +20,7 @@
 #include <unordered_map>
 #include <vector> 
 #include <iostream>
+#include "audio/AudioManager.h"
 
 int SCREEN_WIDTH = 1200;
 int SCREEN_HEIGHT = 900;
@@ -38,6 +39,8 @@ int main() {
     mainMenu.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
     PauseMenu pauseMenu;
     pauseMenu.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
+    AudioManager audio;
+    audio.init();
 
     // build segments from grid map
     std::vector<GridSegment> segments = buildSegmentsFromGrid(worldMap);
@@ -89,6 +92,9 @@ int main() {
         running = true;
         if (gameState == GameState::MainMenu) {
 
+            audio.stopMusic();
+            audio.playMusic("Assets/audio/FurySyrgeMainTheme.mp3", true);
+
             while(running && gameState == GameState::MainMenu) {
                 // handle events
                 SDL_Event e;
@@ -107,8 +113,10 @@ int main() {
             }
         }
 
-
         else if (gameState == GameState::Playing) {
+
+            audio.stopMusic();
+
             while (running) {
                 Uint32 now = SDL_GetTicks();
                 // Delta Time
@@ -242,5 +250,6 @@ int main() {
         }
     }
     delete[] zBuffer;
+    audio.shutdown();
 }
 

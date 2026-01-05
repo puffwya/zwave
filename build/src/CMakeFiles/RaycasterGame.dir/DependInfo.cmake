@@ -21,6 +21,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/wyattpuff/Raycaster/src/Engine/pItemRenderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/MainMenu.cpp" "src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/PauseMenu.cpp" "src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/audio/AudioManager.cpp" "src/CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/audio/AudioManager.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/main.cpp" "src/CMakeFiles/RaycasterGame.dir/main.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/main.cpp.o.d"
   )
 

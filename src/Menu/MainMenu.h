@@ -1,6 +1,14 @@
 #pragma once
 #include <SDL2/SDL.h>
+#include <vector>
 #include "../Engine/GameState.h"
+
+struct AshParticle {
+    float x, y;
+    float vx, vy;
+    float life;
+    float maxLife;
+};
 
 class MainMenu {
 public:
@@ -24,11 +32,14 @@ public:
 
     SDL_Rect cursorRect{};
 
+    std::vector<AshParticle> ashParticles;
+
 private:
     SDL_Texture* mainBgTexture = nullptr;
     SDL_Rect mainBgRect{};
 
-    SDL_Texture* mainLogoTexture = nullptr;
+    SDL_Texture* mainLogoFgTexture = nullptr;
+    SDL_Texture* mainLogoBgTexture = nullptr; // Glowing Background 
     SDL_Rect mainLogoRect{};
 
     SDL_Texture* startTexture = nullptr;
@@ -44,5 +55,8 @@ private:
 
     int screenW = 0;
     int screenH = 0;
+
+    void spawnAshParticle();
+    void updateAndRenderAsh(SDL_Renderer* renderer, float dt);
 };
 

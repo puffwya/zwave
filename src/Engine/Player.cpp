@@ -60,19 +60,41 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     float newX = x + velX * delta;
     float newY = y + velY * delta;
 
-    // Collision
+    // --- Collision X-axis ---
     int tx = int(std::floor(newX));
     int ty = int(std::floor(y));
-    if (map.get(tx, ty).type != Map::TileType::Wall) {
+    auto& tileX = map.get(tx, ty);
+
+    if (tileX.type != Map::TileType::Wall || tileX.height < 0.0f) {
         x = newX;
+
+        // --- Floor / Pit logic ---
+        float floorZ = tileX.height;
+        if (z > floorZ && floorZ != 0.0f) {
+            z = 0.3;
+        }
+        else if (floorZ == 0.0f) {
+            z = 0.5f;
+        }
     } else {
         velX = 0;
     }
 
+    // --- Collision Y-axis ---
     tx = int(std::floor(x));
     ty = int(std::floor(newY));
-    if (map.get(tx, ty).type != Map::TileType::Wall) {
+    auto& tileY = map.get(tx, ty);
+    
+    if (tileY.type != Map::TileType::Wall || tileY.height < 0.0f) {
         y = newY;
+
+        float floorZ = tileY.height;
+        if (z > floorZ && floorZ != 0.0f) {
+            z = 0.3;
+        }
+        else if (floorZ == 0.0f) {
+            z = 0.5f;
+        }
     } else {
         velY = 0;
     }
