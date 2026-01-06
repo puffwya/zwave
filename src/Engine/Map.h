@@ -23,6 +23,7 @@ public:
     struct Cell {
         TileType type;
         float height;     // 0 = floor, 1 = normal wall, 0> & <1 = step, <0 = pit
+        float cHeight;    // Ceiling Height 
     };
 
     // -----------------------------
@@ -150,15 +151,15 @@ public:
 
                 switch (v) {
                     case 0:
-                        data[y][x] = { TileType::Empty, 0.0f };
+                        data[y][x] = {TileType::Empty, 0.0f, 1.0f};
                         break;
 
                     case 1:
-                        data[y][x] = { TileType::Wall,  1.0f }; // default wall height
+                        data[y][x] = {TileType::Wall, 1.0f, 1.0f}; // default wall and heights
                         break;
 
                     case 2:
-                        data[y][x] = { TileType::Spawn, 0.0f };
+                        data[y][x] = {TileType::Spawn, 0.0f, 1.0f};
                         break;
                 }
             }

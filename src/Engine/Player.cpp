@@ -14,16 +14,16 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     float inputX = 0.0f;
     float inputY = 0.0f;
 
-    if (keys[SDL_SCANCODE_UP]) {
+    if (keys[SDL_SCANCODE_W]) {
         inputX += std::cos(angle);
         inputY += std::sin(angle);
     }
-    if (keys[SDL_SCANCODE_DOWN]) {
+    if (keys[SDL_SCANCODE_S]) {
         inputX -= std::cos(angle);
         inputY -= std::sin(angle);
     }
 
-    if (keys[SDL_SCANCODE_J] && onGround) {
+    if (keys[SDL_SCANCODE_SPACE] && onGround) {
         velZ = JUMP_VELOCITY;
         onGround = false;
         z += 0.001;
@@ -40,7 +40,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     }
 
     // Apply friction if no movement keys
-    if (!keys[SDL_SCANCODE_UP] && !keys[SDL_SCANCODE_DOWN]) {
+    if (!keys[SDL_SCANCODE_W] && !keys[SDL_SCANCODE_S]) {
 
         float speed = std::sqrt(velX*velX + velY*velY);
 
@@ -57,8 +57,16 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
     // Gravity while in the air
     if (onGround == false && z - 0.5 > map.get(int(x), int(y)).height) {
+
         z += velZ * delta;       // move player vertically
         velZ -= GRAVITY * delta; // apply gravity
+
+        if (z >= map.get(int(x), int(y)).cHeight) {
+            z = map.get(int(x), int(y)).cHeight;
+            if (velZ > 0) {
+                velZ = 0;
+            }
+        }
     }
     else {
         onGround = true;
@@ -111,10 +119,10 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     }
 
     // Turning acceleration
-    if (keys[SDL_SCANCODE_LEFT]) {
+    if (keys[SDL_SCANCODE_A]) {
         turnVel -= TURN_ACCEL * delta;
     }
-    else if (keys[SDL_SCANCODE_RIGHT]) {
+    else if (keys[SDL_SCANCODE_D]) {
         turnVel += TURN_ACCEL * delta;
     }
     else {
@@ -170,14 +178,19 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     
     // Pistol shooting
     if (currentItem == ItemType::Pistol) {
-        if (keys[SDL_SCANCODE_SPACE] && fireCooldown <= 0.0f) {
+
+        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+        
+        bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+
+        if (leftMouseDown && fireCooldown <= 0.0f) {
             if (weapon.pClipAmmo <= 0) {
                 // Will play clicking sound in future
                 weapon.pClipAmmo = 0;
             }
             else {
                 shoot(enemyManager, weaponManager, map);
-                fireCooldown = 0.5f; // pistol fires once every 0.5 seconds
+                fireCooldown = 0.75f; // pistol fires once every 0.5 seconds
 
                 // Start animation
                 isFiringAnim = true;
@@ -190,14 +203,19 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
     // Shotgun shooting
     if (currentItem == ItemType::Shotgun) {
-        if (keys[SDL_SCANCODE_SPACE] && fireCooldown <= 0.0f) {
+
+        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+
+        bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+
+        if (leftMouseDown && fireCooldown <= 0.0f) {
             if (weapon.sClipAmmo <= 0) {
                 // Will play clicking sound in future  
                 //weapon.sClipAmmo = 0;
             }
             else {
                 shoot(enemyManager, weaponManager, map);
-                fireCooldown = 0.5f; // Shotgun fires once every 0.5 seconds
+                fireCooldown = 0.75f; // Shotgun fires once every 0.5 seconds
 
                 // Start animation
                 isFiringAnim = true;
