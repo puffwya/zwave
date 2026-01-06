@@ -112,21 +112,32 @@ void HUD::render(SDL_Renderer* renderer,
             player.armor, player.maxArmor,
             { 40, 40, 200 });
 
+    float hudScaleF = (float)screenH / 720.0f;
+    hudScaleF *= 0.75f;
+
+    int hudScale = std::max((int)hudScaleF, 1);
+
+    int ammoX = screenW - (screenW * 0.02f);
+    int ammoY = screenH - (screenH * 0.05f);
+
+    ammoX = (ammoX / hudScale) * hudScale;
+    ammoY = (ammoY / hudScale) * hudScale;
+
     // ammo count
     if (player.currentItem == ItemType::Pistol) {
         drawAmmo(renderer,
              weapon.pClipAmmo,
              weapon.pReserveAmmo,
-             screenW - 16,
-             screenH - 48,
-             2);
+             ammoX,
+             ammoY,
+             hudScale);
     }
     else if (player.currentItem == ItemType::Shotgun) {
         drawAmmo(renderer,
              weapon.sClipAmmo,
              weapon.sReserveAmmo,
-             screenW - 16,
-             screenH - 48,
-             2);  
+             ammoX,
+             ammoY,
+             hudScale);  
     }
 }
