@@ -279,7 +279,7 @@ void MainMenu::render(SDL_Renderer* renderer)
 
     SDL_SetTextureBlendMode(mainLogoBgTexture, SDL_BLENDMODE_BLEND);
     SDL_SetTextureColorMod(mainLogoBgTexture, glow, glow, glow);
-    SDL_SetTextureAlphaMod(mainLogoBgTexture, 235);
+    SDL_SetTextureAlphaMod(mainLogoBgTexture, 245);
 
     SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
 

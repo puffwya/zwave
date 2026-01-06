@@ -23,6 +23,12 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         inputY -= std::sin(angle);
     }
 
+    if (keys[SDL_SCANCODE_J] && onGround) {
+        velZ = JUMP_VELOCITY;
+        onGround = false;
+        z += 0.001;
+    }
+
     // Normalize input so diagonal isn’t faster
     float len = std::sqrt(inputX*inputX + inputY*inputY);
     if (len > 0.01f) {
@@ -49,6 +55,15 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         }
     }
 
+    // Gravity while in the air
+    if (onGround == false && z - 0.5 > map.get(int(x), int(y)).height) {
+        z += velZ * delta;       // move player vertically
+        velZ -= GRAVITY * delta; // apply gravity
+    }
+    else {
+        onGround = true;
+    }
+
     // Clamp max speed
     float speedNow = std::sqrt(velX*velX + velY*velY);
     if (speedNow > MAX_SPEED) {
@@ -65,16 +80,14 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     int ty = int(std::floor(y));
     auto& tileX = map.get(tx, ty);
 
-    if (tileX.type != Map::TileType::Wall || tileX.height < 0.0f) {
+    float heightDelta = tileX.height - (z - 0.5);
+
+    if (heightDelta <= 0.25f) {
         x = newX;
 
-        // --- Floor / Pit logic ---
-        float floorZ = tileX.height;
-        if (z > floorZ && floorZ != 0.0f) {
-            z = 0.3;
-        }
-        else if (floorZ == 0.0f) {
-            z = 0.5f;
+        // Update player z to 0.5 greater than tile height
+        if (z != 0.5 + tileX.height && onGround) {
+            z = 0.5 + tileX.height;
         }
     } else {
         velX = 0;
@@ -84,16 +97,14 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     tx = int(std::floor(x));
     ty = int(std::floor(newY));
     auto& tileY = map.get(tx, ty);
-    
-    if (tileY.type != Map::TileType::Wall || tileY.height < 0.0f) {
+
+    heightDelta = tileY.height - (z - 0.5);
+
+    if (heightDelta <= 0.25f) {
         y = newY;
 
-        float floorZ = tileY.height;
-        if (z > floorZ && floorZ != 0.0f) {
-            z = 0.3;
-        }
-        else if (floorZ == 0.0f) {
-            z = 0.5f;
+        if (z != 0.5 + tileY.height && onGround) {
+            z = 0.5 + tileY.height;
         }
     } else {
         velY = 0;
