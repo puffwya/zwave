@@ -260,23 +260,18 @@ void DoomRenderer::traverseBSP(
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
 
+        bool notNearPit = true;
+
         int idx = tx + ty * Map::SIZE;
         if (tileDrawn[idx])
             continue;
         if (map.get(tx+1,ty).height < 0 || map.get(tx,ty+1).height < 0 || map.get(tx,ty-1).height < 0 || map.get(tx-1,ty).height < 0 || map.get(tx+1,ty+1).height < 0 || map.get(tx-1,ty-1).height < 0) {
             tileDrawn[idx] = false;
+            notNearPit = false;
         }
         else if (map.get(tx+2,ty).height < 0 || map.get(tx,ty+2).height < 0 || map.get(tx,ty-2).height < 0 || map.get(tx-2,ty).height < 0 || map.get(tx+2,ty+2).height < 0 || map.get(tx-2,ty-2).height < 0) {
             tileDrawn[idx] = false;
-        }
-        else if (map.get(tx+3,ty).height < 0 || map.get(tx,ty+3).height < 0 || map.get(tx,ty-3).height < 0 || map.get(tx-3,ty).height < 0 || map.get(tx+3,ty+3).height < 0 || map.get(tx-3,ty-3).height < 0) {
-            tileDrawn[idx] = false;
-        }
-        else if (map.get(tx+4,ty).height < 0 || map.get(tx,ty+4).height < 0 || map.get(tx,ty-4).height < 0 || map.get(tx-4,ty).height < 0 || map.get(tx+4,ty+4).height < 0 || map.get(tx-4,ty-4).height < 0) {
-            tileDrawn[idx] = false;
-        }
-        else if (map.get(tx+5,ty).height < 0 || map.get(tx,ty+5).height < 0 || map.get(tx,ty-5).height < 0 || map.get(tx-5,ty).height < 0 || map.get(tx+5,ty+5).height < 0 || map.get(tx-5,ty-5).height < 0) {
-            tileDrawn[idx] = false;
+            notNearPit = false;
         }
         else {
             tileDrawn[idx] = true;
@@ -284,6 +279,13 @@ void DoomRenderer::traverseBSP(
 
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
+
+        if (h == 0.0f && notNearPit) {
+            continue;
+        }
+        else if (h < 0.0f) {
+            continue;
+        }
 
         uint32_t floorColor;
 
@@ -323,23 +325,40 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
 {
     const uint32_t CEIL_COLOR = 0xFF202040; // World ceiling color (change to texture in the future)
 
-    // Prepare background: ceiling (top half) and initialize zBuffer
-    for (int x = 0; x < screenW; ++x) {
-        zBuffer[x] = 1e6f; // initialize as far away
-        for (int y = 0; y < screenH / 2; ++y)
-            pixels[y * screenW + x] = CEIL_COLOR;
-    }
+    // Clear framebuffer
+    static constexpr uint32_t CLEAR_PIXEL = 0x00000000; // fully transparent black
+    std::fill(pixels, pixels + screenW * screenH, CLEAR_PIXEL);
 
-    // fill floor (bottom half) not needed at the moment
-    // for (int x = 0; x < screenW; ++x)
-    //     for (int y = screenH / 2; y < screenH; ++y)
-    //         pixels[y * screenW + x] = FLOOR_COLOR;
+    // Init zBuffer
+    for (int x = 0; x < screenW; ++x)
+        zBuffer[x] = 1e6f;
 
     static std::vector<uint8_t> tileDrawn;
     tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
 
     // Traverse BSP and draw segments front-to-back
     traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data());
+
+    for (int y = 0; y < screenH / 2; ++y)
+    {
+        for (int x = 0; x < screenW; ++x)
+        {
+            int idx = y * screenW + x;
+            if (pixels[idx] == CLEAR_PIXEL)
+                pixels[idx] = CEIL_COLOR;
+        }
+    }
+
+    // fill default floor (bottom half of screen)
+    for (int y = screenH / 2; y < screenH; ++y)
+    {
+        for (int x = 0; x < screenW; ++x)
+        {
+            int idx = y * screenW + x;
+            if (pixels[idx] == CLEAR_PIXEL)
+                pixels[idx] = 0xFF404020; // default floor
+        }
+    }
 
     // Note: sprite rendering (sorted by depth) to be added later
 }
