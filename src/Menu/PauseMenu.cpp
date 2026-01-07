@@ -33,13 +33,13 @@ bool PauseMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
 
     // Main Logo
 
-    surface = IMG_Load("assets/pixDigit/mainLogoPix.png");
+    surface = IMG_Load("assets/pixDigit/main_logo_fg.png");
     if (!surface) {
-        std::cerr << "Failed to load main logo: " << IMG_GetError() << std::endl;
+        std::cerr << "Failed to load main logo fg: " << IMG_GetError() << std::endl;
         return false;
     }   
         
-    mainLogoTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    mainLogoFgTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
     float logoAspect  = (float)surface->h / surface->w;
 
@@ -51,7 +51,22 @@ bool PauseMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
      
     SDL_FreeSurface(surface);
     
-    if (!mainLogoTexture) {
+    if (!mainLogoFgTexture) {
+        std::cerr << "Failed to create main logo texture\n";
+        return false;
+    }
+
+    surface = IMG_Load("assets/pixDigit/main_logo_bg.png");
+    if (!surface) {
+        std::cerr << "Failed to load main logo bg: " << IMG_GetError() << std::endl;
+        return false;
+    }
+
+    mainLogoBgTexture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_FreeSurface(surface);
+    
+    if (!mainLogoBgTexture) {
         std::cerr << "Failed to create main logo texture\n";
         return false;
     }
@@ -211,7 +226,8 @@ void PauseMenu::render(SDL_Renderer* renderer) {
     //SDL_RenderClear(renderer);
 
     //SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
-    SDL_RenderCopy(renderer, mainLogoTexture, nullptr, &mainLogoRect);
+    SDL_RenderCopy(renderer, mainLogoFgTexture, nullptr, &mainLogoRect);
+    SDL_RenderCopy(renderer, mainLogoBgTexture, nullptr, &mainLogoRect);
     SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
     SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);
     SDL_RenderCopy(renderer, quitTexture, nullptr, &quitRect);

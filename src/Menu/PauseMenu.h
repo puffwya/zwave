@@ -28,7 +28,8 @@ private:
     SDL_Texture* mainBgTexture = nullptr;
     SDL_Rect mainBgRect{};
 
-    SDL_Texture* mainLogoTexture = nullptr;
+    SDL_Texture* mainLogoFgTexture = nullptr;
+    SDL_Texture* mainLogoBgTexture = nullptr;
     SDL_Rect mainLogoRect{};
 
     SDL_Texture* startTexture = nullptr;

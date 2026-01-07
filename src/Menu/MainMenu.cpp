@@ -47,7 +47,10 @@ void MainMenu::updateAndRenderAsh(SDL_Renderer* renderer, float dt)
 
 bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
     const float buttonWidth = screenW * 0.20f;
-    const float buttonGap = screenH * 0.06f;
+
+    const int leftPadding = (int)(screenW * 0.05f); // 5% from left
+    const int topPadding  = (int)(screenH * 0.08f);
+    const int buttonGap   = (int)(screenH * 0.04f);
 
     // Main Menu Background
 
@@ -74,7 +77,7 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
         return false;
     }
 
-    // Main Logo
+    // Main Logo 
 
     surface = IMG_Load("assets/pixDigit/main_logo_fg.png");
     if (!surface) {
@@ -84,13 +87,13 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
         
     mainLogoFgTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    float logoAspect  = (float)surface->h / surface->w;
+    float logoAspect = (float)surface->h / surface->w;
 
     mainLogoRect.w = (int)(screenW * 0.40f);
     mainLogoRect.h = (int)(mainLogoRect.w * logoAspect);
 
-    mainLogoRect.x = (screenW - mainLogoRect.w) / 2;
-    mainLogoRect.y = (int)(screenH * 0.15f);
+    mainLogoRect.x = leftPadding;
+    mainLogoRect.y = topPadding;
      
     SDL_FreeSurface(surface);
     
@@ -98,6 +101,8 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
         std::cerr << "Failed to create main logo texture\n";
         return false;
     }
+
+    // Main Logo Background
 
     surface = IMG_Load("assets/pixDigit/main_logo_bg.png");
     if (!surface) {
@@ -124,13 +129,13 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
 
     startTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    float startAspect  = (float)surface->h / surface->w;
+    float startAspect = (float)surface->h / surface->w;
 
     startRect.w = (int)(screenW * 0.20f);
     startRect.h = (int)(startRect.w * startAspect);
 
-    startRect.x = (screenW - startRect.w) / 2;
-    startRect.y = (int)(screenH * 0.45f);
+    startRect.x = leftPadding + int(mainLogoRect.w * 0.25f);
+    startRect.y = mainLogoRect.y + mainLogoRect.h + buttonGap;
 
     menuRects[MENU_START] = startRect;
 
@@ -151,13 +156,13 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
 
     optionsTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    float optionsAspect  = (float)surface->h / surface->w;
+    float optionsAspect = (float)surface->h / surface->w;
 
     optionsRect.w = startRect.w;
     optionsRect.h = (int)(optionsRect.w * optionsAspect);
 
-    optionsRect.x = startRect.x;
-    optionsRect.y = startRect.y + buttonGap;
+    optionsRect.x = leftPadding + int(mainLogoRect.w * 0.25f);
+    optionsRect.y = startRect.y + startRect.h + buttonGap;
 
     menuRects[MENU_OPTIONS] = optionsRect;
 
@@ -178,13 +183,13 @@ bool MainMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
 
     quitTexture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    float quitAspect  = (float)surface->h / surface->w;
+    float quitAspect = (float)surface->h / surface->w;
 
     quitRect.w = startRect.w;
     quitRect.h = (int)(quitRect.w * quitAspect);
 
-    quitRect.x = startRect.x;
-    quitRect.y = optionsRect.y + buttonGap;
+    quitRect.x = leftPadding + int(mainLogoRect.w * 0.25f);
+    quitRect.y = optionsRect.y + optionsRect.h + buttonGap;
 
     menuRects[MENU_QUIT] = quitRect;
 
