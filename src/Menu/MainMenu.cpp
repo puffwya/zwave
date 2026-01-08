@@ -10,6 +10,9 @@ void MainMenu::spawnAshParticle()
     p.x = mainLogoRect.x + rand() % mainLogoRect.w;
     p.y = mainLogoRect.y + (rand() % (mainLogoRect.h / 2));
 
+    // Randomize size
+    p.size = 2.5f + (rand() % 100) / 100.0f * 2.5f;
+
     // Slow upward drift
     p.vx = ((rand() % 100) / 100.0f - 0.5f) * 4.0f;
     p.vy = -2.0f - (rand() % 2);
@@ -39,8 +42,13 @@ void MainMenu::updateAndRenderAsh(SDL_Renderer* renderer, float dt)
         float alpha = 1.0f - (p.life / p.maxLife);
         Uint8 a = (Uint8)(alpha * 180);
 
+        float lifeT = p.life / p.maxLife;
+
+        // Slight shrink as it fades
+        float size = p.size * (1.0f - lifeT * 0.3f);
+
         SDL_SetRenderDrawColor(renderer, 255, 183, 11, a);
-        SDL_Rect r = {(int)p.x, (int)p.y, 2, 2};
+        SDL_Rect r = {(int)(p.x - size * 0.5f), (int)(p.y - size * 0.5f), (int)size, (int)size};
         SDL_RenderFillRect(renderer, &r);
     }
 }
@@ -250,11 +258,51 @@ void MainMenu::handleInput(const SDL_Event& e, GameState& gs, bool& running, boo
     }
 }
 
-void MainMenu::updateCursor() {
+void MainMenu::updateCursor(float dt)
+{
     const SDL_Rect& target = menuRects[selectedIndex];
 
-    cursorRect.x = target.x + target.w + 12; // to the RIGHT of button
-    cursorRect.y = target.y + (target.h / 2) - (cursorRect.h / 2);
+    // Target position (to the right of button)
+    float targetX = target.x + target.w + 12.0f;
+    float targetY = target.y + (target.h * 0.5f) - (cursorRect.h * 0.5f);
+
+    // Detect selection change
+    if (selectedIndex != lastSelectedIndex)
+    {
+        // Overshoot impulse (directional)
+        float dir = (selectedIndex > lastSelectedIndex) ? 1.0f : -1.0f;
+        cursorVY += dir * 180.0f;   // overshoot strength (~4–6px visually)
+
+        // Scale pulse
+        cursorScaleVel += 3.5f;
+
+        lastSelectedIndex = selectedIndex;
+    }
+
+    // Spring-like motion (lerp + inertia)
+    float stiffness = 18.0f;   // responsiveness
+    float damping   = 12.0f;   // prevents oscillation
+
+    cursorVX += (targetX - cursorX) * stiffness * dt;
+    cursorVY += (targetY - cursorY) * stiffness * dt;
+
+    cursorVX *= expf(-damping * dt);
+    cursorVY *= expf(-damping * dt);
+
+    cursorX += cursorVX * dt;
+    cursorY += cursorVY * dt;
+
+    // Scale pulse spring
+    float scaleStiffness = 22.0f;
+    float scaleDamping   = 14.0f;
+
+    cursorScaleVel += (1.0f - cursorScale) * scaleStiffness * dt;
+    cursorScaleVel *= expf(-scaleDamping * dt);
+    cursorScale += cursorScaleVel * dt;
+
+    // Apply to rect
+    cursorRect.x = (int)cursorX;
+    cursorRect.y = (int)cursorY;
 }
 
 void MainMenu::activateSelected(GameState& gs, bool& running, bool& mRunning) {
@@ -272,6 +320,15 @@ void MainMenu::activateSelected(GameState& gs, bool& running, bool& mRunning) {
 
 void MainMenu::render(SDL_Renderer* renderer)
 {
+    SDL_Rect uiPanelRect;
+
+    uiPanelRect.x = 0;
+    uiPanelRect.y = 0;
+
+    uiPanelRect.w = mainLogoRect.w + (int)(mainBgRect.w * 0.05f);;
+    uiPanelRect.h = mainBgRect.h;
+
+
     SDL_RenderClear(renderer);
 
     float t = SDL_GetTicks() * 0.001f;
@@ -294,6 +351,31 @@ void MainMenu::render(SDL_Renderer* renderer)
     }
     updateAndRenderAsh(renderer, dt);
 
+    // UI backing plate
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 5, 5, 5, 170);
+    SDL_RenderFillRect(renderer, &uiPanelRect);
+
+    // Soft fade at right edge of UI backing plate
+    const int fadeWidth = 40;
+
+    for (int i = 0; i < fadeWidth; i++)
+    {
+        float t = (float)i / fadeWidth;
+        Uint8 alpha = (Uint8)(170 * (1.0f - t));
+
+        SDL_SetRenderDrawColor(renderer, 5, 5, 5, alpha);
+
+        SDL_Rect strip = {
+            uiPanelRect.x + uiPanelRect.w + i,
+            uiPanelRect.y,
+            1,
+            uiPanelRect.h
+        };
+
+        SDL_RenderFillRect(renderer, &strip);
+    }
+
     // Logo background
     SDL_RenderCopy(renderer, mainLogoBgTexture, nullptr, &mainLogoRect);
 
@@ -304,6 +386,16 @@ void MainMenu::render(SDL_Renderer* renderer)
     SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
     SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);
     SDL_RenderCopy(renderer, quitTexture, nullptr, &quitRect);
-    SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
+
+    // Menu Cursor
+    SDL_Rect renderRect = cursorRect;
+    renderRect.w = (int)(cursorRect.w * cursorScale);
+    renderRect.h = (int)(cursorRect.h * cursorScale);
+
+    // Keep scale centered
+    renderRect.x -= (renderRect.w - cursorRect.w) / 2;
+    renderRect.y -= (renderRect.h - cursorRect.h) / 2;
+
+    SDL_RenderCopy(renderer, cursorTexture, nullptr, &renderRect);
 }
 

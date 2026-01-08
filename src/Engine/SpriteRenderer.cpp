@@ -88,4 +88,3 @@ void SpriteRenderer::renderEnemies(
         SDL_RenderCopy(renderer, e->sprite, &src, &dst);
     }
 }
-

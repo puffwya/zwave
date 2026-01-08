@@ -92,6 +92,11 @@ int main() {
         running = true;
         if (gameState == GameState::MainMenu) {
 
+            Uint32 now = SDL_GetTicks();
+            // Delta Time
+            float dt = (now - last) / 1000.f;
+            last = now;
+
             audio.stopMusic();
             audio.playMusic("Assets/audio/FurySyrgeMainTheme.mp3", true);
 
@@ -106,7 +111,7 @@ int main() {
 
                     mainMenu.handleInput(e, gameState, running, mainRun);
                 }
-                mainMenu.updateCursor();
+                mainMenu.updateCursor(dt);
                 mainMenu.render(renderer.getSDLRenderer());
 
                 renderer.present();

@@ -8,13 +8,14 @@ struct AshParticle {
     float vx, vy;
     float life;
     float maxLife;
+    float size;
 };
 
 class MainMenu {
 public:
     bool init(SDL_Renderer* renderer, int screenW, int screenH);
     void handleInput(const SDL_Event& e, GameState& gs, bool& running, bool& mRunning);
-    void updateCursor();
+    void updateCursor(float dt);
     void activateSelected(GameState& gs, bool& running, bool& mRunning);
     void render(SDL_Renderer* renderer);
     void shutdown();
@@ -33,6 +34,19 @@ public:
     SDL_Rect cursorRect{};
 
     std::vector<AshParticle> ashParticles;
+
+    // Cursor motion
+    float cursorX = 0.0f;
+    float cursorY = 0.0f;
+    float cursorVX = 0.0f;
+    float cursorVY = 0.0f;
+
+    // Cursor scale
+    float cursorScale = 1.0f;
+    float cursorScaleVel = 0.0f;
+
+    // Tracking selection change
+    int lastSelectedIndex = -1;
 
 private:
     SDL_Texture* mainBgTexture = nullptr;
