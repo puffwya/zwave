@@ -3,6 +3,7 @@
 
 #include <string>
 #include "Map.h"
+#include "Texture.h"
 #include <SDL2/SDL.h>
 
 enum class EnemyType {
@@ -21,7 +22,9 @@ class Player;
 
 class Enemy {
 public:
-    float x, y;
+    float x, y, z;
+    float height;
+    SDL_Texture* sprite;
     float speed;
     float angle;
     bool active;
@@ -34,8 +37,6 @@ public:
     float wanderTimer = 0.0f;
 
     float lateralOffset = 0.0f;  // persistent offset for chasing
-
-    SDL_Texture* sprite;
 
     Enemy();
     // Initialize an enemy at a tile

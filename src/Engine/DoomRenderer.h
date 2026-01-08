@@ -6,6 +6,7 @@
 #include "BSP.h"         // uses Segment type (GridSegment)
 #include "Map.h"
 #include "Player.h"
+#include "SpriteRenderer.h"
 
 class DoomRenderer {
 public:
@@ -15,7 +16,7 @@ public:
 
     // Render into pixels buffer. zBuffer must be length screenW
     void render(uint32_t* pixels, int screenW, int screenH,
-                const Player& player, const Map& map, float* zBuffer);
+                const Player& player, Map& map, float* zBuffer, EnemyManager& em);
 
 private:
     std::vector<GridSegment> m_segments;

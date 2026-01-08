@@ -1,90 +1,144 @@
-// Draw Sprites separate of raycasting system rotated to always face the player
-// Sprites are drawn in screen-space and its size depends on distance from player
-// Its screen x-position depends on the angle to the player
-
 #include "SpriteRenderer.h"
-#include <vector>
-#include <algorithm>
 #include <cmath>
-#include <SDL2/SDL.h>
+#include <cstring>
+#include <algorithm>
+#include <iostream>
 
-struct SpriteDraw {
-    Enemy* e;
-    float dist;
-};
+static std::unordered_map<SDL_Texture*, CachedTexture> textureCache;
+
+static constexpr float FOV = 60.0f * (M_PI / 180.0f);
+
+CachedTexture& SpriteRenderer::cacheTexture(SDL_Texture* tex) {
+    auto it = textureCache.find(tex);
+    if (it != textureCache.end())
+        return it->second;
+
+    CachedTexture ct;
+    SDL_QueryTexture(tex, nullptr, nullptr, &ct.w, &ct.h);
+    ct.pixels.resize(ct.w * ct.h);
+
+    SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormat(
+        0, ct.w, ct.h, 32, SDL_PIXELFORMAT_ARGB8888);
+
+    SDL_Renderer* tmp = SDL_CreateSoftwareRenderer(surf);
+    SDL_RenderCopy(tmp, tex, nullptr, nullptr);
+    SDL_RenderPresent(tmp);
+
+    std::memcpy(ct.pixels.data(), surf->pixels, ct.w * ct.h * 4);
+
+    SDL_DestroyRenderer(tmp);
+    SDL_FreeSurface(surf);
+
+    return textureCache[tex] = std::move(ct);
+}
 
 void SpriteRenderer::renderEnemies(
-    SDL_Renderer* renderer,
+    uint32_t* pixels,
+    int screenW,
+    int screenH,
     EnemyManager& manager,
     const Player& player,
     float* zBuffer,
-    int screenWidth,
-    int screenHeight
+    Map& map
 ) {
-    // Array of pointers to active enemies
-    Enemy* activeEnemies[EnemyManager::MAX_ENEMIES];
-    float distances[EnemyManager::MAX_ENEMIES];
+    const float FOV = 66.0f * (3.14159265f / 180.0f); // convert to radians
+
+    // Step 1: Count active enemies
+    int activeCount = 0;
+    for (int i = 0; i < EnemyManager::MAX_ENEMIES; i++) {
+        Enemy& e = manager.enemies[i];
+        if (!e.active || !e.sprite) continue;
+        activeCount++;
+    }
+
+    if (activeCount == 0) return; // nothing to render
+
+    // Step 2: Build an array of active enemies and their distances
+    struct DrawInfo {
+        Enemy* enemy;
+        float dist;
+    };
+
+    DrawInfo drawList[EnemyManager::MAX_ENEMIES];
     int count = 0;
 
-    // Collect active enemies and their distances
-    for (int i = 0; i < manager.MAX_ENEMIES; i++) {
+    for (int i = 0; i < EnemyManager::MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
         if (!e.active || !e.sprite) continue;
 
         float dx = e.x - player.x;
         float dy = e.y - player.y;
-        distances[count] = std::sqrt(dx*dx + dy*dy);
-        activeEnemies[count] = &e;
-        count++;
+        float dist = std::sqrt(dx*dx + dy*dy);
+
+        drawList[count++] = { &e, dist };
     }
 
-    // Sort pointers by distance descending (farthest first)
-    for (int i = 0; i < count - 1; i++) {
-        for (int j = i + 1; j < count; j++) {
-            if (distances[i] < distances[j]) {
-                std::swap(distances[i], distances[j]);
-                std::swap(activeEnemies[i], activeEnemies[j]);
-            }
-        }
-    }
+    // Step 3: Sort enemies farthest to nearest (painter's algorithm)
+    std::sort(drawList, drawList + count, [](const DrawInfo& a, const DrawInfo& b) {
+        return a.dist > b.dist;
+    });
 
-    // convert angle into direction vector
-    float dirX = std::cos(player.angle);
-    float dirY = std::sin(player.angle);
-
-    // camera plane (controls FOV)
-    const float fovScale = 0.66f;  // 66° FOV
-    float planeX = -dirY * fovScale;
-    float planeY =  dirX * fovScale;
-
-
-    // Render enemies in sorted order
+    // Step 4: Render each enemy
     for (int i = 0; i < count; i++) {
-        Enemy* e = activeEnemies[i];
+        Enemy* e = drawList[i].enemy;
 
+        // Vector from player to enemy
         float dx = e->x - player.x;
         float dy = e->y - player.y;
 
-        // Transform into camera space
-        float invDet = 1.0f / (planeX * dirY - dirX * planeY);
+        int tileX = int(e->x);
+        int tileY = int(e->y);
+        float tileHeight = map.get(tileX, tileY).height; // 0..1
 
-        float transformX = invDet * ( dirY  * dx - dirX * dy );
+        // Transform into camera space
+        float dirX = std::cos(player.angle);
+        float dirY = std::sin(player.angle);
+        float planeX = -dirY * 0.66f; // camera plane
+        float planeY = dirX * 0.66f;
+
+        float invDet = 1.0f / (planeX * dirY - dirX * planeY);
+        float transformX = invDet * ( dirY * dx - dirX * dy );
         float transformY = invDet * (-planeY * dx + planeX * dy );
 
-        // If behind the player, skip
-        if (transformY <= 0) continue;
+        if (transformY <= 0.01f) continue; // behind camera
 
-        int screenX = int((screenWidth / 2) * (1 + transformX / transformY));
-        float dist = std::sqrt(dx*dx + dy*dy);
+        // Projected screen X
+        int screenX = int((screenW / 2.0f) * (1 + transformX / transformY));
 
-        int spriteSize = std::max(10, int(screenHeight / dist));
+        // Scale sprite based on distance
+        int spriteH = std::max(1, int(screenH / transformY * e->height));
+        int spriteW = spriteH; // keep square for now
 
-        int texW, texH;
-        SDL_QueryTexture(e->sprite, NULL, NULL, &texW, &texH);
+        float spriteBottomZ = e->z;
+        float spriteTopZ    = e->z + e->height;
 
-        SDL_Rect dst{ screenX - spriteSize / 2, screenHeight / 2 - spriteSize / 2, spriteSize, spriteSize };
-        SDL_Rect src{ 0, 0, texW, texH };
+        // If tile height is above sprite bottom, clip the sprite
+        float visibleBottomZ = std::max(spriteBottomZ, tileHeight);
 
-        SDL_RenderCopy(renderer, e->sprite, &src, &dst);
+        // Vertical position on screen
+        float enemyBottom = e->z - player.z;          // bottom relative to player
+        float enemyTop    = e->z + e->height - player.z; // top relative to player
+
+        int drawStartY = int(screenH / 2 - enemyTop / transformY * screenH);
+        int drawEndY   = int(screenH / 2 - enemyBottom / transformY * screenH);
+
+        int drawStartX = screenX - spriteW / 2;
+        int drawEndX = drawStartX + spriteW;
+
+        // Clip to screen
+        drawStartX = std::max(0, drawStartX);
+        drawEndX = std::min(screenW - 1, drawEndX);
+        drawStartY = std::max(0, drawStartY);
+        drawEndY = std::min(screenH - 1, drawEndY);
+
+        // Render sprite as pixels (temporary placeholder: simple colored square)
+        uint32_t color = 0xFFFF0000; // red placeholder
+        for (int x = drawStartX; x < drawEndX; x++) {
+            if (transformY < zBuffer[x]) {
+                for (int y = drawStartY; y < drawEndY; y++) {
+                    pixels[y * screenW + x] = color;
+                }
+            }
+        }
     }
 }

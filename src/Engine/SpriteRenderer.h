@@ -1,18 +1,27 @@
-#ifndef SPRITE_RENDERER_H
-#define SPRITE_RENDERER_H
+#pragma once
 
 #include <SDL2/SDL.h>
 #include "EnemyManager.h"
 #include "Player.h"
+#include <vector>
+
+struct CachedTexture {
+    int w = 0, h = 0;
+    std::vector<uint32_t> pixels;
+};
 
 class SpriteRenderer {
 public:
-    // tex: loaded SDL_Texture of enemy sprite (assumes full image width = texW, height = texH)
-    // zBuffer: array of floats size = screenW (distance to wall per column)
-    static void renderEnemies(SDL_Renderer* renderer,
-                              EnemyManager& manager, const Player& player,
-                              float* zBuffer, int screenWidth, int screenHeight);
+    void renderEnemies(
+        uint32_t* pixels,
+        int screenW,
+        int screenH,
+        EnemyManager& manager,
+        const Player& player,
+        float* zBuffer,
+        Map& map
+    );
+
+private:
+    CachedTexture& cacheTexture(SDL_Texture* tex);
 };
-
-#endif
-

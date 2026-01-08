@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
+#include <iostream>
 
 // constants
 static constexpr float EPS = 1e-6f;
@@ -10,6 +11,8 @@ static constexpr float WALL_WORLD_HEIGHT = 1.0f; // world units for a full-heigh
 static constexpr uint32_t COLOR_SIDE_X = 0xFF00AAFF;
 static constexpr uint32_t COLOR_SIDE_Y = 0xFF0055FF;
 static constexpr uint32_t COLOR_TOP    = 0xFF808080;
+
+SpriteRenderer spriteRenderer;
 
 DoomRenderer::DoomRenderer(const std::vector<GridSegment>& segments,
                            std::unique_ptr<BSPNode> bspRoot)
@@ -196,6 +199,9 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
 
         drawSegmentColumnSolid(pixels, screenW, screenH, sx, drawStart, drawEnd, color);
 
+        if (tileH < 0.0f) {
+            continue;
+        }
         zBuffer[sx] = depth;
     }
 }
@@ -321,7 +327,7 @@ void DoomRenderer::traverseBSP(
 
 // Main render entry
 void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, const Map& map, float* zBuffer)
+                          const Player& player, Map& map, float* zBuffer, EnemyManager& em)
 {
     const uint32_t CEIL_COLOR = 0xFF202040; // World ceiling color (change to texture in the future)
 
@@ -339,6 +345,7 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     // Traverse BSP and draw segments front-to-back
     traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data());
 
+    // Fill Ceiling
     for (int y = 0; y < screenH / 2; ++y)
     {
         for (int x = 0; x < screenW; ++x)
@@ -360,5 +367,6 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
         }
     }
 
-    // Note: sprite rendering (sorted by depth) to be added later
+    // Draw enemies                  
+    spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map);
 }

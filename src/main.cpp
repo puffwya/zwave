@@ -33,7 +33,6 @@ int main() {
     EnemyManager enemyManager;
     WeaponManager weaponManager;
     Weapon weapon;
-    enemyManager.initialize(renderer.getSDLRenderer());
     enemyManager.scanMapForSpawnPoints(worldMap);
     MainMenu mainMenu;
     mainMenu.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -131,15 +130,13 @@ int main() {
                 if (gameState == GameState::Paused) {
                     pauseT = std::min(pauseT + 0.1f, 1.0f);
 
-                    doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
+                    doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer, enemyManager);
 
                     renderer.updateTexture(pixels);
 
                     renderer.beginFrame();
 
                     renderer.drawScreenTexture();
-
-                    SpriteRenderer::renderEnemies(renderer.getSDLRenderer(), enemyManager, player, zBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
                     // draw player item
 
@@ -222,15 +219,13 @@ int main() {
                     for (int i = 0; i < 800*600; i++)
                         pixels[i] = 0xFF202020;
             
-                    doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer);
+                    doomRenderer.render(pixels, SCREEN_WIDTH, SCREEN_HEIGHT, player, worldMap, zBuffer, enemyManager);
 
                     renderer.updateTexture(pixels);
 
                     renderer.beginFrame();
 
                     renderer.drawScreenTexture();
-
-                    SpriteRenderer::renderEnemies(renderer.getSDLRenderer(), enemyManager, player, zBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
                     // draw player item
 

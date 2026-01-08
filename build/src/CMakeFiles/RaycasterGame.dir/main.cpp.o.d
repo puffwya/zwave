@@ -764,6 +764,7 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_binary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
+  /Users/wyattpuff/Raycaster/src/Engine/Texture.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \

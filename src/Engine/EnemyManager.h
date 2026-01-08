@@ -4,6 +4,9 @@
 #include <vector>
 #include "Enemy.h"
 #include "Map.h"
+#include <unordered_map>
+#include "Texture.h"
+#include <SDL2/SDL.h>
 
 class EnemyManager {
 public:
@@ -23,6 +26,9 @@ public:
     void initialize(SDL_Renderer* renderer);
 
     void update(float dt, const Player& player, const Map& map);
+
+    // Load textures once per enemy type
+    std::unordered_map<EnemyType, SDL_Texture*> enemyTextures;
 
     // Safety check to clear all active enemies at wave end
     void deactivateAll();

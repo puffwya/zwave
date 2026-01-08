@@ -1,6 +1,6 @@
 #include "EnemyManager.h"
 #include <cmath>
-#include <unordered_map>
+#include <cstring>
 #include <iostream>
 #include <SDL2/SDL_image.h>
 
@@ -23,29 +23,30 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
 }
 
 void EnemyManager::initialize(SDL_Renderer* renderer) {
-    // Load textures once per enemy type
-    std::unordered_map<EnemyType, SDL_Texture*> enemyTextures;
 
-    enemyTextures[EnemyType::Base]  = IMG_LoadTexture(renderer, "Assets/enemy_base.png");
-    // TO BE ADDED!!! enemyTextures[EnemyType::Fast]  = IMG_LoadTexture(renderer, "Assets/enemy_fast.png");
-    enemyTextures[EnemyType::Tank]  = IMG_LoadTexture(renderer, "Assets/enemy_tank.png");
+    enemyTextures[EnemyType::Base] =
+        IMG_LoadTexture(renderer, "Assets/enemy_base.png");
 
-    // Check for loading errors
+    enemyTextures[EnemyType::Tank] =
+        IMG_LoadTexture(renderer, "Assets/enemy_tank.png");
+
+    // Optional: fast enemy later
+    // enemyTextures[EnemyType::Fast] =
+    //     IMG_LoadTexture(renderer, "Assets/enemy_fast.png");
+
     for (auto& [type, tex] : enemyTextures) {
         if (!tex) {
-            std::cerr << "Failed to load texture for enemy type " 
-                      << static_cast<int>(type) << ": " << IMG_GetError() << std::endl;
+            std::cerr << "Failed to load enemy texture: "
+                      << IMG_GetError() << std::endl;
         }
     }
 
-    // Assign textures to enemies based on their type
     for (int i = 0; i < MAX_ENEMIES; i++) {
-        // Default to Base type if not yet set
-        if (enemies[i].type == EnemyType::Base) {
+        EnemyType type = enemies[i].type;
+        if (enemyTextures.count(type))
+            enemies[i].sprite = enemyTextures[type];
+        else
             enemies[i].sprite = enemyTextures[EnemyType::Base];
-        } else {
-            enemies[i].sprite = enemyTextures[enemies[i].type];
-        }
     }
 }
 
@@ -62,6 +63,8 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
             enemies[i].activate(pt.x, pt.y, type);
+            enemies[i].z = 0.0f;
+            enemies[i].height = 0.75f;
             return &enemies[i];
         }
     }
