@@ -11,7 +11,6 @@ Enemy::Enemy()
     angle = 0;
     active = false;    // all enemies start inactive
     type = EnemyType::Base;
-    sprite = nullptr;
 }
 
 float Enemy::distanceTo(const Player& player) const {

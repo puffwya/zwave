@@ -22,31 +22,51 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
     }
 }
 
-void EnemyManager::initialize(SDL_Renderer* renderer) {
-
-    enemyTextures[EnemyType::Base] =
-        IMG_LoadTexture(renderer, "Assets/enemy_base.png");
-
-    enemyTextures[EnemyType::Tank] =
-        IMG_LoadTexture(renderer, "Assets/enemy_tank.png");
-
-    // Optional: fast enemy later
-    // enemyTextures[EnemyType::Fast] =
-    //     IMG_LoadTexture(renderer, "Assets/enemy_fast.png");
-
-    for (auto& [type, tex] : enemyTextures) {
-        if (!tex) {
-            std::cerr << "Failed to load enemy texture: "
-                      << IMG_GetError() << std::endl;
-        }
+bool loadEnemySprite(Enemy& e, const std::string& path) {
+    SDL_Surface* surf = IMG_Load(path.c_str());
+    if (!surf) {
+        std::cerr << "Failed to load sprite: " << path << " | " 
+                  << IMG_GetError() << std::endl;
+        return false;
     }
 
+    // Convert surface to ARGB8888 format (if needed)
+    SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
+    SDL_FreeSurface(surf);
+    if (!formatted) {
+        std::cerr << "Failed to convert sprite to ARGB8888: " << path << std::endl;
+        return false;
+    }
+
+    e.spriteW = formatted->w;
+    e.spriteH = formatted->h;
+    e.spritePixels.resize(e.spriteW * e.spriteH);
+
+    // Copy pixels into vector
+    std::memcpy(e.spritePixels.data(), formatted->pixels, e.spriteW * e.spriteH * 4);
+
+    SDL_FreeSurface(formatted);
+    return true;
+}
+
+void EnemyManager::initialize() {
     for (int i = 0; i < MAX_ENEMIES; i++) {
-        EnemyType type = enemies[i].type;
-        if (enemyTextures.count(type))
-            enemies[i].sprite = enemyTextures[type];
-        else
-            enemies[i].sprite = enemyTextures[EnemyType::Base];
+        Enemy& e = enemies[i];
+
+        // Choose path based on type
+        std::string path;
+        switch (e.type) {
+            case EnemyType::Base: path = "Assets/enemy_base.png"; break;
+            case EnemyType::Tank: path = "Assets/enemy_tank.png"; break;
+            // Add more types here
+            default: path = "Assets/enemy_base.png"; break;
+        }
+
+        if (!loadEnemySprite(e, path)) {
+            std::cerr << "Failed to load enemy sprite, using fallback" << std::endl;
+            e.spritePixels.clear();
+            e.spriteW = e.spriteH = 0;
+        }
     }
 }
 

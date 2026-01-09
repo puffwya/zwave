@@ -72,7 +72,7 @@ int main() {
 
     enemyManager.spawnEnemy(EnemyType::Base);
     enemyManager.spawnEnemy(EnemyType::Tank);
-    enemyManager.initialize(renderer.getSDLRenderer());
+    enemyManager.initialize();
 
     weaponManager.loadAssets(renderer.getSDLRenderer());
 

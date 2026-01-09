@@ -23,7 +23,7 @@ public:
 
     Enemy* spawnEnemy(EnemyType type);
 
-    void initialize(SDL_Renderer* renderer);
+    void initialize();
 
     void update(float dt, const Player& player, const Map& map);
 

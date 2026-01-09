@@ -9,26 +9,54 @@ static std::unordered_map<SDL_Texture*, CachedTexture> textureCache;
 static constexpr float FOV = 60.0f * (M_PI / 180.0f);
 
 CachedTexture& SpriteRenderer::cacheTexture(SDL_Texture* tex) {
+    // Check if already cached
     auto it = textureCache.find(tex);
     if (it != textureCache.end())
         return it->second;
 
     CachedTexture ct;
-    SDL_QueryTexture(tex, nullptr, nullptr, &ct.w, &ct.h);
-    ct.pixels.resize(ct.w * ct.h);
 
-    SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormat(
-        0, ct.w, ct.h, 32, SDL_PIXELFORMAT_ARGB8888);
+    // Get texture size
+    int w, h;
+    SDL_QueryTexture(tex, nullptr, nullptr, &w, &h);
+    ct.w = w;
+    ct.h = h;
+    ct.pixels.resize(w * h);
 
-    SDL_Renderer* tmp = SDL_CreateSoftwareRenderer(surf);
-    SDL_RenderCopy(tmp, tex, nullptr, nullptr);
-    SDL_RenderPresent(tmp);
+    // Create a temporary surface to read pixels
+    SDL_Surface* surf = SDL_CreateRGBSurfaceWithFormat(0, w, h, 32, SDL_PIXELFORMAT_ARGB8888);
+    if (!surf) {
+        std::cerr << "Failed to create surface for texture caching: " 
+                  << SDL_GetError() << std::endl;
+        return textureCache[tex] = std::move(ct);
+    }
 
-    std::memcpy(ct.pixels.data(), surf->pixels, ct.w * ct.h * 4);
+    // Create temporary renderer to copy texture to surface
+    SDL_Renderer* tmpRenderer = SDL_CreateSoftwareRenderer(surf);
+    if (!tmpRenderer) {
+        std::cerr << "Failed to create temporary renderer: " 
+                  << SDL_GetError() << std::endl;
+        SDL_FreeSurface(surf);
+        return textureCache[tex] = std::move(ct);
+    }
 
-    SDL_DestroyRenderer(tmp);
+    SDL_SetRenderTarget(tmpRenderer, nullptr);
+    SDL_RenderCopy(tmpRenderer, tex, nullptr, nullptr);
+    SDL_RenderPresent(tmpRenderer);
+
+    // Copy pixels row by row safely
+    for (int y = 0; y < h; y++) {
+        uint32_t* dstRow = ct.pixels.data() + y * w;
+        Uint8* srcRow = (Uint8*)surf->pixels + y * surf->pitch;
+        for (int x = 0; x < w; x++) {
+            dstRow[x] = ((uint32_t*)srcRow)[x];
+        }
+    }
+
+    SDL_DestroyRenderer(tmpRenderer);
     SDL_FreeSurface(surf);
 
+    // Store in cache and return
     return textureCache[tex] = std::move(ct);
 }
 
@@ -48,7 +76,7 @@ void SpriteRenderer::renderEnemies(
     int activeCount = 0;
     for (int i = 0; i < EnemyManager::MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
-        if (!e.active || !e.sprite) continue;
+        if (!e.active || e.spritePixels.empty()) continue;
         activeCount++;
     }
 
@@ -65,7 +93,7 @@ void SpriteRenderer::renderEnemies(
 
     for (int i = 0; i < EnemyManager::MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
-        if (!e.active || !e.sprite) continue;
+        if (!e.active || e.spritePixels.empty()) continue;
 
         float dx = e.x - player.x;
         float dy = e.y - player.y;
@@ -82,6 +110,8 @@ void SpriteRenderer::renderEnemies(
     // Step 4: Render each enemy
     for (int i = 0; i < count; i++) {
         Enemy* e = drawList[i].enemy;
+
+        if (!e->active || e->spritePixels.empty()) continue;
 
         // Vector from player to enemy
         float dx = e->x - player.x;
@@ -108,65 +138,70 @@ void SpriteRenderer::renderEnemies(
 
         // Scale sprite based on distance
         int spriteH = std::max(1, int(screenH / transformY * e->height));
-        int spriteW = spriteH; // keep square for now
-
-        float spriteBottomZ = e->z;
-        float spriteTopZ    = e->z + e->height;
-
-        // If tile height is above sprite bottom, clip the sprite
-        float visibleBottomZ = std::max(spriteBottomZ, tileHeight);
+        int spriteW = spriteH; // square for now
 
         // Vertical position on screen
-        float enemyBottom = e->z - player.z;          // bottom relative to player
-        float enemyTop    = e->z + e->height - player.z; // top relative to player
+        float enemyBottom = e->z - player.z;
+        float enemyTop    = e->z + e->height - player.z;
 
         int drawStartY = int(screenH / 2 - enemyTop / transformY * screenH);
         int drawEndY   = int(screenH / 2 - enemyBottom / transformY * screenH);
 
         int drawStartX = screenX - spriteW / 2;
-        int drawEndX = drawStartX + spriteW;
+        int drawEndX   = drawStartX + spriteW;
 
         // Clip to screen
         drawStartX = std::max(0, drawStartX);
-        drawEndX = std::min(screenW - 1, drawEndX);
+        drawEndX   = std::min(screenW - 1, drawEndX);
         drawStartY = std::max(0, drawStartY);
-        drawEndY = std::min(screenH - 1, drawEndY);
+        drawEndY   = std::min(screenH - 1, drawEndY);
 
-        // Render sprite as pixels (temporary placeholder: simple colored square)
-        uint32_t color = 0xFFFF0000; // red placeholder
-
-        // Draw sprites in proper world space using colWallTop and zBuffer
+        // Draw sprite in screen space with wall occlusion
         for (int x = drawStartX; x < drawEndX; x++) {
             float wallDepth = zBuffer[x];
 
-            // If wall is BEHIND sprite, draw normally
+            // If wall is behind sprite, draw full column
             if (wallDepth >= transformY) {
                 for (int y = drawStartY; y < drawEndY; y++) {
+                    int srcX = (x - drawStartX) * e->spriteW / (drawEndX - drawStartX);
+                    int srcY = (y - drawStartY) * e->spriteH / (drawEndY - drawStartY);
+                    uint32_t color = e->spritePixels[srcY * e->spriteW + srcX];
+
+                    // Skip fully transparent pixels (ARGB)
+                    if ((color >> 24) == 0) continue;
+
                     pixels[y * screenW + x] = color;
                 }
                 continue;
             }
 
-            // Wall is IN FRONT so may occlude
+            // Wall in front → possible partial occlusion
             int wallTopY = int(std::ceil(colWallTop[x]));
 
             // Fully blocked
-            if (wallTopY <= drawStartY) {
-                continue;
-            }
+            if (wallTopY <= drawStartY) continue;
 
-            // Fully visible, don't occlude
+            // Fully visible, wall below sprite
             if (wallTopY >= drawEndY) {
                 for (int y = drawStartY; y < drawEndY; y++) {
+                    int srcX = (x - drawStartX) * e->spriteW / (drawEndX - drawStartX);
+                    int srcY = (y - drawStartY) * e->spriteH / (drawEndY - drawStartY);
+                    uint32_t color = e->spritePixels[srcY * e->spriteW + srcX];
+                    if ((color >> 24) == 0) continue;
                     pixels[y * screenW + x] = color;
                 }
                 continue;
             }
 
-            // Partially occluded
+            // Partial occlusion (clip top)
             for (int y = drawStartY; y < wallTopY; y++) {
+                int srcX = (x - drawStartX) * e->spriteW / (drawEndX - drawStartX);
+                int srcY = (y - drawStartY) * e->spriteH / (drawEndY - drawStartY);
+                uint32_t color = e->spritePixels[srcY * e->spriteW + srcX];
+                if ((color >> 24) == 0) continue;
                 pixels[y * screenW + x] = color;
             }
         }
     }
+
 }

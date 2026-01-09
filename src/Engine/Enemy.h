@@ -24,11 +24,15 @@ class Enemy {
 public:
     float x, y, z;
     float height;
-    SDL_Texture* sprite;
     float speed;
     float angle;
     bool active;
     EnemyType type;
+
+    // CPU-side sprite
+    int spriteW = 0;
+    int spriteH = 0;
+    std::vector<uint32_t> spritePixels;
 
     // Enemy AI states
     EnemyState state = EnemyState::Idle; // Start Idle by default 
