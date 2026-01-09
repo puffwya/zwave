@@ -18,6 +18,8 @@ public:
     void render(uint32_t* pixels, int screenW, int screenH,
                 const Player& player, Map& map, float* zBuffer, EnemyManager& em);
 
+    float colWallTop[1200]; // store the ceiling Y for each column
+
 private:
     std::vector<GridSegment> m_segments;
     std::unique_ptr<BSPNode> m_bspRoot;

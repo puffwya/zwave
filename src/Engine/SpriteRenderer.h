@@ -19,7 +19,8 @@ public:
         EnemyManager& manager,
         const Player& player,
         float* zBuffer,
-        Map& map
+        Map& map,
+        float colWallTop[]
     );
 
 private:

@@ -199,6 +199,9 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
 
         drawSegmentColumnSolid(pixels, screenW, screenH, sx, drawStart, drawEnd, color);
 
+        // Update wall-top array for sprites
+        colWallTop[sx] = colCeilY;
+
         if (tileH < 0.0f) {
             continue;
         }
@@ -368,5 +371,5 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     }
 
     // Draw enemies                  
-    spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map);
+    spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map, colWallTop);
 }

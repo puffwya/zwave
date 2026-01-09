@@ -39,7 +39,8 @@ void SpriteRenderer::renderEnemies(
     EnemyManager& manager,
     const Player& player,
     float* zBuffer,
-    Map& map
+    Map& map,
+    float colWallTop[]
 ) {
     const float FOV = 66.0f * (3.14159265f / 180.0f); // convert to radians
 
@@ -100,7 +101,7 @@ void SpriteRenderer::renderEnemies(
         float transformX = invDet * ( dirY * dx - dirX * dy );
         float transformY = invDet * (-planeY * dx + planeX * dy );
 
-        if (transformY <= 0.01f) continue; // behind camera
+        if (transformY <= 0.05f) continue; // behind camera
 
         // Projected screen X
         int screenX = int((screenW / 2.0f) * (1 + transformX / transformY));
@@ -133,11 +134,38 @@ void SpriteRenderer::renderEnemies(
 
         // Render sprite as pixels (temporary placeholder: simple colored square)
         uint32_t color = 0xFFFF0000; // red placeholder
+
+        // Draw sprites in proper world space using colWallTop and zBuffer
         for (int x = drawStartX; x < drawEndX; x++) {
-            if (transformY < zBuffer[x]) {
+            float wallDepth = zBuffer[x];
+
+            // If wall is BEHIND sprite, draw normally
+            if (wallDepth >= transformY) {
                 for (int y = drawStartY; y < drawEndY; y++) {
                     pixels[y * screenW + x] = color;
                 }
+                continue;
+            }
+
+            // Wall is IN FRONT so may occlude
+            int wallTopY = int(std::ceil(colWallTop[x]));
+
+            // Fully blocked
+            if (wallTopY <= drawStartY) {
+                continue;
+            }
+
+            // Fully visible, don't occlude
+            if (wallTopY >= drawEndY) {
+                for (int y = drawStartY; y < drawEndY; y++) {
+                    pixels[y * screenW + x] = color;
+                }
+                continue;
+            }
+
+            // Partially occluded
+            for (int y = drawStartY; y < wallTopY; y++) {
+                pixels[y * screenW + x] = color;
             }
         }
     }
