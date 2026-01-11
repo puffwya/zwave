@@ -9,6 +9,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o"

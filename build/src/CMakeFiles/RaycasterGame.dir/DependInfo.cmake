@@ -12,6 +12,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Enemy.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/EnemyManager.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Engine/GameSession.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/HUD.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/MapToSegments.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Player.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o.d"

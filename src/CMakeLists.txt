@@ -14,6 +14,7 @@ set(SOURCES
     Menu/MainMenu.cpp
     Menu/PauseMenu.cpp
     audio/AudioManager.cpp
+    Engine/GameSession.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})

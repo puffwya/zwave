@@ -280,7 +280,7 @@ void MainMenu::updateCursor(float dt)
     }
 
     // Spring-like motion (lerp + inertia)
-    float stiffness = 18.0f;   // responsiveness
+    float stiffness = 70.0f;   // responsiveness
     float damping   = 12.0f;   // prevents oscillation
 
     cursorVX += (targetX - cursorX) * stiffness * dt;
