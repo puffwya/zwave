@@ -3,6 +3,7 @@
 #include "pItemRenderer.h"
 #include <algorithm>
 #include <iostream>
+#include "TextureManager.h"
 
 GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     initWorld(renderer, screenW);
@@ -43,12 +44,12 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState) {
     weaponManager.update(dt, player);
 }
 
-void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h) {
+void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, TextureManager& textureManager) {
     std::fill(pixels, pixels + w * h, 0xFF202020);
 
     doomRenderer->render(
         pixels, w, h,
-        player, worldMap, zBuffer, enemyManager
+        player, worldMap, zBuffer, enemyManager, textureManager
     );
 
     renderer.updateTexture(pixels);
@@ -79,11 +80,12 @@ void GameSession::renderPaused(
     uint32_t* pixels,
     int w,
     int h,
-    float pauseT
+    float pauseT,
+    TextureManager& textureManager
 ) {
     doomRenderer->render(
         pixels, w, h,
-        player, worldMap, zBuffer, enemyManager
+        player, worldMap, zBuffer, enemyManager, textureManager
     );
 
     renderer.updateTexture(pixels);

@@ -770,6 +770,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
+  /Users/wyattpuff/Raycaster/src/Engine/TextureManager.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__locale \

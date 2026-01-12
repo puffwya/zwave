@@ -370,6 +370,30 @@ Engine/SpriteRenderer.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.s
 .PHONY : Engine/SpriteRenderer.cpp.s
 
+Engine/TextureManager.o: Engine/TextureManager.cpp.o
+.PHONY : Engine/TextureManager.o
+
+# target to build an object file
+Engine/TextureManager.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/TextureManager.cpp.o
+.PHONY : Engine/TextureManager.cpp.o
+
+Engine/TextureManager.i: Engine/TextureManager.cpp.i
+.PHONY : Engine/TextureManager.i
+
+# target to preprocess a source file
+Engine/TextureManager.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/TextureManager.cpp.i
+.PHONY : Engine/TextureManager.cpp.i
+
+Engine/TextureManager.s: Engine/TextureManager.cpp.s
+.PHONY : Engine/TextureManager.s
+
+# target to generate assembly for a file
+Engine/TextureManager.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/TextureManager.cpp.s
+.PHONY : Engine/TextureManager.cpp.s
+
 Engine/WeaponManager.o: Engine/WeaponManager.cpp.o
 .PHONY : Engine/WeaponManager.o
 
@@ -553,6 +577,9 @@ help:
 	@echo "... Engine/SpriteRenderer.o"
 	@echo "... Engine/SpriteRenderer.i"
 	@echo "... Engine/SpriteRenderer.s"
+	@echo "... Engine/TextureManager.o"
+	@echo "... Engine/TextureManager.i"
+	@echo "... Engine/TextureManager.s"
 	@echo "... Engine/WeaponManager.o"
 	@echo "... Engine/WeaponManager.i"
 	@echo "... Engine/WeaponManager.s"

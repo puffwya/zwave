@@ -1,6 +1,7 @@
 #include "Engine/Renderer.h"
 #include "Engine/GameSession.h"
 #include "Engine/GameState.h"
+#include "Engine/TextureManager.h"
 
 #include "Menu/MainMenu.h"
 #include "Menu/PauseMenu.h"
@@ -27,6 +28,13 @@ int main() {
 
     AudioManager audio;
     audio.init();
+
+    // Load geometry textures
+    TextureManager textures;
+
+    textures.load("floor1", "Assets/geometry_textures/floor1.png");
+    textures.load("wall1", "Assets/geometry_textures/wall1.png");
+    textures.load("lava1", "Assets/geometry_textures/lava1.png");
 
     // SDL_image init
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
@@ -115,7 +123,8 @@ int main() {
                         pixels,
                         SCREEN_WIDTH,
                         SCREEN_HEIGHT,
-                        pauseT
+                        pauseT,
+                        textures
                     );
 
                     SDL_Renderer* sdl = renderer.getSDLRenderer();
@@ -180,7 +189,7 @@ int main() {
                     const Uint8* keys = SDL_GetKeyboardState(nullptr);
 
                     session->update(dt, keys, gameState);
-                    session->render(renderer, pixels, SCREEN_WIDTH, SCREEN_HEIGHT);
+                    session->render(renderer, pixels, SCREEN_WIDTH, SCREEN_HEIGHT, textures);
                 }
             }
         }

@@ -17,15 +17,17 @@
 
 class Renderer;
 
+class TextureManager;
+
 class GameSession {
 public:
     GameSession(Renderer& renderer, int screenW, int screenH);
     ~GameSession();
 
     void update(float dt, const Uint8* keys, GameState& gameState);
-    void render(Renderer& renderer, uint32_t* pixels, int screenW, int screenH);
+    void render(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, TextureManager& textureManager);
 
-    void renderPaused(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, float pauseT);
+    void renderPaused(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, float pauseT, TextureManager& textureManager);
 
 private:
     // Core gameplay state

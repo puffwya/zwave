@@ -777,6 +777,7 @@ src/CMakeFiles/RaycasterGame.dir/main.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Engine/BSP.h \
   /Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.h \
   /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
+  /Users/wyattpuff/Raycaster/src/Engine/TextureManager.h \
   /Users/wyattpuff/Raycaster/src/Menu/MainMenu.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Menu/PauseMenu.h \

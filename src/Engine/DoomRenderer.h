@@ -7,6 +7,9 @@
 #include "Map.h"
 #include "Player.h"
 #include "SpriteRenderer.h"
+#include "TextureManager.h"
+
+class TextureManager;
 
 class DoomRenderer {
 public:
@@ -16,7 +19,7 @@ public:
 
     // Render into pixels buffer. zBuffer must be length screenW
     void render(uint32_t* pixels, int screenW, int screenH,
-                const Player& player, Map& map, float* zBuffer, EnemyManager& em);
+                const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager);
 
     float colWallTop[1200]; // store the ceiling Y for each column
 
@@ -27,7 +30,7 @@ private:
     static void renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                       const Player& player,
                                       float wx, float wy, float sizeWorld, float tileHeight,
-                                      uint32_t color, const Map& map);
+                                      const Texture& floorTex, const Map& map);
 
     // helper drawing
     void drawSegmentColumnSolid(uint32_t* pixels, int screenW, int screenH,
@@ -40,12 +43,12 @@ private:
     // Rasterize segment between two projected endpoints (screen Xs / depths)
     void rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                           uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, const Map& map, float* zBuffer);
+                          const Player& player, const Map& map, float* zBuffer, const Texture& wallTex);
 
     // BSP traversal
     void traverseBSP(const BSPNode* node, const Player& player,
                      uint32_t* pixels, int screenW, int screenH,
-                     const Map& map, float* zBuffer, uint8_t* tileDrawn);
+                     const Map& map, float* zBuffer, uint8_t* tileDrawn, TextureManager& textureManager);
 
     // small side test helper
     static float sideOfLine(float ax, float ay, float bx, float by, float px, float py);

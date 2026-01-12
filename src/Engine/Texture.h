@@ -1,9 +1,10 @@
 #pragma once
 #include <cstdint>
+#include <vector>
 
 struct Texture {
-    int width;
-    int height;
-    uint32_t* pixels; // ARGB8888
+    int w;
+    int h;
+    std::vector<uint32_t> pixels;
 };
 

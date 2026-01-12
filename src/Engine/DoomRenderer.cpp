@@ -41,7 +41,7 @@ void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int scr
 void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                              const Player& player,
                                              float wx, float wy, float sizeWorld, float tileHeight,
-                                             uint32_t color, const Map& map)
+                                             const Texture& floorTex, const Map& map)
 {
     if (tileHeight == 1.0f) return; // no need to render full-height wall tops
 
@@ -106,10 +106,31 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         // Z-buffer test (horizontal spans do NOT update zBuffer)
         if (t_enter >= zBuffer[sx]) continue;
 
+        // Fraction of a tile to shift texture coordinates
+        float jitterFrac = 0.3f; // 0.0 = no shift, 0.3 = up to 30% shift per tile
+
+        // Use wx/wy to get per-tile variation in range [0, jitterFrac]
+        float tileOffsetX = (fmodf(wx * 0.37f + wy * 0.21f, 1.0f)) * jitterFrac;
+        float tileOffsetY = (fmodf(wx * 0.11f + wy * 0.73f, 1.0f)) * jitterFrac;
+
         // Draw vertical span
         uint32_t* px = pixels + yTop * screenW + sx;
         for (int y = yTop; y <= yBottom; ++y) {
-            *px = color;
+            // Compute the current row's distance from the camera plane
+            float p = float(y - screenH / 2);        // row relative to center
+            if (p == 0) p = 1e-6f;                   // avoid division by zero
+            float rowDist = (tileHeight - player.z) * (screenH / 2) / p;
+
+            // Compute world coordinates along the ray for this column
+            float worldX = wx + rowDist * dirx;
+            float worldY = wy + rowDist * diry;
+
+            int texX = int(worldX * floorTex.w) % floorTex.w;
+            int texY = int(worldY * floorTex.h) % floorTex.h;
+            if (texX < 0) texX += floorTex.w;
+            if (texY < 0) texY += floorTex.h;
+
+            *px = floorTex.pixels[texY * floorTex.w + texX];
             px += screenW;
         }
     }
@@ -134,7 +155,7 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                      uint32_t* pixels, int screenW, int screenH,
-                                     const Player& player, const Map& map, float* zBuffer)
+                                     const Player& player, const Map& map, float* zBuffer, const Texture& wallTex)
 {
     // Project endpoints to camera space
     float a_camX, a_camY, b_camX, b_camY;
@@ -176,10 +197,10 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
     float ceilZ  = (tileH < 0.0f) ? 0.0f : tileH;
 
     // Project top/bottom for endpoints
-    float a_sy_floor   = (screenH * 0.5f) - (floorZ  - player.z) * (screenH / a_camY);
-    float a_sy_ceiling = (screenH * 0.5f) - (ceilZ   - player.z) * (screenH / a_camY);
-    float b_sy_floor   = (screenH * 0.5f) - (floorZ  - player.z) * (screenH / b_camY);
-    float b_sy_ceiling = (screenH * 0.5f) - (ceilZ   - player.z) * (screenH / b_camY);
+    float a_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / a_camY);
+    float a_sy_ceiling = (screenH * 0.5f) - (ceilZ - player.z) * (screenH / a_camY);
+    float b_sy_floor = (screenH * 0.5f) - (floorZ - player.z) * (screenH / b_camY);
+    float b_sy_ceiling = (screenH * 0.5f) - (ceilZ - player.z) * (screenH / b_camY);
 
     for (int sx = x0; sx <= x1; ++sx) {
         float t = (fabs(sxB - sxA) > 1e-6f) ? (sx - sxA) / (sxB - sxA) : 0.0f;
@@ -188,16 +209,36 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
         float depth = a_camY + t * (b_camY - a_camY);
         if (depth <= 0.0001f) continue;
 
-        float colFloorY   = a_sy_floor   + t * (b_sy_floor   - a_sy_floor);
-        float colCeilY    = a_sy_ceiling + t * (b_sy_ceiling - a_sy_ceiling);
+        float colFloorY = a_sy_floor + t * (b_sy_floor - a_sy_floor);
+        float colCeilY = a_sy_ceiling + t * (b_sy_ceiling - a_sy_ceiling);
 
         int drawStart = std::max(0, int(std::ceil(colCeilY)));
         int drawEnd   = std::min(screenH - 1, int(std::floor(colFloorY)));
         if (drawEnd < 0 || drawStart >= screenH) continue;
 
-        uint32_t color = (fabs(seg.a.x - seg.b.x) > fabs(seg.a.y - seg.b.y)) ? COLOR_SIDE_X : COLOR_SIDE_Y;
+        // Compute world position along wall segment
+        float wallWorldX = seg.a.x + t * (seg.b.x - seg.a.x);
+        float wallWorldY = seg.a.y + t * (seg.b.y - seg.a.y);
 
-        drawSegmentColumnSolid(pixels, screenW, screenH, sx, drawStart, drawEnd, color);
+        // Fractional horizontal coordinate along the wall segment (0 -> 1)
+        float wallLength = std::hypot(seg.b.x - seg.a.x, seg.b.y - seg.a.y);
+        float wallDist   = std::hypot(wallWorldX - seg.a.x, wallWorldY - seg.a.y);
+        float u = wallDist / (wallLength + 1e-6f);
+
+        // Draw textured column
+        uint32_t* px = pixels + drawStart * screenW + sx;
+        int columnHeight = drawEnd - drawStart + 1;
+        for (int y = drawStart; y <= drawEnd; ++y) {
+            float ty = float(y - drawStart) / float(columnHeight + 1e-6f);
+
+            int texX = int(u * wallTex.w) % wallTex.w; // horizontal
+            int texY = int((floorZ + ty * (ceilZ - floorZ)) * wallTex.h) % wallTex.h; // vertical
+            if (texX < 0) texX += wallTex.w;
+            if (texY < 0) texY += wallTex.h;
+
+            *px = wallTex.pixels[texY * wallTex.w + texX];
+            px += screenW;
+        }
 
         // Update wall-top array for sprites
         colWallTop[sx] = colCeilY;
@@ -226,7 +267,8 @@ void DoomRenderer::traverseBSP(
     int screenH,
     const Map& map,
     float* zBuffer,
-    uint8_t* tileDrawn
+    uint8_t* tileDrawn,
+    TextureManager& textureManager
 ) {
     if (!node) return;
 
@@ -242,7 +284,7 @@ void DoomRenderer::traverseBSP(
 
     // Traverse far side first
     if (second)
-        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn);
+        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
 
     // Pass 1: vertical walls only
     for (const auto& seg : node->onPlane) {
@@ -255,9 +297,11 @@ void DoomRenderer::traverseBSP(
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
 
+        const Texture& wallTex = textureManager.get("wall1");
+
         // Draw vertical walls (normal or pit)
         if (h != 0.0f) {
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer);
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, wallTex);
         }
     }
 
@@ -269,18 +313,14 @@ void DoomRenderer::traverseBSP(
         if (tx < 0 || tx >= Map::SIZE || ty < 0 || ty >= Map::SIZE)
             continue;
 
-        bool notNearPit = true;
-
         int idx = tx + ty * Map::SIZE;
         if (tileDrawn[idx])
             continue;
         if (map.get(tx+1,ty).height < 0 || map.get(tx,ty+1).height < 0 || map.get(tx,ty-1).height < 0 || map.get(tx-1,ty).height < 0 || map.get(tx+1,ty+1).height < 0 || map.get(tx-1,ty-1).height < 0) {
             tileDrawn[idx] = false;
-            notNearPit = false;
         }
         else if (map.get(tx+2,ty).height < 0 || map.get(tx,ty+2).height < 0 || map.get(tx,ty-2).height < 0 || map.get(tx-2,ty).height < 0 || map.get(tx+2,ty+2).height < 0 || map.get(tx-2,ty-2).height < 0) {
             tileDrawn[idx] = false;
-            notNearPit = false;
         }
         else {
             tileDrawn[idx] = true;
@@ -289,26 +329,19 @@ void DoomRenderer::traverseBSP(
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
 
-        if (h == 0.0f && notNearPit) {
-            continue;
-        }
-        else if (h < 0.0f) {
-            continue;
-        }
-
-        uint32_t floorColor;
+        const Texture* floorTex = nullptr;
 
         if (h < 0.0f) {
             // Pit floor
-            floorColor = 0xFF0055FF;
+            floorTex = &textureManager.get("lava1");
         }
         else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
             // Wall top
-            floorColor = 0xFF0055FF;
+            floorTex = &textureManager.get("floor1");
         }
         else {
             // Normal flat floor
-            floorColor = 0xFF404020;
+            floorTex = &textureManager.get("floor1");
         }
 
         renderWorldTileRasterized(
@@ -318,19 +351,19 @@ void DoomRenderer::traverseBSP(
             float(tx), float(ty),
             1.0f,
             h,
-            floorColor,
+            *floorTex,
             map
         );
     }
 
     // Traverse near side last
     if (first)
-        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn);
+        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
 }
 
 // Main render entry
 void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, Map& map, float* zBuffer, EnemyManager& em)
+                          const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager)
 {
     const uint32_t CEIL_COLOR = 0xFF202040; // World ceiling color (change to texture in the future)
 
@@ -346,7 +379,7 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
 
     // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data());
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data(), textureManager);
 
     // Fill Ceiling
     for (int y = 0; y < screenH / 2; ++y)
@@ -356,17 +389,6 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
             int idx = y * screenW + x;
             if (pixels[idx] == CLEAR_PIXEL)
                 pixels[idx] = CEIL_COLOR;
-        }
-    }
-
-    // fill default floor (bottom half of screen)
-    for (int y = screenH / 2; y < screenH; ++y)
-    {
-        for (int x = 0; x < screenW; ++x)
-        {
-            int idx = y * screenW + x;
-            if (pixels[idx] == CLEAR_PIXEL)
-                pixels[idx] = 0xFF404020; // default floor
         }
     }
 
