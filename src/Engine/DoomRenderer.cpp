@@ -106,27 +106,34 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         // Z-buffer test (horizontal spans do NOT update zBuffer)
         if (t_enter >= zBuffer[sx]) continue;
 
-        // Fraction of a tile to shift texture coordinates
-        float jitterFrac = 0.3f; // 0.0 = no shift, 0.3 = up to 30% shift per tile
+        float fovRad = 66.0f * (3.14159265f / 180.0f);
+        float projPlaneDist = (screenW * 0.5f) / tanf(fovRad * 0.5f);
+        float eyeHeight = tileHeight - player.z;
 
-        // Use wx/wy to get per-tile variation in range [0, jitterFrac]
-        float tileOffsetX = (fmodf(wx * 0.37f + wy * 0.21f, 1.0f)) * jitterFrac;
-        float tileOffsetY = (fmodf(wx * 0.11f + wy * 0.73f, 1.0f)) * jitterFrac;
+        // Precompute constants
+        float invSize = 1.0f / sizeWorld;
 
         // Draw vertical span
         uint32_t* px = pixels + yTop * screenW + sx;
+
         for (int y = yTop; y <= yBottom; ++y) {
             // Compute the current row's distance from the camera plane
-            float p = float(y - screenH / 2);        // row relative to center
-            if (p == 0) p = 1e-6f;                   // avoid division by zero
-            float rowDist = (tileHeight - player.z) * (screenH / 2) / p;
+            float p = float(y - screenH * 0.5f);        // row relative to center
+            if (fabs(p) < 1e-6f) continue;                   // avoid division by zero
+
+            float rowDist = eyeHeight * projPlaneDist / p;
 
             // Compute world coordinates along the ray for this column
-            float worldX = wx + rowDist * dirx;
-            float worldY = wy + rowDist * diry;
+            float worldX = -player.x + dirx * rowDist;
+            float worldY = -player.y + diry * rowDist;
 
-            int texX = int(worldX * floorTex.w) % floorTex.w;
-            int texY = int(worldY * floorTex.h) % floorTex.h;
+            // Convert world → tile local
+            float localX = (worldX - wx) * invSize;
+            float localY = (worldY - wy) * invSize;
+
+            // Map to [0, width/height]
+            int texX = int(localX * floorTex.w) % floorTex.w;
+            int texY = int(localY * floorTex.h) % floorTex.h;
             if (texX < 0) texX += floorTex.w;
             if (texY < 0) texY += floorTex.h;
 
@@ -337,7 +344,7 @@ void DoomRenderer::traverseBSP(
         }
         else if (h > 0.0f && h != WALL_WORLD_HEIGHT) {
             // Wall top
-            floorTex = &textureManager.get("floor1");
+            floorTex = &textureManager.get("wallTop1");
         }
         else {
             // Normal flat floor
