@@ -24,7 +24,7 @@ class Player {
 public:
     int health = 100;
     int maxHealth = 100;
-    int armor = 50;
+    int armor = 100;
     int maxArmor = 100;
 
     float x, y, z;

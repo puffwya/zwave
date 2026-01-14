@@ -118,8 +118,8 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
 
         for (int y = yTop; y <= yBottom; ++y) {
             // Compute the current row's distance from the camera plane
-            float p = float(y - screenH * 0.5f);        // row relative to center
-            if (fabs(p) < 1e-6f) continue;                   // avoid division by zero
+            float p = float(y - screenH * 0.5f); // row relative to center
+            if (fabs(p) < 1e-6f) continue;
 
             float rowDist = eyeHeight * projPlaneDist / p;
 
@@ -127,7 +127,7 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             float worldX = -player.x + dirx * rowDist;
             float worldY = -player.y + diry * rowDist;
 
-            // Convert world → tile local
+            // Convert world to tile local
             float localX = (worldX - wx) * invSize;
             float localY = (worldY - wy) * invSize;
 

@@ -13,10 +13,12 @@ public:
                 int screenH, Weapon& weapon);
 
 private:
-    void drawBar(SDL_Renderer* renderer,
-                 int x, int y, int w, int h,
-                 int value, int maxValue,
-                 SDL_Color color);
+    void drawDiamondBar(SDL_Renderer* renderer,
+                         int cx, int cy, int size,  // diamond center + half-width
+                         int value, int maxValue,
+                         SDL_Color barColor,
+                         SDL_Color frameColor,
+                         int thickness = 2);
 
     void drawAmmo(SDL_Renderer* renderer,
                    int clip,
@@ -24,6 +26,18 @@ private:
                    int x,
                    int y,
                    int scale);
+
+    SDL_Color getHealthColor(int value, int maxValue);
+
+    SDL_Color getArmorColor(int value, int maxValue);
+
+    void drawDiamond(SDL_Renderer* renderer, int cx, int cy, int size, SDL_Color color, int thickness = 2);
+
+    void drawHealthCross(SDL_Renderer* renderer, int cx, int cy, int width, int height, SDL_Color color, int thickness);
+
+    void drawArmorShield(SDL_Renderer* renderer, int cx, int cy, int size, SDL_Color color, int thickness = 2);
+
+    void drawRoundedTopLeft(SDL_Renderer* renderer, SDL_Rect rect, int radius, SDL_Color color);
 
     SDL_Texture* digitTextures[11]{};
     int digitW = 0;

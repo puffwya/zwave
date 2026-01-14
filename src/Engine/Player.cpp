@@ -14,15 +14,17 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     float inputX = 0.0f;
     float inputY = 0.0f;
 
+    // Move forwards
     if (keys[SDL_SCANCODE_W]) {
         inputX += std::cos(angle);
         inputY += std::sin(angle);
     }
+    // Move backwards
     if (keys[SDL_SCANCODE_S]) {
         inputX -= std::cos(angle);
         inputY -= std::sin(angle);
     }
-
+    // Jump
     if (keys[SDL_SCANCODE_SPACE] && onGround) {
         velZ = JUMP_VELOCITY;
         onGround = false;
@@ -83,7 +85,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     float newX = x + velX * delta;
     float newY = y + velY * delta;
 
-    // --- Collision X-axis ---
+    // Collision X-axis
     int tx = int(std::floor(newX));
     int ty = int(std::floor(y));
     auto& tileX = map.get(tx, ty);
@@ -95,13 +97,32 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
         // Update player z to 0.5 greater than tile height
         if (z != 0.5 + tileX.height && onGround) {
-            z = 0.5 + tileX.height;
+            onGround = false;
+
+            // Gradually move z toward targetZ
+            float baseFallSpeed = 2.0f;   // minimum speed for tiny steps
+            float maxFallSpeed  = 6.0f;   // maximum speed for tall drops
+
+            // Use the tile height as a scaling factor
+            float heightFactor = std::abs(tileX.height); // use absolute for negative pits
+            float fallSpeed = baseFallSpeed + heightFactor * 4.0f;
+
+            // Clamp to prevent extreme speed
+            fallSpeed = std::clamp(fallSpeed, baseFallSpeed, maxFallSpeed);
+
+            if (z < 0.5f + tileX.height) {
+                z += fallSpeed * delta;
+                if (z > 0.5f + tileX.height) z = 0.5f + tileX.height; // clamp so we don't overshoot
+            } else if (z > 0.5f + tileX.height) {
+                z -= fallSpeed * delta;
+                if (z < 0.5f + tileX.height) z = 0.5f + tileX.height;
+            }
         }
     } else {
         velX = 0;
     }
 
-    // --- Collision Y-axis ---
+    // Collision Y-axis
     tx = int(std::floor(x));
     ty = int(std::floor(newY));
     auto& tileY = map.get(tx, ty);
@@ -111,8 +132,28 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (heightDelta <= 0.25f) {
         y = newY;
 
+        // Update player z to 0.5 greater than tile height
         if (z != 0.5 + tileY.height && onGround) {
-            z = 0.5 + tileY.height;
+            onGround = false;
+    
+            // Gradually move z toward targetZ
+            float baseFallSpeed = 2.0f;   // minimum speed for tiny steps
+            float maxFallSpeed  = 6.0f;   // maximum speed for tall drops
+            
+            // Use the tile height as a scaling factor
+            float heightFactor = std::abs(tileY.height); // use absolute for negative pits
+            float fallSpeed = baseFallSpeed + heightFactor * 4.0f;                             
+            
+            // Clamp to prevent extreme speed
+            fallSpeed = std::clamp(fallSpeed, baseFallSpeed, maxFallSpeed);
+
+            if (z < 0.5f + tileY.height) {
+                z += fallSpeed * delta;
+                if (z > 0.5f + tileY.height) z = 0.5f + tileY.height; // clamp so we don't overshoot
+            } else if (z > 0.5f + tileY.height) {
+                z -= fallSpeed * delta;
+                if (z < 0.5f + tileY.height) z = 0.5f + tileY.height;
+            }
         }
     } else {
         velY = 0;
@@ -126,7 +167,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         turnVel += TURN_ACCEL * delta;
     }
     else {
-        // apply friction when NO turning keys are pressed
+        // Apply friction when no turning keys are pressed
         if (fabs(turnVel) > 0.0001f) {
             float drop = TURN_FRICTION * delta;
             if (turnVel > 0) {
