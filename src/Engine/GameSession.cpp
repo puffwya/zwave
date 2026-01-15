@@ -20,10 +20,34 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     player.giveItem(ItemType::Pistol);
     player.giveItem(ItemType::Shotgun);
 
-    // Starting enemies (wave system to be added)
-    enemyManager.spawnEnemy(EnemyType::Base);
-    enemyManager.spawnEnemy(EnemyType::Tank);
-    enemyManager.initialize();
+    // Wave defs (temp)
+    waves.push_back({
+        6.0f, // spawn interval
+        {
+            EnemyType::Base,
+            EnemyType::Base,
+            EnemyType::Base,
+            EnemyType::Base,
+            EnemyType::Base
+        }
+    });
+
+    waves.push_back({
+        5.0f, // spawn interval
+        {
+            EnemyType::Base, EnemyType::Base, EnemyType::Base,
+            EnemyType::Base, EnemyType::Base, EnemyType::Base,
+            EnemyType::Base, EnemyType::Base, EnemyType::Base,
+            EnemyType::Tank
+        }
+    });
+
+    // Initialize enemy assets
+    enemyManager.loadEnemyAssets();
+
+    // Start in post-wave delay so wave 1 begins after 8s
+    waveState = WaveState::PostWaveDelay;
+    postWaveTimer = 0.0f;
 }
 
 GameSession::~GameSession() {
@@ -38,10 +62,69 @@ void GameSession::initWorld(Renderer& renderer, int screenW) {
     doomRenderer = std::make_unique<DoomRenderer>(segments, std::move(bspRoot));
 }
 
+void GameSession::startWave(int index) {
+    currentWaveIndex = index;
+    enemiesSpawned = 0;
+    spawnTimer = 0.0f;
+    waveState = WaveState::Spawning;
+
+    std::cout << "Wave " << index + 1 << " started\n";
+}
+
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState) {
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState);
     enemyManager.update(dt, player, worldMap);
     weaponManager.update(dt, player);
+
+    if (currentWaveIndex >= (int)waves.size())
+        return;
+
+    Wave& wave = waves[currentWaveIndex];
+
+    switch (waveState) {
+
+        case WaveState::Spawning: {
+            spawnTimer += dt;
+
+            if (spawnTimer >= wave.spawnInterval &&
+                enemiesSpawned < wave.enemies.size()) {
+
+                enemyManager.spawnEnemy(wave.enemies[enemiesSpawned]);
+                enemiesSpawned++;
+
+                spawnTimer = 0.0f;
+            }
+
+            // Finished spawning, wait until cleared
+            if (enemiesSpawned == wave.enemies.size()) {
+                waveState = WaveState::WaitingForClear;
+            }
+            break;
+        }
+
+        case WaveState::WaitingForClear: {
+            if (!enemyManager.hasActiveEnemies()) {
+                postWaveTimer = 0.0f;
+                waveState = WaveState::PostWaveDelay;
+            }
+            break;
+        }
+
+        case WaveState::PostWaveDelay: {
+            postWaveTimer += dt;
+
+            if (postWaveTimer >= 8.0f) {
+                currentWaveIndex++;
+                enemiesSpawned = 0;
+                spawnTimer = 0.0f;
+
+                waveState = WaveState::Spawning;
+
+                std::cout << "Wave " << currentWaveIndex + 1 << " started\n";
+            }
+            break;
+        }
+    }
 }
 
 void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, TextureManager& textureManager) {

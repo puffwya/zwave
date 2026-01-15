@@ -19,6 +19,11 @@ class Renderer;
 
 class TextureManager;
 
+struct Wave {
+    float spawnInterval;
+    std::vector<EnemyType> enemies;
+};
+
 class GameSession {
 public:
     GameSession(Renderer& renderer, int screenW, int screenH);
@@ -46,4 +51,23 @@ private:
     float* zBuffer = nullptr;
 
     void initWorld(Renderer& renderer, int screenW);
+
+    // Wave control 
+    void startWave(int index);
+
+    std::vector<Wave> waves;
+    int currentWaveIndex = -1;
+
+    float spawnTimer = 0.0f;
+    float postWaveTimer = 0.0f;
+
+    size_t enemiesSpawned = 0;
+
+    enum class WaveState {
+        Spawning,
+        WaitingForClear,
+        PostWaveDelay
+    };
+
+    WaveState waveState = WaveState::PostWaveDelay;
 };

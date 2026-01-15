@@ -22,6 +22,7 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
     }
 }
 
+// Helper for loadEnemyAssets
 bool loadEnemySprite(Enemy& e, const std::string& path) {
     SDL_Surface* surf = IMG_Load(path.c_str());
     if (!surf) {
@@ -49,46 +50,63 @@ bool loadEnemySprite(Enemy& e, const std::string& path) {
     return true;
 }
 
-void EnemyManager::initialize() {
-    for (int i = 0; i < MAX_ENEMIES; i++) {
-        Enemy& e = enemies[i];
+// Loads each enemy types assets
+void EnemyManager::loadEnemyAssets() {
+    auto load = [&](EnemyType type, const std::string& path) {
+        EnemySprite sprite;
+        Enemy temp; // dummy enemy for loader
 
-        // Choose path based on type
-        std::string path;
-        switch (e.type) {
-            case EnemyType::Base: path = "Assets/enemy_base.png"; break;
-            case EnemyType::Tank: path = "Assets/enemy_tank.png"; break;
-            // Add more types here
-            default: path = "Assets/enemy_base.png"; break;
+        if (!loadEnemySprite(temp, path)) {
+            std::cerr << "Failed to load sprite for type\n";
+            return;
         }
 
-        if (!loadEnemySprite(e, path)) {
-            std::cerr << "Failed to load enemy sprite, using fallback" << std::endl;
-            e.spritePixels.clear();
-            e.spriteW = e.spriteH = 0;
-        }
-    }
+        sprite.w = temp.spriteW;
+        sprite.h = temp.spriteH;
+        sprite.pixels = std::move(temp.spritePixels);
+
+        spriteCache[type] = std::move(sprite);
+    };
+
+    load(EnemyType::Base, "Assets/enemy_base.png");
+    load(EnemyType::Tank, "Assets/enemy_tank.png");
 }
 
 // Spawn the *first available* enemy from the pool, round-robin spawn
 Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     if (spawnPoints.empty())
-        return nullptr; // no valid spawn tiles
-
-    // Pick the next spawn point in round-robin fashion
+        return nullptr;
+    
+    // Pick the next spawn point (round-robin)
     const auto& pt = spawnPoints[nextSpawnIndex];
     nextSpawnIndex = (nextSpawnIndex + 1) % spawnPoints.size();
 
     // Find an inactive enemy slot
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
-            enemies[i].activate(pt.x, pt.y, type);
-            enemies[i].z = 0.0f;
-            enemies[i].height = 0.75f;
-            return &enemies[i];
+            Enemy& e = enemies[i];
+
+            // Existing behavior
+            e.activate(pt.x, pt.y, type);
+            e.z = 0.0f;
+            e.height = 0.75f;
+
+            // Assign sprite by type
+            auto it = spriteCache.find(type);
+            if (it != spriteCache.end()) {
+                e.spriteW = it->second.w;
+                e.spriteH = it->second.h;
+                e.spritePixels = it->second.pixels;
+            } else {
+                // Safety fallback
+                e.spritePixels.clear();
+                e.spriteW = e.spriteH = 0;
+            }
+
+            return &e;
         }
     }
-            
+
     return nullptr; // pool full
 }
 
@@ -132,6 +150,15 @@ void EnemyManager::update(float dt, const Player& player, const Map& map) {
             }
         }
     }
+}
+
+bool EnemyManager::hasActiveEnemies() const {
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        const Enemy& e = enemies[i];
+        if (e.active)
+            return true;
+    }
+    return false;
 }
 
 void EnemyManager::deactivateAll() {

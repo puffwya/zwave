@@ -8,6 +8,12 @@
 #include "Texture.h"
 #include <SDL2/SDL.h>
 
+struct EnemySprite {
+    int w = 0;
+    int h = 0;
+    std::vector<uint32_t> pixels;
+};
+
 class EnemyManager {
 public:
     static const int MAX_ENEMIES = 128;
@@ -23,9 +29,13 @@ public:
 
     Enemy* spawnEnemy(EnemyType type);
 
-    void initialize();
+    // Load all enemy assets at once
+    void loadEnemyAssets();
+    const EnemySprite& getSprite(EnemyType type) const;
 
     void update(float dt, const Player& player, const Map& map);
+
+    bool hasActiveEnemies() const;
 
     // Load textures once per enemy type
     std::unordered_map<EnemyType, SDL_Texture*> enemyTextures;
@@ -36,6 +46,7 @@ public:
 private:
     std::vector<SpawnPoint> spawnPoints;
     int nextSpawnIndex = 0;  // keeps track of next spawn point
+    std::unordered_map<EnemyType, EnemySprite> spriteCache;
 };
 
 #endif
