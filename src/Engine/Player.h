@@ -74,7 +74,7 @@ public:
 
     int lastChunkID;
 
-    Player(float startX = 9.5f, float startY = 4.5f, float startZ = 0.5f, float startAngle = 0.0f)
+    Player(float startX = 14.5f, float startY = 2.5f, float startZ = 0.5f, float startAngle = 0.0f)
         : x(startX), y(startY), angle(startAngle), speed(3.0f), z(startZ) {
         lastChunkID = -1;
     }
