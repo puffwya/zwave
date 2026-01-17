@@ -18,6 +18,12 @@ enum class EnemyState {
     Searching // continues chasing briefly after losing sight
 };
 
+enum class EnemyAnimState {
+    Idle,
+    Walk,
+    Attack
+};
+
 class Player;
 
 class Enemy {
@@ -28,6 +34,14 @@ public:
     float angle;
     bool active;
     EnemyType type;
+
+    EnemyAnimState animState = EnemyAnimState::Idle;
+    int animFrame = 0;
+    float animTimer = 0.0f;
+
+    void updateAnimation(float dt);
+
+    bool attacking = false;
 
     // CPU-side sprite
     int spriteW = 0;

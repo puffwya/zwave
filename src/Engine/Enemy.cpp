@@ -100,6 +100,24 @@ void Enemy::wander(float dt)
     y += std::sin(wanderAngle) * speed * 0.3f * dt;
 }
 
+void Enemy::updateAnimation(float dt)
+{
+    animTimer += dt;
+
+    // Frame duration depends on animation
+    float frameTime = 0.15f;
+
+    if (animState == EnemyAnimState::Idle)
+        frameTime = 0.4f;
+    else if (animState == EnemyAnimState::Walk)
+        frameTime = 0.12f;
+
+    if (animTimer >= frameTime) {
+        animTimer -= frameTime;
+        animFrame++;
+    }
+}
+
 void Enemy::update(float dt, const Player& player, const Map& map)
 {
     if (!active) return;
@@ -109,29 +127,38 @@ void Enemy::update(float dt, const Player& player, const Map& map)
     switch (state)
     {
         case EnemyState::Idle:
+            animState = EnemyAnimState::Idle;
+
             if (seesPlayer) {
                 state = EnemyState::Chasing;
             } else {
-                wander(dt);   // small random movement
+                wander(dt);
             }
             break;
 
         case EnemyState::Chasing:
+            animState = EnemyAnimState::Walk;
+
             if (seesPlayer) {
                 chasePlayer(dt, player);
-                loseSightTimer = 1.0f; // 1 second delay after losing LOS
+                loseSightTimer = 1.0f;
             } else {
                 state = EnemyState::Searching;
             }
             break;
 
         case EnemyState::Searching:
+            animState = EnemyAnimState::Walk;
+
             loseSightTimer -= dt;
-            chasePlayer(dt, player);   // keep chasing briefly
+            chasePlayer(dt, player);
 
             if (loseSightTimer <= 0.0f) {
                 state = EnemyState::Idle;
             }
             break;
     }
+
+    updateAnimation(dt);
 }
+

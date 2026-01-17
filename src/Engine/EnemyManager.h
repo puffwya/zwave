@@ -14,6 +14,21 @@ struct EnemySprite {
     std::vector<uint32_t> pixels;
 };
 
+struct SpriteFrame {
+    int w = 0;
+    int h = 0;
+    std::vector<uint32_t> pixels;
+};
+
+struct Animation {
+    std::vector<SpriteFrame> frames;
+    float frameDuration = 0.1f; // seconds per frame
+};
+
+struct EnemyVisual {
+    std::unordered_map<EnemyAnimState, Animation> animations;
+};
+
 class EnemyManager {
 public:
     static const int MAX_ENEMIES = 128;
@@ -44,6 +59,10 @@ public:
     void deactivateAll();
 
     int getActiveEnemyCount() const;
+
+    void updateEnemy(Enemy& e, float dt);
+
+    std::unordered_map<EnemyType, EnemyVisual> enemyVisuals;
 
 private:
     std::vector<SpawnPoint> spawnPoints;

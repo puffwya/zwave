@@ -23,53 +23,71 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
 }
 
 // Helper for loadEnemyAssets
-bool loadEnemySprite(Enemy& e, const std::string& path) {
+bool loadSpriteFrame(const std::string& path, SpriteFrame& out) {
     SDL_Surface* surf = IMG_Load(path.c_str());
-    if (!surf) {
-        std::cerr << "Failed to load sprite: " << path << " | " 
-                  << IMG_GetError() << std::endl;
-        return false;
-    }
+    if (!surf) return false;
 
-    // Convert surface to ARGB8888 format (if needed)
-    SDL_Surface* formatted = SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
+    SDL_Surface* formatted =
+        SDL_ConvertSurfaceFormat(surf, SDL_PIXELFORMAT_ARGB8888, 0);
     SDL_FreeSurface(surf);
-    if (!formatted) {
-        std::cerr << "Failed to convert sprite to ARGB8888: " << path << std::endl;
-        return false;
-    }
+    if (!formatted) return false;
 
-    e.spriteW = formatted->w;
-    e.spriteH = formatted->h;
-    e.spritePixels.resize(e.spriteW * e.spriteH);
-
-    // Copy pixels into vector
-    std::memcpy(e.spritePixels.data(), formatted->pixels, e.spriteW * e.spriteH * 4);
+    out.w = formatted->w;
+    out.h = formatted->h;
+    out.pixels.resize(out.w * out.h);
+    std::memcpy(out.pixels.data(), formatted->pixels, out.w * out.h * 4);
 
     SDL_FreeSurface(formatted);
     return true;
 }
 
+Animation loadAnimation(const std::vector<std::string>& paths, float frameTime) {
+    Animation anim;
+    anim.frameDuration = frameTime;
+
+    for (const auto& p : paths) {
+        SpriteFrame frame;
+        if (!loadSpriteFrame(p, frame)) {
+            std::cerr << "FAILED TO LOAD FRAME: " << p << std::endl;
+        } else {
+            anim.frames.push_back(std::move(frame));
+        }
+    }
+
+    std::cerr << "Loaded animation with " << anim.frames.size()
+              << " frames\n";
+
+    return anim;
+}
+
 // Loads each enemy types assets
 void EnemyManager::loadEnemyAssets() {
-    auto load = [&](EnemyType type, const std::string& path) {
-        EnemySprite sprite;
-        Enemy temp; // dummy enemy for loader
+    EnemyVisual base;
 
-        if (!loadEnemySprite(temp, path)) {
-            std::cerr << "Failed to load sprite for type\n";
-            return;
-        }
+    base.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Base/walk_0.png",
+            "Assets/Enemies/Base/walk_1.png",
+            "Assets/Enemies/Base/walk_2.png"
+        }, 0.12f);
 
-        sprite.w = temp.spriteW;
-        sprite.h = temp.spriteH;
-        sprite.pixels = std::move(temp.spritePixels);
+    // IDLE (reuse walk for now)
+    base.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Base/chase_0.png",
+            "Assets/Enemies/Base/chase_1.png",
+            "Assets/Enemies/Base/chase_2.png"
+        }, 0.12f);
 
-        spriteCache[type] = std::move(sprite);
-    };
+    //base.animations[EnemyAnimState::Attack] =
+    //    loadAnimation({
+    //        "Assets/Enemies/Base/attack_0.png",
+    //        "Assets/Enemies/Base/attack_1.png"
+    //    }, 0.15f);
 
-    load(EnemyType::Base, "Assets/enemy_base.png");
-    load(EnemyType::Tank, "Assets/enemy_tank.png");
+    enemyVisuals[EnemyType::Base] = std::move(base);
+
+    // Repeat for Tank
 }
 
 // Spawn the *first available* enemy from the pool, round-robin spawn
@@ -149,6 +167,24 @@ void EnemyManager::update(float dt, const Player& player, const Map& map) {
                 }
             }
         }
+    }
+}
+
+void EnemyManager::updateEnemy(Enemy& e, float dt) {
+    // Decide animation state
+    if (e.attacking)
+        e.animState = EnemyAnimState::Attack;
+    else
+        e.animState = EnemyAnimState::Walk;
+
+    const EnemyVisual& visual = enemyVisuals[e.type];
+    const Animation& anim = visual.animations.at(e.animState);
+
+    e.animTimer += dt;
+
+    if (e.animTimer >= anim.frameDuration) {
+        e.animTimer -= anim.frameDuration;
+        e.animFrame = (e.animFrame + 1) % anim.frames.size();
     }
 }
 
