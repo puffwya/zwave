@@ -1,9 +1,8 @@
 #ifndef ENEMY_H
 #define ENEMY_H
 
-#include <string>
+#include <vector>
 #include "Map.h"
-#include "Texture.h"
 #include <SDL2/SDL.h>
 
 enum class EnemyType {
@@ -15,7 +14,7 @@ enum class EnemyType {
 enum class EnemyState {
     Idle,
     Chasing,
-    Searching // continues chasing briefly after losing sight
+    Searching
 };
 
 enum class EnemyAnimState {
@@ -28,52 +27,44 @@ class Player;
 
 class Enemy {
 public:
-    float x, y, z;
-    float height;
-    float speed;
-    float angle;
-    bool active;
-    EnemyType type;
+    float x = 0, y = 0, z = 0;
+    float height = 0;
+    float speed = 0;
+    float angle = 0;
+    bool active = false;
+    EnemyType type = EnemyType::Base;
 
     EnemyAnimState animState = EnemyAnimState::Idle;
     int animFrame = 0;
     float animTimer = 0.0f;
 
-    void updateAnimation(float dt);
-
     bool attacking = false;
 
-    // CPU-side sprite
     int spriteW = 0;
     int spriteH = 0;
     std::vector<uint32_t> spritePixels;
 
-    // Enemy AI states
-    EnemyState state = EnemyState::Idle; // Start Idle by default 
-    float loseSightTimer = 0.0f;   // countdown after losing LOS
+    EnemyState state = EnemyState::Idle;
+    float loseSightTimer = 0.0f;
     float wanderAngle = 0.0f;
     float wanderTimer = 0.0f;
 
-    float lateralOffset = 0.0f;  // persistent offset for chasing
+    float lateralOffset = 0.0f;
 
     Enemy();
-    // Initialize an enemy at a tile
+
     void activate(int tx, int ty, EnemyType t);
 
-    // enemy movement state functions
     bool hasLineOfSight(const Player& player, const Map& map) const;
     void chasePlayer(float dt, const Player& player);
     void wander(float dt);
     void update(float dt, const Player& player, const Map& map);
 
-    // AI decision-making
-    void update(float dt, const Player& player);
+    void updateAnimation(float dt);
 
-    // Deactivate enemy for memory-pool reuse
     void deactivate() { active = false; }
 
     float distanceTo(const Player& player) const;
-
 };
 
 #endif

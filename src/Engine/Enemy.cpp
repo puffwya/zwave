@@ -1,17 +1,9 @@
 #include "Enemy.h"
 #include "Player.h"
 #include <cmath>
-#include <random>
+#include <cstdlib>
 
-Enemy::Enemy()
-{
-    x = 0;
-    y = 0;
-    speed = 0;
-    angle = 0;
-    active = false;    // all enemies start inactive
-    type = EnemyType::Base;
-}
+Enemy::Enemy() {}
 
 float Enemy::distanceTo(const Player& player) const {
     float dx = player.x - x;
@@ -19,64 +11,44 @@ float Enemy::distanceTo(const Player& player) const {
     return std::sqrt(dx*dx + dy*dy);
 }
 
-void Enemy::activate(int tx, int ty, EnemyType t)
-{
+void Enemy::activate(int tx, int ty, EnemyType t) {
     x = float(tx) + 0.5f;
     y = float(ty) + 0.5f;
     type = t;
     active = true;
 
-    // assign a small random lateral offset to separate enemies visually
-    lateralOffset = ((rand() % 201) - 100) / 100.0f; // -1.0 to 1.0 units
+    lateralOffset = ((rand() % 201) - 100) / 100.0f; // -1.0 to 1.0
 
-    // basic stats per type
     switch (type) {
-        case EnemyType::Base:
-            speed = 1.5f;
-            break;
-        case EnemyType::Fast:
-            speed = 2.8f;
-            break;
-        case EnemyType::Tank:
-            speed = 1.0f;
-            break;
+        case EnemyType::Base: speed = 1.5f; break;
+        case EnemyType::Fast: speed = 2.8f; break;
+        case EnemyType::Tank: speed = 1.0f; break;
     }
 }
 
-bool Enemy::hasLineOfSight(const Player& player, const Map& map) const
-{
+bool Enemy::hasLineOfSight(const Player& player, const Map& map) const {
     float dx = player.x - x;
     float dy = player.y - y;
-
     float dist = std::sqrt(dx*dx + dy*dy);
 
-    float step = 0.1f; // small step for accuracy
-    float steps = dist / step;
-
-    float sx = x;
-    float sy = y;
-
+    float step = 0.1f;
+    int steps = int(dist / step);
+    float sx = x, sy = y;
     float incX = dx / steps;
     float incY = dy / steps;
 
-    for (int i = 0; i < (int)steps; i++) {
+    for (int i = 0; i < steps; i++) {
         sx += incX;
         sy += incY;
-
         int mx = int(sx);
         int my = int(sy);
-
-        // hit a wall
-        if (map.get(mx,my).type == Map::TileType::Wall) {
-            return false;
-        }
+        if (map.get(mx,my).type == Map::TileType::Wall) return false;
     }
 
     return true;
 }
 
-void Enemy::chasePlayer(float dt, const Player& player)
-{
+void Enemy::chasePlayer(float dt, const Player& player) {
     float dx = player.x - x;
     float dy = player.y - y;
     angle = std::atan2(dy, dx);
@@ -84,33 +56,25 @@ void Enemy::chasePlayer(float dt, const Player& player)
     y += std::sin(angle) * speed * dt;
 }
 
-void Enemy::wander(float dt)
-{
+void Enemy::wander(float dt) {
     static float changeTimer = 0.0f;
-
     changeTimer -= dt;
 
     if (changeTimer <= 0.0f) {
-        // pick a new random movement direction
-        wanderAngle = ((std::rand() % 628) / 100.0f) - 3.14f;
-        changeTimer = 2.0f + (std::rand() % 200) / 100.0f; // 2–4 seconds
+        wanderAngle = ((rand() % 628) / 100.0f) - 3.14f;
+        changeTimer = 2.0f + (rand() % 200) / 100.0f;
     }
 
-    x += std::cos(wanderAngle) * speed * 0.3f * dt; // slower movement
+    x += std::cos(wanderAngle) * speed * 0.3f * dt;
     y += std::sin(wanderAngle) * speed * 0.3f * dt;
 }
 
-void Enemy::updateAnimation(float dt)
-{
+void Enemy::updateAnimation(float dt) {
     animTimer += dt;
 
-    // Frame duration depends on animation
     float frameTime = 0.15f;
-
-    if (animState == EnemyAnimState::Idle)
-        frameTime = 0.4f;
-    else if (animState == EnemyAnimState::Walk)
-        frameTime = 0.12f;
+    if (animState == EnemyAnimState::Idle) frameTime = 0.4f;
+    else if (animState == EnemyAnimState::Walk) frameTime = 0.12f;
 
     if (animTimer >= frameTime) {
         animTimer -= frameTime;
@@ -118,44 +82,31 @@ void Enemy::updateAnimation(float dt)
     }
 }
 
-void Enemy::update(float dt, const Player& player, const Map& map)
-{
+void Enemy::update(float dt, const Player& player, const Map& map) {
     if (!active) return;
 
     bool seesPlayer = hasLineOfSight(player, map);
 
-    switch (state)
-    {
+    switch (state) {
         case EnemyState::Idle:
             animState = EnemyAnimState::Idle;
-
-            if (seesPlayer) {
-                state = EnemyState::Chasing;
-            } else {
-                wander(dt);
-            }
+            if (seesPlayer) state = EnemyState::Chasing;
+            else wander(dt);
             break;
 
         case EnemyState::Chasing:
             animState = EnemyAnimState::Walk;
-
             if (seesPlayer) {
                 chasePlayer(dt, player);
                 loseSightTimer = 1.0f;
-            } else {
-                state = EnemyState::Searching;
-            }
+            } else state = EnemyState::Searching;
             break;
 
         case EnemyState::Searching:
             animState = EnemyAnimState::Walk;
-
             loseSightTimer -= dt;
             chasePlayer(dt, player);
-
-            if (loseSightTimer <= 0.0f) {
-                state = EnemyState::Idle;
-            }
+            if (loseSightTimer <= 0.0f) state = EnemyState::Idle;
             break;
     }
 

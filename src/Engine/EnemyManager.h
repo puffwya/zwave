@@ -5,14 +5,7 @@
 #include "Enemy.h"
 #include "Map.h"
 #include <unordered_map>
-#include "Texture.h"
 #include <SDL2/SDL.h>
-
-struct EnemySprite {
-    int w = 0;
-    int h = 0;
-    std::vector<uint32_t> pixels;
-};
 
 struct SpriteFrame {
     int w = 0;
@@ -33,7 +26,6 @@ class EnemyManager {
 public:
     static const int MAX_ENEMIES = 128;
 
-    // Store spawn locations from the map (tile value = 2)
     struct SpawnPoint { int x, y; };
 
     EnemyManager();
@@ -41,33 +33,21 @@ public:
     Enemy enemies[MAX_ENEMIES];
 
     void scanMapForSpawnPoints(const Map& map);
-
     Enemy* spawnEnemy(EnemyType type);
 
-    // Load all enemy assets at once
     void loadEnemyAssets();
-    const EnemySprite& getSprite(EnemyType type) const;
-
     void update(float dt, const Player& player, const Map& map);
+    void updateEnemy(Enemy& e, float dt);
 
     bool hasActiveEnemies() const;
-
-    // Load textures once per enemy type
-    std::unordered_map<EnemyType, SDL_Texture*> enemyTextures;
-
-    // Safety check to clear all active enemies at wave end
-    void deactivateAll();
-
     int getActiveEnemyCount() const;
-
-    void updateEnemy(Enemy& e, float dt);
+    void deactivateAll();
 
     std::unordered_map<EnemyType, EnemyVisual> enemyVisuals;
 
 private:
     std::vector<SpawnPoint> spawnPoints;
-    int nextSpawnIndex = 0;  // keeps track of next spawn point
-    std::unordered_map<EnemyType, EnemySprite> spriteCache;
+    int nextSpawnIndex = 0;
 };
 
 #endif

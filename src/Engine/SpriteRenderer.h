@@ -2,6 +2,7 @@
 
 #include "EnemyManager.h"
 #include "Player.h"
+#include "Map.h"
 
 class SpriteRenderer {
 public:
