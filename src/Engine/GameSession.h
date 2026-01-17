@@ -34,6 +34,9 @@ public:
 
     void renderPaused(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, float pauseT, TextureManager& textureManager);
 
+    std::vector<Wave> waves;
+    int currentWaveIndex = -1;
+
 private:
     // Core gameplay state
     Player player;
@@ -54,9 +57,6 @@ private:
 
     // Wave control 
     void startWave(int index);
-
-    std::vector<Wave> waves;
-    int currentWaveIndex = -1;
 
     float spawnTimer = 0.0f;
     float postWaveTimer = 0.0f;

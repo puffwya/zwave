@@ -2,28 +2,138 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-bool HUD::loadDigitTextures(SDL_Renderer* renderer) {
+bool HUD::init(SDL_Renderer* renderer) {
+    // Load digits 0-9 + "/"
     for (int i = 0; i < 11; ++i) {
-        // Construct path
         std::string path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
 
         SDL_Texture* tex = IMG_LoadTexture(renderer, path.c_str());
         if (!tex) {
-            std::cerr << "Failed to load digit " << i 
-                      << " from path: " << path 
+            std::cerr << "Failed to load digit " << i
+                      << " from path: " << path
                       << " | SDL_image error: " << IMG_GetError() << "\n";
             return false;
         }
-
         digitTextures[i] = tex;
     }
 
-    // Get width/height from first digit for layout purposes
+    // Query width/height from first digit for layout
     if (digitTextures[0]) {
         SDL_QueryTexture(digitTextures[0], nullptr, nullptr, &digitW, &digitH);
     }
 
+    // Load Wave PNG
+    SDL_Surface* surface = IMG_Load("assets/pixWords/wave.png");
+    if (!surface) {
+        std::cerr << "Failed to load wave.png: " << IMG_GetError() << std::endl;
+        return false;
+    }
+    waveTextTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    if (!waveTextTexture) {
+        std::cerr << "Failed to create wave texture\n";
+        return false;
+    }
+
+    // Load Enemies Left PNG
+    surface = IMG_Load("assets/pixWords/enemiesLeft.png");
+    if (!surface) {
+        std::cerr << "Failed to load enemiesLeft.png: " << IMG_GetError() << std::endl;
+        return false;
+    }
+    enemiesLeftTextTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    if (!enemiesLeftTextTexture) {
+        std::cerr << "Failed to create enemiesLeft texture\n";
+        return false;
+    }
+
     return true;
+}
+
+void HUD::drawWaveBanner(SDL_Renderer* renderer,
+                         int screenW,
+                         int screenH,
+                         int currentWave,
+                         int totalWaves,
+                         int enemiesRemaining)
+{
+    int y = 20; // top margin
+    int spacing = 2; // space between digits
+
+    int texW, texH;
+
+    // ---- Measure all elements to compute total width ----
+    int totalWidth = 0;
+
+    // Wave word
+    SDL_QueryTexture(waveTextTexture, nullptr, nullptr, &texW, &texH);
+    int waveH = texH; // scale digits to this height
+    totalWidth += texW + spacing;
+
+    // Current wave digits
+    std::string currentWaveStr = std::to_string(currentWave + 1);
+    totalWidth += currentWaveStr.size() * waveH; // use square based on word height
+    totalWidth += (currentWaveStr.size() - 1) * spacing;
+
+    // "/" separator
+    totalWidth += waveH + spacing;
+
+    // Total waves digits
+    std::string totalWavesStr = std::to_string(totalWaves);
+    totalWidth += totalWavesStr.size() * waveH + (totalWavesStr.size() - 1) * spacing;
+
+    // Enemies Left word
+    SDL_QueryTexture(enemiesLeftTextTexture, nullptr, nullptr, &texW, &texH);
+    totalWidth += 10 + texW + spacing; // 10 px extra padding
+
+    // Enemies remaining digits
+    std::string enemiesStr = std::to_string(enemiesRemaining);
+    totalWidth += enemiesStr.size() * waveH + (enemiesStr.size() - 1) * spacing;
+
+    // ---- Starting X for perfect center ----
+    int x = (screenW - totalWidth) / 2;
+
+    // ---- Draw Wave word ----
+    SDL_QueryTexture(waveTextTexture, nullptr, nullptr, &texW, &texH);
+    SDL_Rect dstWave { x, y, texW, texH };
+    SDL_RenderCopy(renderer, waveTextTexture, nullptr, &dstWave);
+    x += texW + spacing;
+
+    // ---- Draw current wave digits ----
+    for (char c : currentWaveStr) {
+        int d = c - '0';
+        SDL_Rect dstDigit { x, y, waveH, waveH }; // scale digits to match Wave text height
+        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+        x += waveH + spacing;
+    }
+
+    // ---- Draw "/" separator ----
+    SDL_Rect dstSlash { x, y, waveH, waveH };
+    SDL_RenderCopy(renderer, digitTextures[10], nullptr, &dstSlash);
+    x += waveH + spacing;
+
+    // ---- Draw total waves digits ----
+    for (char c : totalWavesStr) {
+        int d = c - '0';
+        SDL_Rect dstDigit { x, y, waveH, waveH };
+        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+        x += waveH + spacing;
+    }
+
+    // ---- Draw "Enemies Left" word ----
+    SDL_QueryTexture(enemiesLeftTextTexture, nullptr, nullptr, &texW, &texH);
+    SDL_Rect dstEnemies { x + 10, y, texW, texH };
+    SDL_RenderCopy(renderer, enemiesLeftTextTexture, nullptr, &dstEnemies);
+    x = dstEnemies.x + dstEnemies.w + 5;
+
+    // ---- Draw enemies remaining digits ----
+    for (char c : enemiesStr) {
+        int d = c - '0';
+        SDL_Rect dstDigit { x, y, texH, texH }; // match word height
+        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+        x += texH + spacing;
+    }
 }
 
 void HUD::drawAmmo(SDL_Renderer* renderer,
@@ -282,8 +392,17 @@ void HUD::drawDiamondBar(SDL_Renderer* renderer,
 void HUD::render(SDL_Renderer* renderer,
                  const Player& player,
                  int screenW,
-                 int screenH, Weapon& weapon)
+                 int screenH, Weapon& weapon,
+                 int currentWave,
+                 int totalWaves,
+                 int enemiesRemaining)
 {
+    // Draw current wave and enemies left
+    drawWaveBanner(renderer, screenW, screenH,
+               currentWave,
+               totalWaves,
+               enemiesRemaining);
+
     // Health and Armor bar pos
     int paddingX = screenW / 40;   // ~2.5% of screen width
     int paddingY = screenH / 40;   // ~2.5% of screen height

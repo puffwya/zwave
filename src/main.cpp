@@ -5,6 +5,7 @@
 
 #include "Menu/MainMenu.h"
 #include "Menu/PauseMenu.h"
+#include "Intro/StudioIntro.h"
 
 #include "audio/AudioManager.h"
 
@@ -26,6 +27,9 @@ int main() {
     PauseMenu pauseMenu;
     pauseMenu.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
 
+    StudioIntro studioIntro;
+    studioIntro.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
+
     AudioManager audio;
     audio.init();
 
@@ -46,7 +50,7 @@ int main() {
     uint32_t* pixels = new uint32_t[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     // Game state
-    GameState gameState = GameState::MainMenu;
+    GameState gameState = GameState::StudioIntro;
     std::unique_ptr<GameSession> session = nullptr;
 
     bool running = true;
@@ -60,6 +64,36 @@ int main() {
     // =========================
     while (mainRun) {
         running = true;
+
+        // -------------------------
+        // INTRO
+        // -------------------------
+        if (gameState == GameState::StudioIntro) {
+
+            audio.stopMusic();
+            audio.playMusic("Assets/audio/IntroJingle.mp3", false);
+
+            studioIntro.start();
+
+            while (running && gameState == GameState::StudioIntro) {
+                Uint32 now = SDL_GetTicks();
+                float dt = (now - last) / 1000.f;
+                last = now;
+
+                SDL_Event e;
+                while (SDL_PollEvent(&e)) {
+                    if (e.type == SDL_QUIT) {
+                        running = false;
+                        mainRun = false;
+                    }
+                    studioIntro.handleEvent(e, gameState);
+                }
+
+                studioIntro.update(dt, gameState);
+                studioIntro.render(renderer.getSDLRenderer());
+                renderer.present();
+            }
+        }
 
         // -------------------------
         // MAIN MENU
@@ -199,5 +233,6 @@ int main() {
     delete[] pixels;
     audio.shutdown();
     IMG_Quit();
+    studioIntro.cleanup();
     return 0;
 }

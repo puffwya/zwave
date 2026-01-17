@@ -5,12 +5,14 @@
 
 class HUD {
 public:
-    bool loadDigitTextures(SDL_Renderer* renderer);
+    bool init(SDL_Renderer* renderer);
 
     void render(SDL_Renderer* renderer,
                 const Player& player,
                 int screenW,
-                int screenH, Weapon& weapon);
+                int screenH, Weapon& weapon, int currentWave,
+                int totalWaves,
+                int enemiesRemaining);
 
 private:
     void drawDiamondBar(SDL_Renderer* renderer,
@@ -26,6 +28,17 @@ private:
                    int x,
                    int y,
                    int scale);
+
+    void drawWaveBanner(SDL_Renderer* renderer,
+                        int screenW,
+                        int screenH,
+                        int currentWave,
+                        int totalWaves,
+                        int enemiesRemaining);
+
+    SDL_Texture* waveTextTexture = nullptr;
+
+    SDL_Texture* enemiesLeftTextTexture = nullptr;
 
     SDL_Color getHealthColor(int value, int maxValue);
 

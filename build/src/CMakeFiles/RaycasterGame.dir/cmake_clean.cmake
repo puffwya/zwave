@@ -27,6 +27,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o"

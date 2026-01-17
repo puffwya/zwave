@@ -161,6 +161,14 @@ bool EnemyManager::hasActiveEnemies() const {
     return false;
 }
 
+int EnemyManager::getActiveEnemyCount() const {
+    int count = 0;
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (enemies[i].active) count++;
+    }
+    return count;
+}
+
 void EnemyManager::deactivateAll() {
     for (int i = 0; i < MAX_ENEMIES; i++)
         enemies[i].active = false;

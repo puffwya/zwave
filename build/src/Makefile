@@ -442,6 +442,30 @@ Engine/pItemRenderer.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.s
 .PHONY : Engine/pItemRenderer.cpp.s
 
+Intro/StudioIntro.o: Intro/StudioIntro.cpp.o
+.PHONY : Intro/StudioIntro.o
+
+# target to build an object file
+Intro/StudioIntro.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o
+.PHONY : Intro/StudioIntro.cpp.o
+
+Intro/StudioIntro.i: Intro/StudioIntro.cpp.i
+.PHONY : Intro/StudioIntro.i
+
+# target to preprocess a source file
+Intro/StudioIntro.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.i
+.PHONY : Intro/StudioIntro.cpp.i
+
+Intro/StudioIntro.s: Intro/StudioIntro.cpp.s
+.PHONY : Intro/StudioIntro.s
+
+# target to generate assembly for a file
+Intro/StudioIntro.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.s
+.PHONY : Intro/StudioIntro.cpp.s
+
 Menu/MainMenu.o: Menu/MainMenu.cpp.o
 .PHONY : Menu/MainMenu.o
 
@@ -586,6 +610,9 @@ help:
 	@echo "... Engine/pItemRenderer.o"
 	@echo "... Engine/pItemRenderer.i"
 	@echo "... Engine/pItemRenderer.s"
+	@echo "... Intro/StudioIntro.o"
+	@echo "... Intro/StudioIntro.i"
+	@echo "... Intro/StudioIntro.s"
 	@echo "... Menu/MainMenu.o"
 	@echo "... Menu/MainMenu.i"
 	@echo "... Menu/MainMenu.s"

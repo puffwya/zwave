@@ -43,6 +43,8 @@ public:
     // Safety check to clear all active enemies at wave end
     void deactivateAll();
 
+    int getActiveEnemyCount() const;
+
 private:
     std::vector<SpawnPoint> spawnPoints;
     int nextSpawnIndex = 0;  // keeps track of next spawn point

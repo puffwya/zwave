@@ -12,7 +12,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     weaponManager.loadAssets(renderer.getSDLRenderer());
 
-    if (!hud.loadDigitTextures(renderer.getSDLRenderer())) {
+    if (!hud.init(renderer.getSDLRenderer())) {
         std::cerr << "Failed to initialize HUD\n";
     }
 
@@ -153,7 +153,23 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
         weaponManager
     );
 
-    hud.render(renderer.getSDLRenderer(), player, w, h, weapon);
+    int safeCurrentWave = std::max(0, currentWaveIndex); // never negative
+    int totalWaves = (int)waves.size();
+    int enemiesRemaining = 0;
+ 
+    // Only calculate if there is a valid wave
+    if (currentWaveIndex >= 0 && currentWaveIndex < totalWaves) {
+        Wave& wave = waves[currentWaveIndex];
+        int enemiesLeftToSpawn = std::max(0, (int)wave.enemies.size() - (int)enemiesSpawned);
+        int activeEnemies = enemyManager.getActiveEnemyCount();
+        enemiesRemaining = enemiesLeftToSpawn + activeEnemies;
+    }
+ 
+    // Always pass safe values to HUD
+    hud.render(renderer.getSDLRenderer(), player, w, h, weapon,
+           safeCurrentWave,    // display wave number starting at 1
+           totalWaves,
+           enemiesRemaining);
 
     renderer.present();
 }
@@ -189,5 +205,21 @@ void GameSession::renderPaused(
         weaponManager
     );
 
-    hud.render(renderer.getSDLRenderer(), player, w, h, weapon);
+    int safeCurrentWave = std::max(0, currentWaveIndex); // never negative
+    int totalWaves = (int)waves.size();
+    int enemiesRemaining = 0;
+
+    // Only calculate if there is a valid wave
+    if (currentWaveIndex >= 0 && currentWaveIndex < totalWaves) {
+        Wave& wave = waves[currentWaveIndex];
+        int enemiesLeftToSpawn = std::max(0, (int)wave.enemies.size() - (int)enemiesSpawned);
+        int activeEnemies = enemyManager.getActiveEnemyCount();
+        enemiesRemaining = enemiesLeftToSpawn + activeEnemies;
+    }
+
+    // Always pass safe values to HUD
+    hud.render(renderer.getSDLRenderer(), player, w, h, weapon,
+           safeCurrentWave,    // display wave number starting at 1
+           totalWaves,
+           enemiesRemaining);
 }

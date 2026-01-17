@@ -16,6 +16,7 @@ set(SOURCES
     audio/AudioManager.cpp
     Engine/GameSession.cpp
     Engine/TextureManager.cpp
+    Intro/StudioIntro.cpp
 )
 
 add_executable(RaycasterGame ${SOURCES})
