@@ -371,24 +371,20 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 }
 
 void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map) {
-    const float hitWidth = 0.08f;   // how wide the hit cone is
-    const float maxRange = 10.0f;  // max distance pistol can hit
+    const float hitWidth = 0.08f;
+    const float maxRange = 10.0f;
 
     WeaponType wt = itemToWeapon(currentItem);
 
-    // play animation
     if (wt != WeaponType::None)
         weaponManager.playShootAnimation(wt);
 
-    // convert angle into direction vector
     float dirX = std::cos(angle);
     float dirY = std::sin(angle);
 
-    // camera plane (controls FOV)
-    const float fovScale = 0.66f;  // 66° FOV like DOOM
+    const float fovScale = 0.66f;
     float planeX = -dirY * fovScale;
     float planeY =  dirX * fovScale;
-
 
     for (int i = 0; i < manager.MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
@@ -397,34 +393,46 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
         float dx = e.x - x;
         float dy = e.y - y;
         float dist = std::sqrt(dx*dx + dy*dy);
-        if (dist > maxRange) continue;  // out of range
+        if (dist > maxRange) continue;
 
-        // camera space transform
         float invDet = 1.0f / (planeX * dirY - dirX * planeY);
 
         float transformX = invDet * (dirY * dx - dirX * dy);
         float transformY = invDet * (-planeY * dx + planeX * dy);
 
-        // If enemy is behind player
         if (transformY <= 0) continue;
 
-        // Hit if enemy is near the center of the screen (= small X offset)
         float lateral = transformX / transformY;
 
         if (std::fabs(lateral) < hitWidth) {
 
-            // checks if enemy is behind a wall
             if (!e.hasLineOfSight(*this, map)) {
-                continue;  // if enemy is behind a wall -> cannot be hit
+                continue;
             }
 
-            e.active = false; // enemy hit
-            printf("Enemy hit!\n");
-            break; // stop after hitting first enemy
+            // Apply damage
+            int damage = 0;
+            if (currentItem == ItemType::Pistol) {
+                damage = 50;
+            }
+            else if (currentItem == ItemType::Shotgun) {
+                damage = 200;
+            }
+            e.takeDamage(damage);
+
+            if (e.isDead()) {
+                e.deactivate();
+                printf("Enemy killed!\n");
+            } else {
+                printf("Enemy hit! HP: %d\n", e.health);
+            }
+
+            break;
         }
     }
+
     isFiringAnim = true;
-    fireFrame = 1;          // Start on first firing frame
+    fireFrame = 1;
     fireFrameTimer = FIRE_FRAME_DURATION;
 }
 

@@ -8,7 +8,8 @@
 enum class EnemyType {
     Base,
     Fast,
-    Tank
+    Tank,
+    Shooter
 };
 
 enum class EnemyState {
@@ -40,6 +41,9 @@ public:
 
     bool attacking = false;
 
+    int health = 0;
+    int maxHealth = 0;
+
     int spriteW = 0;
     int spriteH = 0;
     std::vector<uint32_t> spritePixels;
@@ -55,6 +59,9 @@ public:
 
     void activate(int tx, int ty, EnemyType t);
 
+    void takeDamage(int amount);
+    bool isDead() const;
+
     bool hasLineOfSight(const Player& player, const Map& map) const;
     void chasePlayer(float dt, const Player& player);
     void wander(float dt);
@@ -65,6 +72,9 @@ public:
     void deactivate() { active = false; }
 
     float distanceTo(const Player& player) const;
+
+private:
+    int getMaxHealthForType(EnemyType t) const;
 };
 
 #endif

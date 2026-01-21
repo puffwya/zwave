@@ -62,17 +62,61 @@ void EnemyManager::loadEnemyAssets() {
         loadAnimation({
             "Assets/Enemies/Base/walk_0.png",
             "Assets/Enemies/Base/walk_1.png",
-            "Assets/Enemies/Base/walk_2.png"
+            "Assets/Enemies/Base/walk_2.png",
+            "Assets/Enemies/Base/walk_3.png",
+            "Assets/Enemies/Base/walk_4.png"
         }, 0.12f);
 
     base.animations[EnemyAnimState::Walk] =
         loadAnimation({
             "Assets/Enemies/Base/chase_0.png",
             "Assets/Enemies/Base/chase_1.png",
-            "Assets/Enemies/Base/chase_2.png"
+            "Assets/Enemies/Base/chase_2.png",
+            "Assets/Enemies/Base/chase_3.png",
+            "Assets/Enemies/Base/chase_4.png"
         }, 0.12f);
 
     enemyVisuals[EnemyType::Base] = std::move(base);
+
+    EnemyVisual shooter;
+     
+    shooter.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Shooter/walk_0.png",
+            "Assets/Enemies/Shooter/walk_1.png",
+            "Assets/Enemies/Shooter/walk_2.png"
+        }, 0.12f);
+        
+    shooter.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Shooter/chase_0.png",
+            "Assets/Enemies/Shooter/chase_1.png",
+            "Assets/Enemies/Shooter/chase_2.png"
+        }, 0.12f);
+        
+    enemyVisuals[EnemyType::Shooter] = std::move(shooter);
+
+    EnemyVisual tank;
+         
+    tank.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Tank/walk_0.png",
+            "Assets/Enemies/Tank/walk_1.png",
+            "Assets/Enemies/Tank/walk_2.png",
+            "Assets/Enemies/Tank/walk_3.png",
+            "Assets/Enemies/Tank/walk_4.png"
+        }, 0.12f);
+
+    tank.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Tank/chase_0.png",
+            "Assets/Enemies/Tank/chase_1.png",
+            "Assets/Enemies/Tank/chase_2.png",
+            "Assets/Enemies/Tank/chase_3.png",
+            "Assets/Enemies/Tank/chase_4.png"
+        }, 0.12f);
+            
+    enemyVisuals[EnemyType::Tank] = std::move(tank);
 }
 
 Enemy* EnemyManager::spawnEnemy(EnemyType type) {

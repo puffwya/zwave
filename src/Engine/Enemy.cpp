@@ -23,7 +23,11 @@ void Enemy::activate(int tx, int ty, EnemyType t) {
         case EnemyType::Base: speed = 1.5f; break;
         case EnemyType::Fast: speed = 2.8f; break;
         case EnemyType::Tank: speed = 1.0f; break;
+        case EnemyType::Shooter: speed = 1.3f; break;
     }
+
+    maxHealth = getMaxHealthForType(type);
+    health = maxHealth;
 }
 
 bool Enemy::hasLineOfSight(const Player& player, const Map& map) const {
@@ -79,6 +83,26 @@ void Enemy::updateAnimation(float dt) {
     if (animTimer >= frameTime) {
         animTimer -= frameTime;
         animFrame++;
+    }
+}
+
+void Enemy::takeDamage(int amount) {
+    health -= amount;
+    if (health < 0)
+        health = 0;
+}
+
+bool Enemy::isDead() const {
+    return health <= 0;
+}
+
+int Enemy::getMaxHealthForType(EnemyType t) const {
+    switch (t) {
+        case EnemyType::Base: return 200;
+        case EnemyType::Fast: return 150;
+        case EnemyType::Tank: return 800;
+        case EnemyType::Shooter: return 300;
+        default:              return 200;
     }
 }
 
