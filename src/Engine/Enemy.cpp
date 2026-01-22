@@ -11,7 +11,7 @@ float Enemy::distanceTo(const Player& player) const {
     return std::sqrt(dx*dx + dy*dy);
 }
 
-void Enemy::activate(int tx, int ty, EnemyType t) {
+void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
     x = float(tx) + 0.5f;
     y = float(ty) + 0.5f;
     type = t;
@@ -26,8 +26,22 @@ void Enemy::activate(int tx, int ty, EnemyType t) {
         case EnemyType::Shooter: speed = 1.3f; break;
     }
 
+    // Health initialization
     maxHealth = getMaxHealthForType(type);
     health = maxHealth;
+
+    managerPtr = &manager;
+
+    // Sprite assignment
+    normalAnimation  = &manager.enemyVisuals.at(type).animations[animState];
+    damagedAnimation = &manager.enemyVisualsDamaged.at(type).animations[animState];
+
+    // Set initial spritePixels to normal
+    spritePixels = normalAnimation->frames[0].pixels;
+    spriteW = normalAnimation->frames[0].w;
+    spriteH = normalAnimation->frames[0].h;
+    animFrame = 0;
+    animTimer = 0.0f;
 }
 
 bool Enemy::hasLineOfSight(const Player& player, const Map& map) const {
@@ -83,6 +97,18 @@ void Enemy::updateAnimation(float dt) {
     if (animTimer >= frameTime) {
         animTimer -= frameTime;
         animFrame++;
+
+        // Select the correct animation pointer based on current state
+        Animation* currentAnim = isDamaged() 
+            ? &managerPtr->enemyVisualsDamaged.at(type).animations.at(animState) 
+            : &managerPtr->enemyVisuals.at(type).animations.at(animState);
+
+        if (animFrame >= currentAnim->frames.size())
+            animFrame = 0;
+
+        spritePixels = currentAnim->frames[animFrame].pixels;
+        spriteW = currentAnim->frames[animFrame].w;
+        spriteH = currentAnim->frames[animFrame].h;
     }
 }
 
@@ -90,6 +116,10 @@ void Enemy::takeDamage(int amount) {
     health -= amount;
     if (health < 0)
         health = 0;
+}
+
+bool Enemy::isDamaged() const {
+    return health <= maxHealth / 2;
 }
 
 bool Enemy::isDead() const {

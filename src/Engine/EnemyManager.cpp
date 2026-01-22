@@ -56,8 +56,10 @@ Animation loadAnimation(const std::vector<std::string>& paths, float frameTime) 
 }
 
 void EnemyManager::loadEnemyAssets() {
+    // Base Enemy
     EnemyVisual base;
 
+    // Base
     base.animations[EnemyAnimState::Idle] =
         loadAnimation({
             "Assets/Enemies/Base/walk_0.png",
@@ -78,26 +80,68 @@ void EnemyManager::loadEnemyAssets() {
 
     enemyVisuals[EnemyType::Base] = std::move(base);
 
+    EnemyVisual baseDamaged;
+
+    baseDamaged.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Base/walk_damaged_0.png",
+            "Assets/Enemies/Base/walk_damaged_1.png",
+            "Assets/Enemies/Base/walk_damaged_2.png",
+            "Assets/Enemies/Base/walk_damaged_3.png",
+            "Assets/Enemies/Base/walk_damaged_4.png"
+        }, 0.12f);
+
+    baseDamaged.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Base/chase_damaged_0.png",
+            "Assets/Enemies/Base/chase_damaged_1.png",
+            "Assets/Enemies/Base/chase_damaged_2.png",
+            "Assets/Enemies/Base/chase_damaged_3.png",
+            "Assets/Enemies/Base/chase_damaged_4.png"
+        }, 0.12f);
+
+    enemyVisualsDamaged[EnemyType::Base] = std::move(baseDamaged);
+
+    // Shooter
     EnemyVisual shooter;
-     
+
     shooter.animations[EnemyAnimState::Idle] =
         loadAnimation({
             "Assets/Enemies/Shooter/walk_0.png",
             "Assets/Enemies/Shooter/walk_1.png",
             "Assets/Enemies/Shooter/walk_2.png"
         }, 0.12f);
-        
+
     shooter.animations[EnemyAnimState::Walk] =
         loadAnimation({
             "Assets/Enemies/Shooter/chase_0.png",
             "Assets/Enemies/Shooter/chase_1.png",
             "Assets/Enemies/Shooter/chase_2.png"
         }, 0.12f);
-        
+
     enemyVisuals[EnemyType::Shooter] = std::move(shooter);
 
+    EnemyVisual shooterDamaged;
+
+    shooterDamaged.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Shooter/walk_damaged_0.png",
+            "Assets/Enemies/Shooter/walk_damaged_1.png",
+            "Assets/Enemies/Shooter/walk_damaged_2.png"
+        }, 0.12f);
+
+    shooterDamaged.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Shooter/chase_damaged_0.png",
+            "Assets/Enemies/Shooter/chase_damaged_1.png",
+            "Assets/Enemies/Shooter/chase_damaged_2.png"
+        }, 0.12f);
+
+    enemyVisualsDamaged[EnemyType::Shooter] = std::move(shooterDamaged);
+
+    // Tank
     EnemyVisual tank;
-         
+
     tank.animations[EnemyAnimState::Idle] =
         loadAnimation({
             "Assets/Enemies/Tank/walk_0.png",
@@ -115,8 +159,30 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Tank/chase_3.png",
             "Assets/Enemies/Tank/chase_4.png"
         }, 0.12f);
-            
+
     enemyVisuals[EnemyType::Tank] = std::move(tank);
+
+    EnemyVisual tankDamaged;
+
+    tankDamaged.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Tank/walk_damaged_0.png",
+            "Assets/Enemies/Tank/walk_damaged_1.png",
+            "Assets/Enemies/Tank/walk_damaged_2.png",
+            "Assets/Enemies/Tank/walk_damaged_3.png",
+            "Assets/Enemies/Tank/walk_damaged_4.png"
+        }, 0.12f);
+
+    tankDamaged.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Tank/chase_damaged_0.png",
+            "Assets/Enemies/Tank/chase_damaged_1.png",
+            "Assets/Enemies/Tank/chase_damaged_2.png",
+            "Assets/Enemies/Tank/chase_damaged_3.png",
+            "Assets/Enemies/Tank/chase_damaged_4.png"
+        }, 0.12f);
+
+    enemyVisualsDamaged[EnemyType::Tank] = std::move(tankDamaged);
 }
 
 Enemy* EnemyManager::spawnEnemy(EnemyType type) {
@@ -128,7 +194,7 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
             Enemy& e = enemies[i];
-            e.activate(pt.x, pt.y, type);
+            e.activate(pt.x, pt.y, type, *this);
             e.z = 0.0f;
             e.height = 0.75f;
             return &e;

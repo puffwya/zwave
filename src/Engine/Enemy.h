@@ -26,6 +26,10 @@ enum class EnemyAnimState {
 
 class Player;
 
+class EnemyManager;
+
+struct Animation;
+
 class Enemy {
 public:
     float x = 0, y = 0, z = 0;
@@ -46,7 +50,13 @@ public:
 
     int spriteW = 0;
     int spriteH = 0;
+
     std::vector<uint32_t> spritePixels;
+
+    EnemyManager* managerPtr = nullptr;
+    
+    Animation* normalAnimation  = nullptr;
+    Animation* damagedAnimation = nullptr;
 
     EnemyState state = EnemyState::Idle;
     float loseSightTimer = 0.0f;
@@ -57,7 +67,7 @@ public:
 
     Enemy();
 
-    void activate(int tx, int ty, EnemyType t);
+    void activate(int tx, int ty, EnemyType t, EnemyManager& manager);
 
     void takeDamage(int amount);
     bool isDead() const;
@@ -66,6 +76,8 @@ public:
     void chasePlayer(float dt, const Player& player);
     void wander(float dt);
     void update(float dt, const Player& player, const Map& map);
+
+    bool isDamaged() const;
 
     void updateAnimation(float dt);
 

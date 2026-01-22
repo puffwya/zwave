@@ -40,9 +40,10 @@ void SpriteRenderer::renderEnemies(
 
     for (int i = 0; i < count; i++) {
         Enemy* e = drawList[i].enemy;
-        const EnemyVisual& visual = manager.enemyVisuals.at(e->type);
-        const Animation& anim = visual.animations.at(e->animState);
-        const SpriteFrame& frame = anim.frames[e->animFrame % anim.frames.size()];
+
+        std::vector<uint32_t>& framePixels = e->spritePixels;
+        int frameW = e->spriteW;
+        int frameH = e->spriteH;
 
         float dx = e->x - player.x;
         float dy = e->y - player.y;
@@ -75,9 +76,9 @@ void SpriteRenderer::renderEnemies(
         if (spanW <= 0 || spanH <= 0) continue;
 
         auto drawPixel = [&](int x, int y) {
-            int srcX = std::clamp((x - drawStartX) * frame.w / spanW, 0, frame.w - 1);
-            int srcY = std::clamp((y - drawStartY) * frame.h / spanH, 0, frame.h - 1);
-            uint32_t color = frame.pixels[srcY * frame.w + srcX];
+            int srcX = std::clamp((x - drawStartX) * frameW / spanW, 0, frameW - 1);
+            int srcY = std::clamp((y - drawStartY) * frameH / spanH, 0, frameH - 1);
+            uint32_t color = framePixels[srcY * frameW + srcX];
             if ((color >> 24) == 0) return;
             pixels[y * screenW + x] = color;
         };
