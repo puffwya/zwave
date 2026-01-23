@@ -26,6 +26,36 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
         case EnemyType::Shooter: speed = 1.3f; break;
     }
 
+    switch (type) {
+    case EnemyType::Base:
+        attackDamage = 20;
+        attackRange = 0.8f;
+        attackCooldown = 1.2f;
+        attackHitFrame = 2;
+        break;
+
+    case EnemyType::Fast:
+        attackDamage = 30;
+        attackRange = 0.7f;
+        attackCooldown = 0.6f;
+        attackHitFrame = 1;
+        break;
+
+    case EnemyType::Tank:
+        attackDamage = 50;
+        attackRange = 1.0f;
+        attackCooldown = 3.0f;
+        attackHitFrame = 3;
+        break;
+
+    case EnemyType::Shooter:
+        attackDamage = 15;   // temporary melee
+        attackRange = 0.9f;
+        attackCooldown = 1.5f;
+        attackHitFrame = 2;
+        break;
+    }
+
     // Health initialization
     maxHealth = getMaxHealthForType(type);
     health = maxHealth;
@@ -136,10 +166,43 @@ int Enemy::getMaxHealthForType(EnemyType t) const {
     }
 }
 
+bool Enemy::canAttack(const Player& player) const {
+    return distanceTo(player) <= attackRange;
+}
+
+void Enemy::handleAttack(float dt, Player& player) {
+    animState = EnemyAnimState::Attack;
+
+    // Apply damage on the hit frame
+    if (!hasDealtDamageThisAttack && animFrame == attackHitFrame) {
+        player.health -= attackDamage;
+        hasDealtDamageThisAttack = true;
+    }
+
+    // Attack animation finished, go back to chasing
+    Animation* currentAnim = isDamaged()
+        ? &managerPtr->enemyVisualsDamaged.at(type).animations.at(animState)
+        : &managerPtr->enemyVisuals.at(type).animations.at(animState);
+
+    if (animFrame == currentAnim->frames.size() - 1) {
+        attackTimer = attackCooldown;
+
+        hasDealtDamageThisAttack = false;
+        animFrame = 0;
+        animTimer = 0.0f;
+
+        state = EnemyState::Chasing;
+    }
+}
+
 void Enemy::update(float dt, const Player& player, const Map& map) {
     if (!active) return;
 
     bool seesPlayer = hasLineOfSight(player, map);
+
+    attackTimer -= dt;
+    if (attackTimer < 0.0f)
+        attackTimer = 0.0f;
 
     switch (state) {
         case EnemyState::Idle:
@@ -150,10 +213,24 @@ void Enemy::update(float dt, const Player& player, const Map& map) {
 
         case EnemyState::Chasing:
             animState = EnemyAnimState::Walk;
+
             if (seesPlayer) {
+                float dist = distanceTo(player);
+
+                if (dist <= attackRange && attackTimer == 0.0f) {
+                    state = EnemyState::Attacking;
+                    animState = EnemyAnimState::Attack;
+                    animFrame = 0;
+                    animTimer = 0.0f;
+                    hasDealtDamageThisAttack = false;
+                    break;
+                }
+
                 chasePlayer(dt, player);
                 loseSightTimer = 1.0f;
-            } else state = EnemyState::Searching;
+            } else {
+                state = EnemyState::Searching;
+            }
             break;
 
         case EnemyState::Searching:
@@ -161,6 +238,10 @@ void Enemy::update(float dt, const Player& player, const Map& map) {
             loseSightTimer -= dt;
             chasePlayer(dt, player);
             if (loseSightTimer <= 0.0f) state = EnemyState::Idle;
+            break;
+
+        case EnemyState::Attacking:
+            handleAttack(dt, const_cast<Player&>(player));
             break;
     }
 

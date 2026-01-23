@@ -15,7 +15,8 @@ enum class EnemyType {
 enum class EnemyState {
     Idle,
     Chasing,
-    Searching
+    Searching,
+    Attacking
 };
 
 enum class EnemyAnimState {
@@ -44,6 +45,15 @@ public:
     float animTimer = 0.0f;
 
     bool attacking = false;
+
+    // Attack data
+    float attackRange = 0.0f;
+    int attackDamage = 0;
+    float attackCooldown = 0.0f;
+    float attackTimer = 0.0f;
+
+    bool hasDealtDamageThisAttack = false;
+    int attackHitFrame = 0; // animation frame where damage occurs
 
     int health = 0;
     int maxHealth = 0;
@@ -76,6 +86,10 @@ public:
     void chasePlayer(float dt, const Player& player);
     void wander(float dt);
     void update(float dt, const Player& player, const Map& map);
+
+    bool canAttack(const Player& player) const;
+
+    void handleAttack(float dt, Player& player);
 
     bool isDamaged() const;
 
