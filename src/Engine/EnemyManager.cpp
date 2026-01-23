@@ -109,14 +109,18 @@ void EnemyManager::loadEnemyAssets() {
         loadAnimation({
             "Assets/Enemies/Shooter/walk_0.png",
             "Assets/Enemies/Shooter/walk_1.png",
-            "Assets/Enemies/Shooter/walk_2.png"
+            "Assets/Enemies/Shooter/walk_2.png",
+            "Assets/Enemies/Shooter/walk_3.png",
+            "Assets/Enemies/Shooter/walk_3.png"
         }, 0.12f);
 
     shooter.animations[EnemyAnimState::Walk] =
         loadAnimation({
             "Assets/Enemies/Shooter/chase_0.png",
             "Assets/Enemies/Shooter/chase_1.png",
-            "Assets/Enemies/Shooter/chase_2.png"
+            "Assets/Enemies/Shooter/chase_2.png",
+            "Assets/Enemies/Shooter/chase_3.png",
+            "Assets/Enemies/Shooter/chase_4.png"
         }, 0.12f);
 
     enemyVisuals[EnemyType::Shooter] = std::move(shooter);
@@ -127,14 +131,18 @@ void EnemyManager::loadEnemyAssets() {
         loadAnimation({
             "Assets/Enemies/Shooter/walk_damaged_0.png",
             "Assets/Enemies/Shooter/walk_damaged_1.png",
-            "Assets/Enemies/Shooter/walk_damaged_2.png"
+            "Assets/Enemies/Shooter/walk_damaged_2.png",
+            "Assets/Enemies/Shooter/walk_damaged_3.png",
+            "Assets/Enemies/Shooter/walk_damaged_4.png"
         }, 0.12f);
 
     shooterDamaged.animations[EnemyAnimState::Walk] =
         loadAnimation({
             "Assets/Enemies/Shooter/chase_damaged_0.png",
             "Assets/Enemies/Shooter/chase_damaged_1.png",
-            "Assets/Enemies/Shooter/chase_damaged_2.png"
+            "Assets/Enemies/Shooter/chase_damaged_2.png",
+            "Assets/Enemies/Shooter/chase_damaged_3.png",
+            "Assets/Enemies/Shooter/chase_damaged_4.png"
         }, 0.12f);
 
     enemyVisualsDamaged[EnemyType::Shooter] = std::move(shooterDamaged);

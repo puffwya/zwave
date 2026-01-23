@@ -50,7 +50,7 @@ int main() {
     uint32_t* pixels = new uint32_t[SCREEN_WIDTH * SCREEN_HEIGHT];
 
     // Game state
-    GameState gameState = GameState::MainMenu;
+    GameState gameState = GameState::StudioIntro;
     std::unique_ptr<GameSession> session = nullptr;
 
     bool running = true;
