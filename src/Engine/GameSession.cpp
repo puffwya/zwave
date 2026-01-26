@@ -48,7 +48,9 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Init pickup assets
     pickupManager.loadPickupAssets();
 
-    pickupManager.addPickup(7.0f, 14.0f, 0.0f, PickupType::Health);
+    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
+
+    pickupManager.addPickup(22.5f, 3.5f, 0.0f, PickupType::Ammo, WeaponType::Pistol);
 
     doomRenderer->setPickupManager(pickupManager);
 
@@ -81,6 +83,7 @@ void GameSession::startWave(int index) {
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState) {
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState);
     enemyManager.update(dt, player, worldMap);
+    pickupManager.update(player, dt, weapon);
     weaponManager.update(dt, player);
 
     if (currentWaveIndex >= (int)waves.size())

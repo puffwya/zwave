@@ -22,9 +22,9 @@ enum class ItemType {
 
 class Player {
 public:
-    int health = 100;
+    int health = 50;
     int maxHealth = 100;
-    int armor = 100;
+    int armor = 25;
     int maxArmor = 100;
 
     float x, y, z;

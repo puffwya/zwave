@@ -32,26 +32,36 @@ void PickupManager::loadPickupAssets() {
     PickupVisual health;
     if (!loadPickupFrame("Assets/Pickups/health.png", health))
         std::cerr << "Failed to load health pickup\n";
-    pickupsVisuals[PickupType::Health] = health;
+    pickupsVisuals[{PickupType::Health, WeaponType::None}] = health;
 
     PickupVisual armor;
     if (!loadPickupFrame("Assets/Pickups/armor.png", armor))
         std::cerr << "Failed to load armor pickup\n";
-    pickupsVisuals[PickupType::Armor] = armor;
+    pickupsVisuals[{PickupType::Armor, WeaponType::None}] = armor;
 
-    PickupVisual ammo;
-    if (!loadPickupFrame("Assets/Pickups/ammo.png", ammo))
+    PickupVisual pistolAmmo;
+    if (!loadPickupFrame("Assets/Pickups/p_ammo.png", pistolAmmo))
         std::cerr << "Failed to load ammo pickup\n";
-    pickupsVisuals[PickupType::Ammo] = ammo;
+    pickupsVisuals[{PickupType::Ammo, WeaponType::Pistol}] = pistolAmmo;
 
-    PickupVisual weapon;
-    if (!loadPickupFrame("Assets/Pickups/weapon.png", weapon))
-        std::cerr << "Failed to load weapon pickup\n";
-    pickupsVisuals[PickupType::Weapon] = weapon;
+    PickupVisual shotgunAmmo;
+    if (!loadPickupFrame("Assets/Pickups/s_ammo.png", shotgunAmmo))
+        std::cerr << "Failed to load ammo pickup\n";
+    pickupsVisuals[{PickupType::Ammo, WeaponType::Shotgun}] = shotgunAmmo;
+
+    PickupVisual pistolWeapon;
+    if (!loadPickupFrame("Assets/Pickups/p_gun.png", pistolWeapon))
+        std::cerr << "Failed to load gun pickup\n";
+    pickupsVisuals[{PickupType::Weapon, WeaponType::Pistol}] = pistolWeapon;
+
+    PickupVisual shotgunWeapon;
+    if (!loadPickupFrame("Assets/Pickups/s_gun.png", shotgunWeapon))
+        std::cerr << "Failed to load gun pickup\n";
+    pickupsVisuals[{PickupType::Weapon, WeaponType::Shotgun}] = shotgunWeapon;
 }
 
 // Add a pickup to the world
-void PickupManager::addPickup(float x, float y, float z, PickupType type) {
+void PickupManager::addPickup(float x, float y, float z, PickupType type, WeaponType id) {
     if (pickups.size() >= MAX_PICKUPS) return;
 
     Pickup p;
@@ -59,8 +69,9 @@ void PickupManager::addPickup(float x, float y, float z, PickupType type) {
     p.y = y;
     p.z = z;
     p.type = type;
+    p.id = id;
     p.active = true;
-    p.visual = &pickupsVisuals.at(type);
+    p.visual = &pickupsVisuals.at({ type, id });
 
     pickups.push_back(p);
 }
@@ -107,7 +118,7 @@ void PickupManager::renderPickups(
 
     for (int i = 0; i < count; i++) {
         Pickup* p = drawList[i].pickup;
-        PickupVisual& v = *p->visual;
+        PickupVisual& v = pickupsVisuals.at({p->type, p->id});
 
         // Compute relative position in world plane (ignore z for horizontal projection)
         float dx = p->x - player.x;
@@ -130,18 +141,18 @@ void PickupManager::renderPickups(
 
         // Vertical position (z offset)
         float pickupBottom = p->z - player.z;
-        float pickupTop    = p->z + pickupHeight - player.z;
+        float pickupTop = p->z + pickupHeight - player.z;
 
         int drawStartY = int(screenH / 2 - pickupTop / transformY * screenH);
-        int drawEndY   = int(screenH / 2 - pickupBottom / transformY * screenH);
+        int drawEndY = int(screenH / 2 - pickupBottom / transformY * screenH);
         int drawStartX = screenX - spriteW / 2;
-        int drawEndX   = drawStartX + spriteW;
+        int drawEndX = drawStartX + spriteW;
 
         // Clamp to screen
         drawStartX = std::max(0, drawStartX);
-        drawEndX   = std::min(screenW - 1, drawEndX);
+        drawEndX = std::min(screenW - 1, drawEndX);
         drawStartY = std::max(0, drawStartY);
-        drawEndY   = std::min(screenH - 1, drawEndY);
+        drawEndY = std::min(screenH - 1, drawEndY);
 
         int spanW = drawEndX - drawStartX;
         int spanH = drawEndY - drawStartY;
@@ -174,3 +185,69 @@ void PickupManager::renderPickups(
     }
 }
 
+void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
+    switch (p.type) {
+        case PickupType::Health:
+            player.health = std::min(player.maxHealth, player.health + 25);
+            break;
+
+        case PickupType::Armor:
+            player.armor = std::min(player.maxArmor, player.armor + 25);
+            break;
+
+        case PickupType::Ammo:
+            // p.id should store the WeaponType
+            switch (static_cast<WeaponType>(p.id)) {
+                case WeaponType::Pistol:
+                    weapon.pReserveAmmo = std::min(
+                        weapon.pReserveAmmo + 20,
+                        weapon.pMaxReserve
+                    );
+                    break;
+
+                case WeaponType::Shotgun:
+                    weapon.sReserveAmmo = std::min(
+                        weapon.sReserveAmmo + 20,
+                        weapon.sMaxReserve
+                    );
+                    break;
+
+                default:
+                    break;
+            }
+            break;
+
+        case PickupType::Weapon:
+            // p.id can store the WeaponType to unlock
+            player.giveItem(static_cast<ItemType>(p.id));
+            break;
+    }
+
+    // Mark pickup as collected
+    p.active = false;
+}
+
+void PickupManager::update(Player& player, float deltaTime, Weapon& weapon) {
+    const float PICKUP_RADIUS = 0.5f; // distance at which player collects the pickup
+
+    for (Pickup& p : pickups) {
+        if (!p.active) continue;
+
+        // Compute distance to player in 2D (ignore height for pickup collection)
+        float dx = p.x - player.x;
+        float dy = p.y - player.y;
+        float distSq = dx*dx + dy*dy;
+
+        if (distSq <= PICKUP_RADIUS * PICKUP_RADIUS) {
+            // Player is close enough — apply pickup effect
+            applyPickup(p, player, weapon);
+        }
+    }
+
+    // Optional cleanup: remove collected pickups
+    pickups.erase(
+        std::remove_if(pickups.begin(), pickups.end(),
+            [](const Pickup& p) { return !p.active; }),
+        pickups.end()
+    );
+}
