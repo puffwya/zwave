@@ -109,6 +109,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Base/chase_damaged_4.png"
         }, 0.12f);
 
+    baseDamaged.animations[EnemyAnimState::Attack] =
+        loadAnimation({
+            "Assets/Enemies/Base/attack_damaged_0.png",
+            "Assets/Enemies/Base/attack_damaged_1.png",
+            "Assets/Enemies/Base/attack_damaged_2.png",
+            "Assets/Enemies/Base/attack_damaged_3.png",
+            "Assets/Enemies/Base/attack_damaged_4.png"
+        }, 0.12f);
+
     enemyVisualsDamaged[EnemyType::Base] = std::move(baseDamaged);
 
     // Shooter

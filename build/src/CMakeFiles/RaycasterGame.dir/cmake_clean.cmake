@@ -15,6 +15,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o"

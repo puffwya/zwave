@@ -4,6 +4,7 @@ set(SOURCES
     Engine/Player.cpp
     Engine/Enemy.cpp
     Engine/EnemyManager.cpp
+    Engine/PickupManager.cpp
     Engine/SpriteRenderer.cpp
     Engine/pItemRenderer.cpp
     Engine/WeaponManager.cpp

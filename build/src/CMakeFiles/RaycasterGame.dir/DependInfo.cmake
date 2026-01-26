@@ -15,6 +15,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/wyattpuff/Raycaster/src/Engine/GameSession.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/HUD.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/MapToSegments.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Engine/PickupManager.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Player.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Renderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Renderer.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/SpriteRenderer.cpp.o.d"

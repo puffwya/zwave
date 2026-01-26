@@ -7,6 +7,7 @@
 #include "Map.h"
 #include "Player.h"
 #include "SpriteRenderer.h"
+#include "PickupManager.h"
 #include "TextureManager.h"
 
 class TextureManager;
@@ -23,9 +24,13 @@ public:
 
     float colWallTop[1200]; // store the ceiling Y for each column
 
+    void setPickupManager(PickupManager& manager) { pickupManager = &manager; }
+
 private:
     std::vector<GridSegment> m_segments;
     std::unique_ptr<BSPNode> m_bspRoot;
+
+    PickupManager* pickupManager = nullptr;
 
     static void renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                       const Player& player,

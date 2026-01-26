@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "Map.h"
 #include "EnemyManager.h"
+#include "PickupManager.h"
 #include "WeaponManager.h"
 #include "WeaponTypes.h"
 #include "HUD.h"
@@ -42,6 +43,7 @@ private:
     Player player;
     Map worldMap;
     EnemyManager enemyManager;
+    PickupManager pickupManager;
     WeaponManager weaponManager;
     Weapon weapon;
     HUD hud;

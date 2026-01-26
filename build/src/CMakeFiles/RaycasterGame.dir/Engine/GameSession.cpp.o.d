@@ -734,6 +734,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/GameSession.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/optional \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
+  /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.h \
   /opt/homebrew/include/SDL2/SDL_image.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/map \

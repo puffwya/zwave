@@ -298,6 +298,30 @@ Engine/MapToSegments.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/MapToSegments.cpp.s
 .PHONY : Engine/MapToSegments.cpp.s
 
+Engine/PickupManager.o: Engine/PickupManager.cpp.o
+.PHONY : Engine/PickupManager.o
+
+# target to build an object file
+Engine/PickupManager.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o
+.PHONY : Engine/PickupManager.cpp.o
+
+Engine/PickupManager.i: Engine/PickupManager.cpp.i
+.PHONY : Engine/PickupManager.i
+
+# target to preprocess a source file
+Engine/PickupManager.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.i
+.PHONY : Engine/PickupManager.cpp.i
+
+Engine/PickupManager.s: Engine/PickupManager.cpp.s
+.PHONY : Engine/PickupManager.s
+
+# target to generate assembly for a file
+Engine/PickupManager.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.s
+.PHONY : Engine/PickupManager.cpp.s
+
 Engine/Player.o: Engine/Player.cpp.o
 .PHONY : Engine/Player.o
 
@@ -592,6 +616,9 @@ help:
 	@echo "... Engine/MapToSegments.o"
 	@echo "... Engine/MapToSegments.i"
 	@echo "... Engine/MapToSegments.s"
+	@echo "... Engine/PickupManager.o"
+	@echo "... Engine/PickupManager.i"
+	@echo "... Engine/PickupManager.s"
 	@echo "... Engine/Player.o"
 	@echo "... Engine/Player.i"
 	@echo "... Engine/Player.s"

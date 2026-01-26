@@ -45,6 +45,13 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Initialize enemy assets
     enemyManager.loadEnemyAssets();
 
+    // Init pickup assets
+    pickupManager.loadPickupAssets();
+
+    pickupManager.addPickup(7.0f, 14.0f, 0.0f, PickupType::Health);
+
+    doomRenderer->setPickupManager(pickupManager);
+
     // Start in post-wave delay so wave 1 begins after 8s
     waveState = WaveState::PostWaveDelay;
     postWaveTimer = 0.0f;

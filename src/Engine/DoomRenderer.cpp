@@ -401,4 +401,8 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
 
     // Draw enemies                  
     spriteRenderer.renderEnemies(pixels, screenW, screenH, em, player, zBuffer, map, colWallTop);
+
+    // Draw pickups
+    if (pickupManager)
+        pickupManager->renderPickups(pixels, screenW, screenH, player, zBuffer, map, colWallTop);
 }
