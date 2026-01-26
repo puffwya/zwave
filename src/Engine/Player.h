@@ -88,6 +88,7 @@ public:
 
     WeaponType itemToWeapon(ItemType item);
 
+    void applyDamage(int damage, float shieldMultiplier);
 };
 
 #endif

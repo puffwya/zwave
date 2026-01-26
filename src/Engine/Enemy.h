@@ -101,6 +101,10 @@ public:
 
 private:
     int getMaxHealthForType(EnemyType t) const;
+
+    float getHitChance(const Player& player) const;
+
+    float getShieldMultiplier() const;
 };
 
 #endif

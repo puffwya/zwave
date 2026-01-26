@@ -9,6 +9,25 @@ WeaponType Player::itemToWeapon(ItemType item) {
     }
 }
 
+void Player::applyDamage(int damage, float shieldMultiplier) {
+    if (damage <= 0) return;
+
+    if (armor > 0) {
+        int shieldDamage = int(damage * shieldMultiplier);
+
+        // Clamp so don't over-drain shield
+        shieldDamage = std::min(shieldDamage, armor);
+
+        armor -= shieldDamage;
+        damage -= shieldDamage;
+    }
+
+    if (damage > 0) {
+        health -= damage;
+        if (health < 0) health = 0;
+    }
+}
+
 void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs) {
     // Apply acceleration
     float inputX = 0.0f;

@@ -25,7 +25,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
         6.0f, // spawn interval
         {
             EnemyType::Base,
-            EnemyType::Base,
+            EnemyType::Shooter,
             EnemyType::Base,
             EnemyType::Base,
             EnemyType::Base

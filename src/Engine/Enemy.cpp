@@ -22,8 +22,8 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
     switch (type) {
         case EnemyType::Base: speed = 1.5f; break;
         case EnemyType::Fast: speed = 2.8f; break;
-        case EnemyType::Tank: speed = 1.0f; break;
-        case EnemyType::Shooter: speed = 1.3f; break;
+        case EnemyType::Tank: speed = 0.75f; break;
+        case EnemyType::Shooter: speed = 1.0f; break;
     }
 
     switch (type) {
@@ -42,16 +42,16 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
         break;
 
     case EnemyType::Tank:
-        attackDamage = 50;
-        attackRange = 1.0f;
-        attackCooldown = 3.0f;
+        attackDamage = 75;
+        attackRange = 0.9f;
+        attackCooldown = 2.5f;
         attackHitFrame = 3;
         break;
 
     case EnemyType::Shooter:
-        attackDamage = 15;   // temporary melee
-        attackRange = 0.9f;
-        attackCooldown = 1.5f;
+        attackDamage = 15;
+        attackRange = 5.0f;
+        attackCooldown = 5.0f;
         attackHitFrame = 2;
         break;
     }
@@ -75,22 +75,50 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
 }
 
 bool Enemy::hasLineOfSight(const Player& player, const Map& map) const {
+    constexpr float MAX_LOS_DISTANCE = 10.0f;
+
+    float enemyEyeZ  = 0.5f;
+    float playerEyeZ = player.z;
+
+    float heightDiff = playerEyeZ - enemyEyeZ;
+
+    // Too much vertical separation
+    if (std::abs(heightDiff) > 0.5f)
+        return false;
+
     float dx = player.x - x;
     float dy = player.y - y;
     float dist = std::sqrt(dx*dx + dy*dy);
 
+    // Distance cap
+    if (dist > MAX_LOS_DISTANCE)
+        return false;
+
     float step = 0.1f;
     int steps = int(dist / step);
-    float sx = x, sy = y;
+    if (steps <= 0)
+        return true;
+
+    float sx = x;
+    float sy = y;
     float incX = dx / steps;
     float incY = dy / steps;
+
+    float blockingHeight = std::max(0.5f, std::abs(heightDiff) * 0.5f);
 
     for (int i = 0; i < steps; i++) {
         sx += incX;
         sy += incY;
+
         int mx = int(sx);
         int my = int(sy);
-        if (map.get(mx,my).type == Map::TileType::Wall) return false;
+
+        const auto& tile = map.get(mx, my);
+
+        if (tile.type == Map::TileType::Wall) {
+            if (tile.height >= blockingHeight)
+                return false;
+        }
     }
 
     return true;
@@ -166,6 +194,30 @@ int Enemy::getMaxHealthForType(EnemyType t) const {
     }
 }
 
+float Enemy::getHitChance(const Player& player) const {
+    if (type != EnemyType::Shooter)
+        return 1.0f;
+
+    // Distance based accuracy dropoff for shooters
+    float dist = distanceTo(player);
+
+    if (dist < 1.5f) return 0.85f;
+    if (dist < 3.0f) return 0.55f;
+    if (dist <= 5.0f) return 0.35f;
+
+    return 0.25f;
+}
+
+float Enemy::getShieldMultiplier() const {
+    switch (type) {
+        case EnemyType::Tank:    return 1.5f; // More effective vs player shield
+        case EnemyType::Shooter: return 0.7f; // Less
+        case EnemyType::Fast:    return 1.0f;
+        case EnemyType::Base:    return 1.0f;
+        default:                 return 1.0f;
+    }
+}
+
 bool Enemy::canAttack(const Player& player) const {
     return distanceTo(player) <= attackRange;
 }
@@ -175,7 +227,20 @@ void Enemy::handleAttack(float dt, Player& player) {
 
     // Apply damage on the hit frame
     if (!hasDealtDamageThisAttack && animFrame == attackHitFrame) {
-        player.health -= attackDamage;
+
+        bool hit = true;
+
+        // Determine if shooter zombie hits or misses
+        if (type == EnemyType::Shooter) {
+            float roll = float(rand()) / float(RAND_MAX); // 0.0–1.0
+            hit = (roll <= getHitChance(player));
+        }
+
+        if (hit) {
+            player.applyDamage(attackDamage, getShieldMultiplier());
+        }
+        // else miss — do nothing (will add sound later)
+
         hasDealtDamageThisAttack = true;
     }
 
