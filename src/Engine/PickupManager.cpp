@@ -188,7 +188,7 @@ void PickupManager::renderPickups(
 void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
     switch (p.type) {
         case PickupType::Health:
-            player.health = std::min(player.maxHealth, player.health + 25);
+            player.health = std::min(player.maxHealth, player.health + 50);
             break;
 
         case PickupType::Armor:
@@ -196,18 +196,18 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
             break;
 
         case PickupType::Ammo:
-            // p.id should store the WeaponType
+            // p.id stores the WeaponType if pickup is weapon or ammo
             switch (static_cast<WeaponType>(p.id)) {
                 case WeaponType::Pistol:
                     weapon.pReserveAmmo = std::min(
-                        weapon.pReserveAmmo + 20,
+                        weapon.pReserveAmmo + 24,
                         weapon.pMaxReserve
                     );
                     break;
 
                 case WeaponType::Shotgun:
                     weapon.sReserveAmmo = std::min(
-                        weapon.sReserveAmmo + 20,
+                        weapon.sReserveAmmo + 6,
                         weapon.sMaxReserve
                     );
                     break;
@@ -218,7 +218,7 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
             break;
 
         case PickupType::Weapon:
-            // p.id can store the WeaponType to unlock
+            // p.id can store the WeaponType to give
             player.giveItem(static_cast<ItemType>(p.id));
             break;
     }

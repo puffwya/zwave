@@ -16,10 +16,6 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
         std::cerr << "Failed to initialize HUD\n";
     }
 
-    // Player starting inventory
-    player.giveItem(ItemType::Pistol);
-    player.giveItem(ItemType::Shotgun);
-
     // Wave defs (temp)
     waves.push_back({
         6.0f, // spawn interval
@@ -50,7 +46,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
 
-    pickupManager.addPickup(22.5f, 3.5f, 0.0f, PickupType::Ammo, WeaponType::Pistol);
+    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
 
     doomRenderer->setPickupManager(pickupManager);
 
