@@ -20,10 +20,6 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         6.0f, // spawn interval
         {
-            EnemyType::Base,
-            EnemyType::Shooter,
-            EnemyType::Base,
-            EnemyType::Base,
             EnemyType::Base
         }
     });
@@ -76,14 +72,131 @@ void GameSession::startWave(int index) {
     std::cout << "Wave " << index + 1 << " started\n";
 }
 
+void GameSession::startWaveWallAnimations(int waveIndex) {
+    // Wave 0 (wave one)
+    if (waveIndex == 0) {
+
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {14, 4},
+            {14, 5},
+            {15, 4},
+            {15, 5}
+        };
+
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 1.0f
+            anim.targetHeight = 0.0f;         // slide down
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+
+            wallAnims.push_back(anim);
+        }
+    }
+    // Wave 1 (wave two)
+    else if (waveIndex == 1) {
+        
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {24, 7},
+            {24, 8},  
+            {24, 9}
+        };
+        
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+            
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 1.0f
+            anim.targetHeight = 0.0f;         // slide down
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+      
+            wallAnims.push_back(anim);
+
+            pickupManager.addPickup(25.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
+            doomRenderer->setPickupManager(pickupManager);
+        }
+    }
+    // Special case for when leaving spawn, walls go back up
+    else if (waveIndex == 100) {
+    
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {14, 4},
+            {14, 5},
+            {15, 4},
+            {15, 5}
+        };
+            
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+        
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 0.0f
+            anim.targetHeight = 1.0f;         // slide up
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+        
+            wallAnims.push_back(anim);        
+        }   
+    }
+}
+
+void GameSession::updateWallAnimations(float dt) {
+    for (auto& anim : wallAnims) {
+        if (anim.finished)
+            continue;
+
+        anim.progress += anim.speed * dt;
+        anim.progress = std::min(anim.progress, 1.0f);
+
+        // Smooth interpolation (linear for now)
+        float t = anim.progress;
+        float height =
+            anim.startHeight +
+            (anim.targetHeight - anim.startHeight) * t;
+
+        worldMap.get(anim.x, anim.y).height = height;
+
+        if (anim.progress >= 1.0f) {
+            anim.finished = true;
+        }
+    }
+
+    // cleanup
+    wallAnims.erase(
+        std::remove_if(wallAnims.begin(), wallAnims.end(),
+                       [](const WallHeightAnim& a) { return a.finished; }),
+        wallAnims.end()
+    );
+}
+
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState) {
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState);
     enemyManager.update(dt, player, worldMap);
     pickupManager.update(player, dt, weapon);
     weaponManager.update(dt, player);
+    updateWallAnimations(dt);
 
     if (currentWaveIndex >= (int)waves.size())
         return;
+
+    if (player.y > 10) {
+        startWaveWallAnimations(100);
+    }
 
     Wave& wave = waves[currentWaveIndex];
 
@@ -125,6 +238,8 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState) {
                 spawnTimer = 0.0f;
 
                 waveState = WaveState::Spawning;
+
+                startWaveWallAnimations(currentWaveIndex);
 
                 std::cout << "Wave " << currentWaveIndex + 1 << " started\n";
             }

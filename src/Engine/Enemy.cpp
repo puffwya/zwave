@@ -189,7 +189,7 @@ int Enemy::getMaxHealthForType(EnemyType t) const {
         case EnemyType::Base: return 200;
         case EnemyType::Fast: return 150;
         case EnemyType::Tank: return 800;
-        case EnemyType::Shooter: return 300;
+        case EnemyType::Shooter: return 250;
         default:              return 200;
     }
 }

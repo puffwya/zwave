@@ -25,6 +25,19 @@ struct Wave {
     std::vector<EnemyType> enemies;
 };
 
+struct WallHeightAnim {
+    int x;
+    int y;
+
+    float startHeight;
+    float targetHeight;
+
+    float progress;   // 0.0, 1.0
+    float speed;      // units per second
+
+    bool finished = false;
+};
+
 class GameSession {
 public:
     GameSession(Renderer& renderer, int screenW, int screenH);
@@ -36,6 +49,7 @@ public:
     void renderPaused(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, float pauseT, TextureManager& textureManager);
 
     std::vector<Wave> waves;
+    std::vector<WallHeightAnim> wallAnims;
     int currentWaveIndex = -1;
 
 private:
@@ -72,4 +86,7 @@ private:
     };
 
     WaveState waveState = WaveState::PostWaveDelay;
+
+    void startWaveWallAnimations(int waveIndex);
+    void updateWallAnimations(float dt);
 };
