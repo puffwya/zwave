@@ -40,9 +40,9 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Init pickup assets
     pickupManager.loadPickupAssets();
 
-    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
+    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
 
-    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
+    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
 
     doomRenderer->setPickupManager(pickupManager);
 
@@ -184,8 +184,8 @@ void GameSession::updateWallAnimations(float dt) {
     );
 }
 
-void GameSession::update(float dt, const Uint8* keys, GameState& gameState) {
-    player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState);
+void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
+    player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio);
     enemyManager.update(dt, player, worldMap);
     pickupManager.update(player, dt, weapon);
     weaponManager.update(dt, player);

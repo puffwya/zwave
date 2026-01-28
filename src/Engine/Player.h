@@ -9,6 +9,7 @@
 #include <vector>
 #include "WeaponTypes.h"
 #include "GameState.h"
+#include "../audio/AudioManager.h"
 
 class WeaponManager;
 
@@ -72,6 +73,9 @@ public:
     float reloadFrameTimer = 0.0f;
     const float RELOAD_FRAME_DURATION = 0.1f;
 
+    // Footstep sfx
+    float footstepTimer = 0.0f;
+
     int lastChunkID;
 
     Player(float startX = 14.5f, float startY = 2.5f, float startZ = 0.5f, float startAngle = 0.0f)
@@ -79,7 +83,7 @@ public:
         lastChunkID = -1;
     }
 
-    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs);
+    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio);
     void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map);
 
     void giveItem(ItemType item);

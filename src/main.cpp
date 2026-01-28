@@ -32,6 +32,10 @@ int main() {
 
     AudioManager audio;
     audio.init();
+    audio.loadSFX("walk", "Assets/audio/walk1.mp3");
+    audio.loadSFX("jump", "Assets/audio/jump.mp3");
+    audio.loadSFX("pistol_shoot", "Assets/audio/pistol_shoot.mp3");
+    audio.loadSFX("shotgun_shoot", "Assets/audio/shotgun_shoot.mp3");
 
     // Load geometry textures
     TextureManager textures;
@@ -223,7 +227,7 @@ int main() {
 
                     const Uint8* keys = SDL_GetKeyboardState(nullptr);
 
-                    session->update(dt, keys, gameState);
+                    session->update(dt, keys, gameState, audio);
                     session->render(renderer, pixels, SCREEN_WIDTH, SCREEN_HEIGHT, textures);
                 }
             }

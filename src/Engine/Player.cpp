@@ -28,26 +28,37 @@ void Player::applyDamage(int damage, float shieldMultiplier) {
     }
 }
 
-void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs) {
+void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio) {
     // Apply acceleration
     float inputX = 0.0f;
     float inputY = 0.0f;
+
+    footstepTimer -= delta;
 
     // Move forwards
     if (keys[SDL_SCANCODE_W]) {
         inputX += std::cos(angle);
         inputY += std::sin(angle);
+        if (onGround == true && footstepTimer <= 0.0f) {
+            audio.playSFX("walk");
+            footstepTimer = 0.30f;
+        }
     }
     // Move backwards
     if (keys[SDL_SCANCODE_S]) {
         inputX -= std::cos(angle);
         inputY -= std::sin(angle);
+        if (onGround == true && footstepTimer <= 0.0f) {
+            audio.playSFX("walk");
+            footstepTimer = 0.30f;
+        }
     }
     // Jump
     if (keys[SDL_SCANCODE_SPACE] && onGround) {
         velZ = JUMP_VELOCITY;
         onGround = false;
         z += 0.001;
+        audio.playSFX("jump");
     }
 
     // Normalize input so diagonal isn’t faster
@@ -256,6 +267,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 isFiringAnim = true;
                 fireFrame = 0;
                 fireFrameTimer = FIRE_FRAME_DURATION;
+                audio.playSFX("pistol_shoot", 0.4f);
                 weapon.pClipAmmo -= 1;
             }
         }
@@ -281,6 +293,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 isFiringAnim = true;
                 fireFrame = 0;
                 fireFrameTimer = FIRE_FRAME_DURATION;
+                audio.playSFX("shotgun_shoot", 0.7f);
                 weapon.sClipAmmo -= 2;
             }
         }

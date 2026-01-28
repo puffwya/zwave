@@ -43,7 +43,7 @@ public:
     GameSession(Renderer& renderer, int screenW, int screenH);
     ~GameSession();
 
-    void update(float dt, const Uint8* keys, GameState& gameState);
+    void update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio);
     void render(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, TextureManager& textureManager);
 
     void renderPaused(Renderer& renderer, uint32_t* pixels, int screenW, int screenH, float pauseT, TextureManager& textureManager);

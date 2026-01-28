@@ -736,9 +736,8 @@ src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/optional \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
-  /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
-  /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
-  /Users/wyattpuff/Raycaster/src/Engine/TextureManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/../audio/AudioManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/../audio/../third_party/miniaudio.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/string \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__ios/fpos.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__string/char_traits.h \
@@ -771,6 +770,9 @@ src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_binary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/pointer_to_unary_function.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
+  /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
+  /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/TextureManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/Texture.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
