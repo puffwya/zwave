@@ -87,6 +87,8 @@ private:
 
     WaveState waveState = WaveState::PostWaveDelay;
 
-    void startWaveWallAnimations(int waveIndex);
-    void updateWallAnimations(float dt);
+    void startWaveWallAnimations(int waveIndex, AudioManager& audio);
+    void updateWallAnimations(float dt, AudioManager& audio);
+
+    bool exit_spawn = false;
 };

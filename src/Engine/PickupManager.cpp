@@ -185,14 +185,16 @@ void PickupManager::renderPickups(
     }
 }
 
-void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
+void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon, AudioManager& audio) {
     switch (p.type) {
         case PickupType::Health:
             player.health = std::min(player.maxHealth, player.health + 50);
+            audio.playSFX("heal_pickup");
             break;
 
         case PickupType::Armor:
             player.armor = std::min(player.maxArmor, player.armor + 25);
+            audio.playSFX("armor_pickup");
             break;
 
         case PickupType::Ammo:
@@ -220,6 +222,7 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
         case PickupType::Weapon:
             // p.id can store the WeaponType to give
             player.giveItem(static_cast<ItemType>(p.id));
+            audio.playSFX("gun_pickup");
             break;
     }
 
@@ -227,7 +230,7 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon) {
     p.active = false;
 }
 
-void PickupManager::update(Player& player, float deltaTime, Weapon& weapon) {
+void PickupManager::update(Player& player, float deltaTime, Weapon& weapon, AudioManager& audio) {
     const float PICKUP_RADIUS = 0.5f; // distance at which player collects the pickup
 
     for (Pickup& p : pickups) {
@@ -240,7 +243,7 @@ void PickupManager::update(Player& player, float deltaTime, Weapon& weapon) {
 
         if (distSq <= PICKUP_RADIUS * PICKUP_RADIUS) {
             // Player is close enough — apply pickup effect
-            applyPickup(p, player, weapon);
+            applyPickup(p, player, weapon, audio);
         }
     }
 

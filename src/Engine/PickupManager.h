@@ -3,6 +3,7 @@
 #include <unordered_map>
 #include <cstdint>
 #include "WeaponTypes.h"
+#include "../audio/AudioManager.h"
 
 struct pair_hash {
     template <class T1, class T2>
@@ -54,10 +55,10 @@ public:
     void renderPickups(uint32_t* pixels, int screenW, int screenH,
                        const Player& player, float* zBuffer, Map& map, float colWallTop[]);
 
-    void update(Player& player, float deltaTime, Weapon& weapon);
+    void update(Player& player, float deltaTime, Weapon& weapon, AudioManager& audio);
 
 private:
     bool loadPickupFrame(const std::string& path, PickupVisual& out);
 
-    void applyPickup(Pickup& p, Player& player, Weapon& weapon);
+    void applyPickup(Pickup& p, Player& player, Weapon& weapon, AudioManager& audio);
 };

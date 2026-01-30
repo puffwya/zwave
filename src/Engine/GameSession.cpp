@@ -40,9 +40,9 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Init pickup assets
     pickupManager.loadPickupAssets();
 
-    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
+    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
 
-    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
+    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
 
     doomRenderer->setPickupManager(pickupManager);
 
@@ -72,7 +72,8 @@ void GameSession::startWave(int index) {
     std::cout << "Wave " << index + 1 << " started\n";
 }
 
-void GameSession::startWaveWallAnimations(int waveIndex) {
+void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
+    audio.playSFX("wall_slide");
     // Wave 0 (wave one)
     if (waveIndex == 0) {
 
@@ -155,7 +156,7 @@ void GameSession::startWaveWallAnimations(int waveIndex) {
     }
 }
 
-void GameSession::updateWallAnimations(float dt) {
+void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
     for (auto& anim : wallAnims) {
         if (anim.finished)
             continue;
@@ -187,15 +188,16 @@ void GameSession::updateWallAnimations(float dt) {
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio);
     enemyManager.update(dt, player, worldMap);
-    pickupManager.update(player, dt, weapon);
+    pickupManager.update(player, dt, weapon, audio);
     weaponManager.update(dt, player);
-    updateWallAnimations(dt);
+    updateWallAnimations(dt, audio);
 
     if (currentWaveIndex >= (int)waves.size())
         return;
 
-    if (player.y > 10) {
-        startWaveWallAnimations(100);
+    if (player.y > 10 && exit_spawn == false) {
+        startWaveWallAnimations(100, audio);
+        exit_spawn = true;
     }
 
     Wave& wave = waves[currentWaveIndex];
@@ -239,7 +241,7 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
 
                 waveState = WaveState::Spawning;
 
-                startWaveWallAnimations(currentWaveIndex);
+                startWaveWallAnimations(currentWaveIndex, audio);
 
                 std::cout << "Wave " << currentWaveIndex + 1 << " started\n";
             }

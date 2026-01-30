@@ -233,6 +233,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             weaponManager.startSwap(itemToWeapon(p));
             currentItem = p;
             canSwitchItem = false;
+            audio.playSFX("item_swap");
         }
     } else if (keys[SDL_SCANCODE_E]) {
         if (canSwitchItem) {
@@ -240,6 +241,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             weaponManager.startSwap(itemToWeapon(n));
             currentItem = n;
             canSwitchItem = false;
+            audio.playSFX("item_swap");
         }
     } else {
         canSwitchItem = true; // reset once no item key is pressed
@@ -256,18 +258,19 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
         if (leftMouseDown && fireCooldown <= 0.0f) {
             if (weapon.pClipAmmo <= 0) {
-                // Will play clicking sound in future
                 weapon.pClipAmmo = 0;
+                audio.playSFX("gun_click");
+                fireCooldown = 0.75f;
             }
             else {
                 shoot(enemyManager, weaponManager, map);
-                fireCooldown = 0.75f; // pistol fires once every 0.5 seconds
+                fireCooldown = 0.75f; // pistol fires once every 0.75 seconds
 
                 // Start animation
                 isFiringAnim = true;
                 fireFrame = 0;
                 fireFrameTimer = FIRE_FRAME_DURATION;
-                audio.playSFX("pistol_shoot", 0.4f);
+                audio.playSFX("pistol_shoot", 0.6f);
                 weapon.pClipAmmo -= 1;
             }
         }
@@ -282,18 +285,19 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 
         if (leftMouseDown && fireCooldown <= 0.0f) {
             if (weapon.sClipAmmo <= 0) {
-                // Will play clicking sound in future  
-                //weapon.sClipAmmo = 0;
+                weapon.sClipAmmo = 0;
+                audio.playSFX("gun_click");
+                fireCooldown = 0.75f;
             }
             else {
                 shoot(enemyManager, weaponManager, map);
-                fireCooldown = 0.75f; // Shotgun fires once every 0.5 seconds
+                fireCooldown = 0.75f; // Shotgun fires once every 0.75 seconds
 
                 // Start animation
                 isFiringAnim = true;
                 fireFrame = 0;
                 fireFrameTimer = FIRE_FRAME_DURATION;
-                audio.playSFX("shotgun_shoot", 0.7f);
+                audio.playSFX("shotgun_shoot");
                 weapon.sClipAmmo -= 2;
             }
         }
@@ -308,6 +312,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 reloadFrameTimer = RELOAD_FRAME_DURATION;
                 reloadKeyPressed = true;
                 weaponManager.playReloadAnimation(itemToWeapon(currentItem));
+                audio.playSFX("shotgun_reload");
 
                 // Checks if reserve is less than max clip size and if so sets clip size to reserve
                 if (weapon.sReserveAmmo < weapon.sClipSize && weapon.sReserveAmmo > 0) {
@@ -326,6 +331,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 reloadFrameTimer = RELOAD_FRAME_DURATION;
                 reloadKeyPressed = true;
                 weaponManager.playReloadAnimation(itemToWeapon(currentItem));
+                audio.playSFX("pistol_reload");
                 
                 // Checks if reserve is less than max clip size and if so sets clip size to reserve
                 if (weapon.pReserveAmmo < weapon.pClipSize && weapon.pReserveAmmo > 0) {
