@@ -12,7 +12,8 @@ public:
                 int screenW,
                 int screenH, Weapon& weapon, int currentWave,
                 int totalWaves,
-                int enemiesRemaining);
+                int enemiesRemaining,
+                float postWaveTimer);
 
 private:
     void drawDiamondBar(SDL_Renderer* renderer,
@@ -34,11 +35,14 @@ private:
                         int screenH,
                         int currentWave,
                         int totalWaves,
-                        int enemiesRemaining);
+                        int enemiesRemaining,
+                        float postWaveTimer);
 
     SDL_Texture* waveTextTexture = nullptr;
 
     SDL_Texture* enemiesLeftTextTexture = nullptr;
+
+    SDL_Texture* waveStartingTextTexture = nullptr;
 
     SDL_Color getHealthColor(int value, int maxValue);
 

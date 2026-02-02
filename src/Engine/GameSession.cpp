@@ -20,7 +20,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         6.0f, // spawn interval
         {
-            EnemyType::Base
+            EnemyType::Fast
         }
     });
 
@@ -292,7 +292,8 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
     hud.render(renderer.getSDLRenderer(), player, w, h, weapon,
            safeCurrentWave,    // display wave number starting at 1
            totalWaves,
-           enemiesRemaining);
+           enemiesRemaining,
+           postWaveTimer);
 
     renderer.present();
 }
@@ -344,5 +345,6 @@ void GameSession::renderPaused(
     hud.render(renderer.getSDLRenderer(), player, w, h, weapon,
            safeCurrentWave,    // display wave number starting at 1
            totalWaves,
-           enemiesRemaining);
+           enemiesRemaining,
+           postWaveTimer);
 }

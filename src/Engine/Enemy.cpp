@@ -44,7 +44,7 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
     case EnemyType::Tank:
         attackDamage = 75;
         attackRange = 0.9f;
-        attackCooldown = 2.5f;
+        attackCooldown = 3.0f;
         attackHitFrame = 3;
         break;
 
@@ -187,7 +187,7 @@ bool Enemy::isDead() const {
 int Enemy::getMaxHealthForType(EnemyType t) const {
     switch (t) {
         case EnemyType::Base: return 200;
-        case EnemyType::Fast: return 150;
+        case EnemyType::Fast: return 100;
         case EnemyType::Tank: return 800;
         case EnemyType::Shooter: return 250;
         default:              return 200;

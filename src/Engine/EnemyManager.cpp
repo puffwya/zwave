@@ -195,6 +195,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Tank/chase_4.png"
         }, 0.12f);
 
+    tank.animations[EnemyAnimState::Attack] =
+        loadAnimation({
+            "Assets/Enemies/Tank/attack_0.png",
+            "Assets/Enemies/Tank/attack_1.png",
+            "Assets/Enemies/Tank/attack_2.png",
+            "Assets/Enemies/Tank/attack_3.png",
+            "Assets/Enemies/Tank/attack_4.png"
+        }, 0.12f);
+
     enemyVisuals[EnemyType::Tank] = std::move(tank);
 
     EnemyVisual tankDamaged;
@@ -218,6 +227,69 @@ void EnemyManager::loadEnemyAssets() {
         }, 0.12f);
 
     enemyVisualsDamaged[EnemyType::Tank] = std::move(tankDamaged);
+
+    // Fast
+    EnemyVisual fast;
+
+    fast.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Fast/walk_0.png",
+            "Assets/Enemies/Fast/walk_1.png",
+            "Assets/Enemies/Fast/walk_2.png",
+            "Assets/Enemies/Fast/walk_3.png",
+            "Assets/Enemies/Fast/walk_4.png"
+        }, 0.12f);
+
+    fast.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Fast/chase_0.png",
+            "Assets/Enemies/Fast/chase_1.png",
+            "Assets/Enemies/Fast/chase_2.png",
+            "Assets/Enemies/Fast/chase_3.png",
+            "Assets/Enemies/Fast/chase_4.png"
+        }, 0.12f);
+
+    fast.animations[EnemyAnimState::Attack] =
+        loadAnimation({
+            "Assets/Enemies/Fast/attack_0.png",   
+            "Assets/Enemies/Fast/attack_1.png", 
+            "Assets/Enemies/Fast/attack_2.png",
+            "Assets/Enemies/Fast/attack_3.png",   
+            "Assets/Enemies/Fast/attack_4.png"
+        }, 0.12f);
+
+    enemyVisuals[EnemyType::Fast] = std::move(fast);
+
+    EnemyVisual fastDamaged;
+
+    fastDamaged.animations[EnemyAnimState::Idle] =
+        loadAnimation({
+            "Assets/Enemies/Fast/walk_damaged_0.png",
+            "Assets/Enemies/Fast/walk_damaged_1.png",
+            "Assets/Enemies/Fast/walk_damaged_2.png",
+            "Assets/Enemies/Fast/walk_damaged_3.png",
+            "Assets/Enemies/Fast/walk_damaged_4.png"
+        }, 0.12f);
+
+    fastDamaged.animations[EnemyAnimState::Walk] =
+        loadAnimation({
+            "Assets/Enemies/Fast/chase_damaged_0.png",
+            "Assets/Enemies/Fast/chase_damaged_1.png",
+            "Assets/Enemies/Fast/chase_damaged_2.png",
+            "Assets/Enemies/Fast/chase_damaged_3.png",
+            "Assets/Enemies/Fast/chase_damaged_4.png"
+        }, 0.12f);
+
+    fastDamaged.animations[EnemyAnimState::Attack] =  
+        loadAnimation({
+            "Assets/Enemies/Fast/attack_damaged_0.png",
+            "Assets/Enemies/Fast/attack_damaged_1.png",
+            "Assets/Enemies/Fast/attack_damaged_2.png",
+            "Assets/Enemies/Fast/attack_damaged_3.png",
+            "Assets/Enemies/Fast/attack_damaged_4.png"
+        }, 0.12f);
+
+    enemyVisualsDamaged[EnemyType::Fast] = std::move(fastDamaged);
 }
 
 Enemy* EnemyManager::spawnEnemy(EnemyType type) {
@@ -274,6 +346,19 @@ void EnemyManager::update(float dt, const Player& player, const Map& map) {
                     other.y -= dy * push;
                 }
             }
+        }
+        // Failsafe
+        if (e.type == EnemyType::Fast) {
+            e.x = std::clamp(e.x, 1.0f, map.SIZE  - 6.0f);
+            e.y = std::clamp(e.y, 1.0f, map.SIZE - 6.0f);
+        }
+        else {
+            e.x = std::clamp(e.x, 1.0f, map.SIZE  - 3.0f);
+            e.y = std::clamp(e.y, 1.0f, map.SIZE - 3.0f);
+        }
+        if (e.x > map.SIZE - 4.0f || e.y > map.SIZE - 4.0f) {
+            e.x = 5.0f;
+            e.y = 5.0f;
         }
     }
 }

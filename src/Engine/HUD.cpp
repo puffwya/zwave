@@ -48,6 +48,19 @@ bool HUD::init(SDL_Renderer* renderer) {
         return false;
     }
 
+    // Load Wave Starting In PNG
+    surface = IMG_Load("assets/pixWords/waveStarting.png"); 
+    if (!surface) {
+        std::cerr << "Failed to load waveStarting.png: " << IMG_GetError() << std::endl;
+        return false;    
+    }
+    waveStartingTextTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+    if (!waveStartingTextTexture) {
+        std::cerr << "Failed to create waveStarting texture\n";
+        return false;
+    }
+
     return true;
 }
 
@@ -56,14 +69,25 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
                          int screenH,
                          int currentWave,
                          int totalWaves,
-                         int enemiesRemaining)
+                         int enemiesRemaining,
+                         float postWaveTimer)
 {
+    constexpr int WAVE_START_DELAY = 8;
+
+    int countdownSeconds = 0;
+    bool drawCountdown = postWaveTimer > 0.0f;
+
+    if (drawCountdown) {
+        countdownSeconds = WAVE_START_DELAY - (int)postWaveTimer;
+        countdownSeconds = std::max(0, countdownSeconds);
+    }
+
     int y = 20; // top margin
     int spacing = 2; // space between digits
 
     int texW, texH;
 
-    // ---- Measure all elements to compute total width ----
+    // Measure all elements to compute total width
     int totalWidth = 0;
 
     // Wave word
@@ -91,16 +115,16 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
     std::string enemiesStr = std::to_string(enemiesRemaining);
     totalWidth += enemiesStr.size() * waveH + (enemiesStr.size() - 1) * spacing;
 
-    // ---- Starting X for perfect center ----
+    // Starting X for perfect center
     int x = (screenW - totalWidth) / 2;
 
-    // ---- Draw Wave word ----
+    // Draw Wave word
     SDL_QueryTexture(waveTextTexture, nullptr, nullptr, &texW, &texH);
     SDL_Rect dstWave { x, y, texW, texH };
     SDL_RenderCopy(renderer, waveTextTexture, nullptr, &dstWave);
     x += texW + spacing;
 
-    // ---- Draw current wave digits ----
+    // Draw current wave digits
     for (char c : currentWaveStr) {
         int d = c - '0';
         SDL_Rect dstDigit { x, y, waveH, waveH }; // scale digits to match Wave text height
@@ -108,12 +132,12 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
         x += waveH + spacing;
     }
 
-    // ---- Draw "/" separator ----
+    // Draw "/" separator
     SDL_Rect dstSlash { x, y, waveH, waveH };
     SDL_RenderCopy(renderer, digitTextures[10], nullptr, &dstSlash);
     x += waveH + spacing;
 
-    // ---- Draw total waves digits ----
+    // Draw total waves digits
     for (char c : totalWavesStr) {
         int d = c - '0';
         SDL_Rect dstDigit { x, y, waveH, waveH };
@@ -121,18 +145,51 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
         x += waveH + spacing;
     }
 
-    // ---- Draw "Enemies Left" word ----
+    // Draw "Enemies Left"
     SDL_QueryTexture(enemiesLeftTextTexture, nullptr, nullptr, &texW, &texH);
     SDL_Rect dstEnemies { x + 10, y, texW, texH };
     SDL_RenderCopy(renderer, enemiesLeftTextTexture, nullptr, &dstEnemies);
     x = dstEnemies.x + dstEnemies.w + 5;
 
-    // ---- Draw enemies remaining digits ----
+    // Draw enemies remaining digits
     for (char c : enemiesStr) {
         int d = c - '0';
         SDL_Rect dstDigit { x, y, texH, texH }; // match word height
         SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
         x += texH + spacing;
+    }
+    int secondLineY = y + waveH + 6; // small gap below banner
+
+    if (drawCountdown) {
+
+        // Measure countdown line
+        int lineWidth = 0;
+
+        // "Wave starting in:" text
+        SDL_QueryTexture(waveStartingTextTexture, nullptr, nullptr, &texW, &texH);
+        int textH = texH;
+        lineWidth += texW + spacing;
+
+        // Countdown digits
+        std::string countdownStr = std::to_string(countdownSeconds);
+        lineWidth += countdownStr.size() * textH;
+        lineWidth += (countdownStr.size() - 1) * spacing;
+
+        // Center X for second line
+        int cx = (screenW - lineWidth) / 2;
+
+        // Draw text
+        SDL_Rect dstText { cx, secondLineY, texW, texH };
+        SDL_RenderCopy(renderer, waveStartingTextTexture, nullptr, &dstText);
+        cx += texW + spacing;
+
+        // Draw countdown digits
+        for (char c : countdownStr) {
+            int d = c - '0';
+            SDL_Rect dstDigit { cx, secondLineY, textH, textH };
+            SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+            cx += textH + spacing;
+        }
     }
 }
 
@@ -395,13 +452,15 @@ void HUD::render(SDL_Renderer* renderer,
                  int screenH, Weapon& weapon,
                  int currentWave,
                  int totalWaves,
-                 int enemiesRemaining)
+                 int enemiesRemaining,
+                 float postWaveTimer)
 {
     // Draw current wave and enemies left
     drawWaveBanner(renderer, screenW, screenH,
                currentWave,
                totalWaves,
-               enemiesRemaining);
+               enemiesRemaining,
+               postWaveTimer);
 
     // Health and Armor bar pos
     int paddingX = screenW / 40;   // ~2.5% of screen width
