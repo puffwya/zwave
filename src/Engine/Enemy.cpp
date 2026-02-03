@@ -22,8 +22,8 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
     switch (type) {
         case EnemyType::Base: speed = 1.5f; break;
         case EnemyType::Fast: speed = 2.8f; break;
-        case EnemyType::Tank: speed = 0.75f; break;
-        case EnemyType::Shooter: speed = 1.0f; break;
+        case EnemyType::Tank: speed = 1.0f; break;
+        case EnemyType::Shooter: speed = 1.25f; break;
     }
 
     switch (type) {

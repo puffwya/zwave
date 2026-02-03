@@ -20,7 +20,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         6.0f, // spawn interval
         {
-            EnemyType::Fast
+            EnemyType::Shooter
         }
     });
 

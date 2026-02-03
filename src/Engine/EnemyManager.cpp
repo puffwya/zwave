@@ -172,6 +172,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Shooter/chase_damaged_4.png"
         }, 0.12f);
 
+    shooterDamaged.animations[EnemyAnimState::Attack] = 
+        loadAnimation({
+            "Assets/Enemies/Shooter/attack_damaged_0.png",
+            "Assets/Enemies/Shooter/attack_damaged_1.png",
+            "Assets/Enemies/Shooter/attack_damaged_2.png",
+            "Assets/Enemies/Shooter/attack_damaged_3.png",
+            "Assets/Enemies/Shooter/attack_damaged_4.png"
+        }, 0.12f);
+
     enemyVisualsDamaged[EnemyType::Shooter] = std::move(shooterDamaged);
 
     // Tank
@@ -224,6 +233,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Tank/chase_damaged_2.png",
             "Assets/Enemies/Tank/chase_damaged_3.png",
             "Assets/Enemies/Tank/chase_damaged_4.png"
+        }, 0.12f);
+
+    tankDamaged.animations[EnemyAnimState::Attack] =
+        loadAnimation({
+            "Assets/Enemies/Tank/attack_damaged_0.png",  
+            "Assets/Enemies/Tank/attack_damaged_1.png", 
+            "Assets/Enemies/Tank/attack_damaged_2.png",
+            "Assets/Enemies/Tank/attack_damaged_3.png",
+            "Assets/Enemies/Tank/attack_damaged_4.png" 
         }, 0.12f);
 
     enemyVisualsDamaged[EnemyType::Tank] = std::move(tankDamaged);
