@@ -20,7 +20,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         6.0f, // spawn interval
         {
-            EnemyType::Shooter
+            EnemyType::Base, EnemyType::Fast, EnemyType::Tank, EnemyType::Shooter
         }
     });
 
@@ -187,7 +187,7 @@ void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
 
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio);
-    enemyManager.update(dt, player, worldMap);
+    enemyManager.update(dt, player, worldMap, audio);
     pickupManager.update(player, dt, weapon, audio);
     weaponManager.update(dt, player);
     updateWallAnimations(dt, audio);
@@ -195,6 +195,7 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
     if (currentWaveIndex >= (int)waves.size())
         return;
 
+    // Raise Starting room wall after player leaves
     if (player.y > 10 && exit_spawn == false) {
         startWaveWallAnimations(100, audio);
         exit_spawn = true;
@@ -238,6 +239,8 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
                 currentWaveIndex++;
                 enemiesSpawned = 0;
                 spawnTimer = 0.0f;
+
+                enemyManager.deactivateAll();
 
                 waveState = WaveState::Spawning;
 

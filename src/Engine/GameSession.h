@@ -91,4 +91,5 @@ private:
     void updateWallAnimations(float dt, AudioManager& audio);
 
     bool exit_spawn = false;
+
 };

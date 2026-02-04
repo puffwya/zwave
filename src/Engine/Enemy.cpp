@@ -21,7 +21,7 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
 
     switch (type) {
         case EnemyType::Base: speed = 1.5f; break;
-        case EnemyType::Fast: speed = 2.8f; break;
+        case EnemyType::Fast: speed = 2.5f; break;
         case EnemyType::Tank: speed = 1.0f; break;
         case EnemyType::Shooter: speed = 1.25f; break;
     }
@@ -161,8 +161,16 @@ void Enemy::updateAnimation(float dt) {
             ? &managerPtr->enemyVisualsDamaged.at(type).animations.at(animState) 
             : &managerPtr->enemyVisuals.at(type).animations.at(animState);
 
-        if (animFrame >= currentAnim->frames.size())
-            animFrame = 0;
+        if (animState == EnemyAnimState::Death) {
+            if (animFrame >= currentAnim->frames.size()) {
+                animFrame = currentAnim->frames.size() - 1;
+                deathAnimFinished = true;
+            }
+        }
+        else {
+            if (animFrame >= currentAnim->frames.size())
+                animFrame = 0;
+        }
 
         spritePixels = currentAnim->frames[animFrame].pixels;
         spriteW = currentAnim->frames[animFrame].w;
@@ -210,11 +218,11 @@ float Enemy::getHitChance(const Player& player) const {
 
 float Enemy::getShieldMultiplier() const {
     switch (type) {
-        case EnemyType::Tank:    return 1.5f; // More effective vs player shield
+        case EnemyType::Tank: return 1.5f; // More effective vs player shield
         case EnemyType::Shooter: return 0.7f; // Less
-        case EnemyType::Fast:    return 1.0f;
-        case EnemyType::Base:    return 1.0f;
-        default:                 return 1.0f;
+        case EnemyType::Fast: return 1.0f;
+        case EnemyType::Base: return 1.0f;
+        default: return 1.0f;
     }
 }
 
@@ -222,13 +230,21 @@ bool Enemy::canAttack(const Player& player) const {
     return distanceTo(player) <= attackRange;
 }
 
-void Enemy::handleAttack(float dt, Player& player) {
+void Enemy::handleAttack(float dt, Player& player, AudioManager& audio) {
     animState = EnemyAnimState::Attack;
 
     // Apply damage on the hit frame
     if (!hasDealtDamageThisAttack && animFrame == attackHitFrame) {
 
         bool hit = true;
+
+        switch (type) {
+            case EnemyType::Tank: audio.playSFX("tank_attack");
+            case EnemyType::Shooter: audio.playSFX("shooter_attack");
+            case EnemyType::Fast: audio.playSFX("fast_attack");
+            case EnemyType::Base: audio.playSFX("base_attack");
+            default: audio.playSFX("base_attack");
+        }
 
         // Determine if shooter zombie hits or misses
         if (type == EnemyType::Shooter) {
@@ -260,8 +276,19 @@ void Enemy::handleAttack(float dt, Player& player) {
     }
 }
 
-void Enemy::update(float dt, const Player& player, const Map& map) {
+void Enemy::update(float dt, const Player& player, const Map& map, AudioManager& audio) {
     if (!active) return;
+
+    if (isDead()) {
+        if (animState != EnemyAnimState::Death) {
+            animState = EnemyAnimState::Death;
+            animFrame = 0;
+            animTimer = 0.0f;
+        }
+
+        updateAnimation(dt);
+        return;
+    }
 
     bool seesPlayer = hasLineOfSight(player, map);
 
@@ -306,10 +333,32 @@ void Enemy::update(float dt, const Player& player, const Map& map) {
             break;
 
         case EnemyState::Attacking:
-            handleAttack(dt, const_cast<Player&>(player));
+            handleAttack(dt, const_cast<Player&>(player), audio);
             break;
     }
 
     updateAnimation(dt);
+}
+
+void Enemy::reset() {
+    health = maxHealth;
+
+    active = false;
+
+    state = EnemyState::Idle;
+    animState = EnemyAnimState::Idle;
+
+    animFrame = 0;
+    animTimer = 0.0f;
+
+    deathAnimFinished = false;
+
+    attackTimer = 0.0f;
+    loseSightTimer = 0.0f;
+    hasDealtDamageThisAttack = false;
+
+    spritePixels.clear();
+    spriteW = 0;
+    spriteH = 0;
 }
 

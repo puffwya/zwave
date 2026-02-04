@@ -118,6 +118,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Base/attack_damaged_4.png"
         }, 0.12f);
 
+    baseDamaged.animations[EnemyAnimState::Death] =
+        loadAnimation({
+            "Assets/Enemies/Base/death_damaged_0.png",
+            "Assets/Enemies/Base/death_damaged_1.png",
+            "Assets/Enemies/Base/death_damaged_2.png",
+            "Assets/Enemies/Base/death_damaged_3.png",
+            "Assets/Enemies/Base/death_damaged_4.png"
+        }, 0.12f);
+
     enemyVisualsDamaged[EnemyType::Base] = std::move(baseDamaged);
 
     // Shooter
@@ -179,6 +188,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Shooter/attack_damaged_2.png",
             "Assets/Enemies/Shooter/attack_damaged_3.png",
             "Assets/Enemies/Shooter/attack_damaged_4.png"
+        }, 0.12f);
+
+    shooterDamaged.animations[EnemyAnimState::Death] =
+        loadAnimation({
+            "Assets/Enemies/Shooter/death_damaged_0.png",
+            "Assets/Enemies/Shooter/death_damaged_1.png",
+            "Assets/Enemies/Shooter/death_damaged_2.png",
+            "Assets/Enemies/Shooter/death_damaged_3.png",
+            "Assets/Enemies/Shooter/death_damaged_4.png"
         }, 0.12f);
 
     enemyVisualsDamaged[EnemyType::Shooter] = std::move(shooterDamaged);
@@ -244,6 +262,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Tank/attack_damaged_4.png" 
         }, 0.12f);
 
+    tankDamaged.animations[EnemyAnimState::Death] =
+        loadAnimation({
+            "Assets/Enemies/Tank/death_damaged_0.png",
+            "Assets/Enemies/Tank/death_damaged_1.png",
+            "Assets/Enemies/Tank/death_damaged_2.png",
+            "Assets/Enemies/Tank/death_damaged_3.png",
+            "Assets/Enemies/Tank/death_damaged_4.png"
+        }, 0.12f);
+
     enemyVisualsDamaged[EnemyType::Tank] = std::move(tankDamaged);
 
     // Fast
@@ -307,6 +334,15 @@ void EnemyManager::loadEnemyAssets() {
             "Assets/Enemies/Fast/attack_damaged_4.png"
         }, 0.12f);
 
+    fastDamaged.animations[EnemyAnimState::Death] =
+        loadAnimation({
+            "Assets/Enemies/Fast/death_damaged_0.png",
+            "Assets/Enemies/Fast/death_damaged_1.png",
+            "Assets/Enemies/Fast/death_damaged_2.png",
+            "Assets/Enemies/Fast/death_damaged_3.png",
+            "Assets/Enemies/Fast/death_damaged_4.png"
+        }, 0.12f);
+
     enemyVisualsDamaged[EnemyType::Fast] = std::move(fastDamaged);
 }
 
@@ -319,6 +355,7 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         if (!enemies[i].active) {
             Enemy& e = enemies[i];
+            e.reset();
             e.activate(pt.x, pt.y, type, *this);
             e.z = 0.0f;
             e.height = 0.75f;
@@ -329,12 +366,12 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     return nullptr;
 }
 
-void EnemyManager::update(float dt, const Player& player, const Map& map) {
+void EnemyManager::update(float dt, const Player& player, const Map& map, AudioManager& audio) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         Enemy& e = enemies[i];
         if (!e.active) continue;
 
-        e.update(dt, player, map);
+        e.update(dt, player, map, audio);
 
         int px = int(e.x);
         int py = int(e.y);
@@ -395,20 +432,27 @@ void EnemyManager::updateEnemy(Enemy& e, float dt) {
 }
 
 bool EnemyManager::hasActiveEnemies() const {
-    for (int i = 0; i < MAX_ENEMIES; i++)
-        if (enemies[i].active) return true;
+    for (int i = 0; i < MAX_ENEMIES; i++) {
+        if (!enemies[i].active)
+            continue;
+
+        if (enemies[i].deathAnimFinished == false)
+            return true;
+    }
     return false;
 }
 
 int EnemyManager::getActiveEnemyCount() const {
     int count = 0;
     for (int i = 0; i < MAX_ENEMIES; i++)
-        if (enemies[i].active) count++;
+        if (enemies[i].active && enemies[i].deathAnimFinished == false) count++;
     return count;
 }
 
 void EnemyManager::deactivateAll() {
-    for (int i = 0; i < MAX_ENEMIES; i++)
+    for (int i = 0; i < MAX_ENEMIES; i++) {
         enemies[i].active = false;
+        enemies[i].reset();
+    }
 }
 

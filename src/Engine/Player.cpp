@@ -458,13 +458,6 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
             }
             e.takeDamage(damage);
 
-            if (e.isDead()) {
-                e.deactivate();
-                printf("Enemy killed!\n");
-            } else {
-                printf("Enemy hit! HP: %d\n", e.health);
-            }
-
             break;
         }
     }

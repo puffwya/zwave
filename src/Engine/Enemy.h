@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Map.h"
+#include "../audio/AudioManager.h"
 #include <SDL2/SDL.h>
 
 enum class EnemyType {
@@ -22,7 +23,8 @@ enum class EnemyState {
 enum class EnemyAnimState {
     Idle,
     Walk,
-    Attack
+    Attack,
+    Death
 };
 
 class Player;
@@ -85,17 +87,21 @@ public:
     bool hasLineOfSight(const Player& player, const Map& map) const;
     void chasePlayer(float dt, const Player& player);
     void wander(float dt);
-    void update(float dt, const Player& player, const Map& map);
+    void update(float dt, const Player& player, const Map& map, AudioManager& audio);
 
     bool canAttack(const Player& player) const;
 
-    void handleAttack(float dt, Player& player);
+    void handleAttack(float dt, Player& player, AudioManager& audio);
 
     bool isDamaged() const;
+
+    bool deathAnimFinished = false;
 
     void updateAnimation(float dt);
 
     void deactivate() { active = false; }
+
+    void reset();
 
     float distanceTo(const Player& player) const;
 

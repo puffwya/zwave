@@ -36,7 +36,7 @@ public:
     Enemy* spawnEnemy(EnemyType type);
 
     void loadEnemyAssets();
-    void update(float dt, const Player& player, const Map& map);
+    void update(float dt, const Player& player, const Map& map, AudioManager& audio);
     void updateEnemy(Enemy& e, float dt);
 
     bool hasActiveEnemies() const;
