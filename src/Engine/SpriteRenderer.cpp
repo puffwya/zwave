@@ -65,18 +65,18 @@ void SpriteRenderer::renderEnemies(
         int spriteW = std::max(1, int(spriteH * (float(frameW) / float(frameH))));
 
         float enemyBottom = e->z - player.z;
-        float enemyTop    = e->z + e->height - player.z;
+        float enemyTop = e->z + e->height - player.z;
 
         int drawStartY = int(screenH / 2 - enemyTop / transformY * screenH);
-        int drawEndY   = int(screenH / 2 - enemyBottom / transformY * screenH);
+        int drawEndY = int(screenH / 2 - enemyBottom / transformY * screenH);
         int drawStartX = screenX - spriteW / 2;
-        int drawEndX   = drawStartX + spriteW;
+        int drawEndX = drawStartX + spriteW;
 
         // Clamp to screen
         drawStartX = std::max(0, drawStartX);
-        drawEndX   = std::min(screenW - 1, drawEndX);
+        drawEndX = std::min(screenW - 1, drawEndX);
         drawStartY = std::max(0, drawStartY);
-        drawEndY   = std::min(screenH - 1, drawEndY);
+        drawEndY = std::min(screenH - 1, drawEndY);
 
         int spanW = drawEndX - drawStartX;
         int spanH = drawEndY - drawStartY;

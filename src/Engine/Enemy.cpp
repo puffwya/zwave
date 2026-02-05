@@ -133,12 +133,11 @@ void Enemy::chasePlayer(float dt, const Player& player) {
 }
 
 void Enemy::wander(float dt) {
-    static float changeTimer = 0.0f;
-    changeTimer -= dt;
+    wanderTimer -= dt;
 
-    if (changeTimer <= 0.0f) {
+    if (wanderTimer <= 0.0f) {
         wanderAngle = ((rand() % 628) / 100.0f) - 3.14f;
-        changeTimer = 2.0f + (rand() % 200) / 100.0f;
+        wanderTimer = 2.0f + (rand() % 200) / 100.0f;
     }
 
     x += std::cos(wanderAngle) * speed * 0.3f * dt;
@@ -164,7 +163,12 @@ void Enemy::updateAnimation(float dt) {
         if (animState == EnemyAnimState::Death) {
             if (animFrame >= currentAnim->frames.size()) {
                 animFrame = currentAnim->frames.size() - 1;
-                deathAnimFinished = true;
+
+                // Only set flags once (for spawning ammo)
+                if (!deathAnimFinished) {
+                    deathAnimFinished = true;
+                    deathJustFinished = true;
+                }
             }
         }
         else {

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Enemy.h"
+#include "PickupManager.h"
 #include "Map.h"
 #include <unordered_map>
 #include <SDL2/SDL.h>
@@ -36,7 +37,7 @@ public:
     Enemy* spawnEnemy(EnemyType type);
 
     void loadEnemyAssets();
-    void update(float dt, const Player& player, const Map& map, AudioManager& audio);
+    void update(float dt, const Player& player, PickupManager& pickupManager, const Map& map, AudioManager& audio);
     void updateEnemy(Enemy& e, float dt);
 
     bool hasActiveEnemies() const;
@@ -50,6 +51,7 @@ public:
 private:
     std::vector<SpawnPoint> spawnPoints;
     int nextSpawnIndex = 0;
+    void trySpawnAmmoDrop(const Enemy& e, PickupManager& pickupManager);
 };
 
 #endif

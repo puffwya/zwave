@@ -202,14 +202,14 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon, Audio
             switch (static_cast<WeaponType>(p.id)) {
                 case WeaponType::Pistol:
                     weapon.pReserveAmmo = std::min(
-                        weapon.pReserveAmmo + 24,
+                        weapon.pReserveAmmo + 8,
                         weapon.pMaxReserve
                     );
                     break;
 
                 case WeaponType::Shotgun:
                     weapon.sReserveAmmo = std::min(
-                        weapon.sReserveAmmo + 6,
+                        weapon.sReserveAmmo + 4,
                         weapon.sMaxReserve
                     );
                     break;

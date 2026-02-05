@@ -765,6 +765,7 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Player.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_version.h \
   /opt/homebrew/include/SDL2/SDL_locale.h \
   /opt/homebrew/include/SDL2/SDL_misc.h \
+  /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponManager.h \

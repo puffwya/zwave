@@ -1,4 +1,5 @@
 #include "EnemyManager.h"
+#include <random>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -366,20 +367,79 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     return nullptr;
 }
 
-void EnemyManager::update(float dt, const Player& player, const Map& map, AudioManager& audio) {
+void EnemyManager::trySpawnAmmoDrop(const Enemy& e, PickupManager& pickupManager) {
+    static std::mt19937 rng{ std::random_device{}() };
+    static std::uniform_real_distribution<float> chanceDist(0.0f, 1.0f);
+
+    float dropChance = 0.45f;
+    if (chanceDist(rng) > dropChance)
+        return;
+
+    WeaponType weaponType;
+    int r = rng() % 3;
+
+    switch (r) {
+        case 0: weaponType = WeaponType::Pistol; break;
+        case 1: weaponType = WeaponType::Shotgun; break;
+    }
+
+    pickupManager.addPickup(
+        e.x,
+        e.y,
+        0.0f,
+        PickupType::Ammo,
+        weaponType
+    );
+}
+
+void EnemyManager::update(float dt, const Player& player, PickupManager& pickupManager, const Map& map, AudioManager& audio) {
     for (int i = 0; i < MAX_ENEMIES; i++) {
         Enemy& e = enemies[i];
         if (!e.active) continue;
 
+        // Save previous position
+        float oldX = e.x;
+        float oldY = e.y;
+
         e.update(dt, player, map, audio);
 
-        int px = int(e.x);
-        int py = int(e.y);
-        if (map.get(px,py).type == Map::TileType::Wall) {
-            e.x -= std::cos(e.angle) * e.speed * dt;
-            e.y -= std::sin(e.angle) * e.speed * dt;
+        // Death logic
+        if (e.deathJustFinished) {
+            trySpawnAmmoDrop(e, pickupManager);
+            e.deathJustFinished = false;
         }
 
+        // Wall Collision with height check
+        int px = int(e.x);
+        int py = int(e.y);
+
+        const auto& tile = map.get(px, py);
+
+        if (tile.type == Map::TileType::Wall) {
+            float wallHeight = tile.height;
+            float stepHeight = 0.25f; // enemy step capability
+
+            if (wallHeight > stepHeight) {
+                // Solid wall, block movement
+                e.x = oldX;
+                e.y = oldY;
+
+                // Re-roll wander direction if idle
+                if (e.state == EnemyState::Idle) {
+                    e.wanderTimer = 0.0f;
+                }
+            }
+            else {
+                // Walkable wall, step onto it
+                e.z = wallHeight;
+            }
+        }
+        else {
+            // Not a wall, return to ground
+            e.z = 0.0f;
+        }
+
+        // Enemy separation
         for (int j = 0; j < MAX_ENEMIES; j++) {
             if (i == j) continue;
             Enemy& other = enemies[j];
@@ -389,12 +449,14 @@ void EnemyManager::update(float dt, const Player& player, const Map& map, AudioM
             float dy = e.y - other.y;
             float distSq = dx*dx + dy*dy;
             float minDist = 0.8f;
-            if (distSq < minDist*minDist) {
+
+            if (distSq < minDist * minDist) {
                 float dist = std::sqrt(distSq);
                 if (dist > 0.0f) {
-                    float push = (minDist - dist) / 2.0f;
+                    float push = (minDist - dist) * 0.5f;
                     dx /= dist;
                     dy /= dist;
+
                     e.x += dx * push;
                     e.y += dy * push;
                     other.x -= dx * push;
@@ -403,18 +465,8 @@ void EnemyManager::update(float dt, const Player& player, const Map& map, AudioM
             }
         }
         // Failsafe
-        if (e.type == EnemyType::Fast) {
-            e.x = std::clamp(e.x, 1.0f, map.SIZE  - 6.0f);
-            e.y = std::clamp(e.y, 1.0f, map.SIZE - 6.0f);
-        }
-        else {
-            e.x = std::clamp(e.x, 1.0f, map.SIZE  - 3.0f);
-            e.y = std::clamp(e.y, 1.0f, map.SIZE - 3.0f);
-        }
-        if (e.x > map.SIZE - 4.0f || e.y > map.SIZE - 4.0f) {
-            e.x = 5.0f;
-            e.y = 5.0f;
-        }
+        e.x = std::clamp(e.x, 1.0f, map.SIZE - 2.0f);
+        e.y = std::clamp(e.y, 1.0f, map.SIZE - 2.0f);
     }
 }
 

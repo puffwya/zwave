@@ -97,6 +97,8 @@ public:
 
     bool deathAnimFinished = false;
 
+    bool deathJustFinished = false;
+
     void updateAnimation(float dt);
 
     void deactivate() { active = false; }

@@ -768,10 +768,10 @@ src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_version.h \
   /opt/homebrew/include/SDL2/SDL_locale.h \
   /opt/homebrew/include/SDL2/SDL_misc.h \
+  /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Engine/SpriteRenderer.h \
-  /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/TextureManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/Texture.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \

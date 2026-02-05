@@ -20,7 +20,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         6.0f, // spawn interval
         {
-            EnemyType::Base, EnemyType::Fast, EnemyType::Tank, EnemyType::Shooter
+            EnemyType::Base
         }
     });
 
@@ -125,7 +125,6 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
             wallAnims.push_back(anim);
 
             pickupManager.addPickup(25.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
-            doomRenderer->setPickupManager(pickupManager);
         }
     }
     // Special case for when leaving spawn, walls go back up
@@ -187,7 +186,7 @@ void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
 
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
     player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio);
-    enemyManager.update(dt, player, worldMap, audio);
+    enemyManager.update(dt, player, pickupManager, worldMap, audio);
     pickupManager.update(player, dt, weapon, audio);
     weaponManager.update(dt, player);
     updateWallAnimations(dt, audio);
