@@ -247,13 +247,12 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
             px += screenW;
         }
 
-        // Update wall-top array for sprites
-        colWallTop[sx] = colCeilY;
-
-        if (tileH < 0.0f) {
-            continue;
+        if (tileH > 0.0f) { // Only blocking walls
+            if (depth < zBuffer[sx]) {
+                zBuffer[sx] = depth;
+                colWallTop[sx] = colCeilY;
+            }
         }
-        zBuffer[sx] = depth;
     }
 }
 

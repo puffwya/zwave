@@ -107,4 +107,3 @@ void SpriteRenderer::renderEnemies(
         }
     }
 }
-

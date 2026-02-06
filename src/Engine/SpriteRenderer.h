@@ -16,5 +16,6 @@ public:
         Map& map,
         float colWallTop[]
     );
+    bool isSpriteOccludedByWall(const Player& player, const Enemy& e, const Map& map);
 };
 
