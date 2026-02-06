@@ -205,6 +205,7 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon, Audio
                         weapon.pReserveAmmo + 8,
                         weapon.pMaxReserve
                     );
+                    audio.playSFX("ammo_pickup");
                     break;
 
                 case WeaponType::Shotgun:
@@ -212,6 +213,7 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon, Audio
                         weapon.sReserveAmmo + 4,
                         weapon.sMaxReserve
                     );
+                    audio.playSFX("ammo_pickup");
                     break;
 
                 default:

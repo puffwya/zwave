@@ -38,6 +38,7 @@ int main() {
     audio.loadSFX("gun_pickup", "Assets/audio/gun_pickup.mp3");
     audio.loadSFX("heal_pickup", "Assets/audio/heal_pickup.mp3");
     audio.loadSFX("armor_pickup", "Assets/audio/armor_pickup.mp3");
+    audio.loadSFX("ammo_pickup", "Assets/audio/ammo_pickup.mp3");
     audio.loadSFX("gun_click", "Assets/audio/gun_click.mp3");
     audio.loadSFX("item_swap", "Assets/audio/item_swap.mp3");
     audio.loadSFX("pistol_shoot", "Assets/audio/pistol_shoot.mp3");
