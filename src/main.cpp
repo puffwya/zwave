@@ -45,6 +45,8 @@ int main() {
     audio.loadSFX("pistol_reload", "Assets/audio/pistol_reload.mp3");
     audio.loadSFX("shotgun_shoot", "Assets/audio/shotgun_shoot.mp3");
     audio.loadSFX("shotgun_reload", "Assets/audio/shotgun_reload.mp3");
+    audio.loadSFX("mg_shoot", "Assets/audio/mg_shoot.mp3");
+    audio.loadSFX("mg_reload", "Assets/audio/mg_reload.mp3");
     audio.loadSFX("base_attack", "Assets/audio/base_attack.mp3");
     audio.loadSFX("tank_attack", "Assets/audio/tank_attack.mp3");
     audio.loadSFX("shooter_attack", "Assets/audio/shooter_attack.mp3");

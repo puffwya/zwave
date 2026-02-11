@@ -3,9 +3,10 @@
 
 WeaponType Player::itemToWeapon(ItemType item) {
     switch (item) {
-        case ItemType::Pistol:  return WeaponType::Pistol;
+        case ItemType::Pistol: return WeaponType::Pistol;
         case ItemType::Shotgun: return WeaponType::Shotgun;
-        default:                return WeaponType::None; // for a safe fallback
+        case ItemType::Mg: return WeaponType::Mg;
+        default: return WeaponType::None; // for a safe fallback
     }
 }
 
@@ -303,6 +304,33 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         }
     }
 
+    // Mg shooting
+    if (currentItem == ItemType::Mg) {
+                
+        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+                
+        bool leftMouseDown = mouseState & SDL_BUTTON(SDL_BUTTON_LEFT);
+                
+        if (leftMouseDown && fireCooldown <= 0.0f) {
+            if (weapon.mgClipAmmo <= 0) {
+                weapon.mgClipAmmo = 0;
+                audio.playSFX("gun_click");
+                fireCooldown = 0.7f;
+            }
+            else {
+                shoot(enemyManager, weaponManager, map);
+                fireCooldown = 0.1f; // Mg fires once every 0.1 seconds
+             
+                // Start animation
+                isFiringAnim = true;
+                fireFrame = 0;  
+                fireFrameTimer = 0.01;
+                audio.playSFX("mg_shoot");
+                weapon.mgClipAmmo -= 1;
+            }
+        }    
+    }
+
     // Reload guns
     if (keys[SDL_SCANCODE_R]) {
         if (!reloadKeyPressed) {
@@ -350,6 +378,31 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                     weapon.pReserveAmmo -= weapon.pClipSize;
                 }
             }
+            else if (currentItem == ItemType::Mg && weapon.mgClipAmmo < weapon.mgClipSize && weapon.mgReserveAmmo != 0) {
+                reloading = true;
+                reloadFrame = 0;
+                reloadFrameTimer = RELOAD_FRAME_DURATION;
+                reloadKeyPressed = true;
+                weaponManager.playReloadAnimation(itemToWeapon(currentItem));
+                audio.playSFX("mg_reload");
+            
+                // Checks if reserve is less than max clip size and if so sets clip size to reserve
+                if (weapon.mgReserveAmmo < weapon.mgClipSize && weapon.mgReserveAmmo > 0) {
+                    weapon.mgClipAmmo = weapon.mgReserveAmmo;
+                    weapon.mgReserveAmmo = 0;
+                }
+                // Partial reloads (not on fully empty clip)
+                else if (weapon.mgClipAmmo != 0) {
+                    weapon.mgReserveAmmo += weapon.mgClipAmmo;
+                    weapon.mgClipAmmo = weapon.mgClipSize; 
+                    weapon.mgReserveAmmo -= weapon.mgClipSize;
+                }
+                // "normal case" takes from reserve the max clip size and adds it to clip size
+                else {
+                    weapon.mgClipAmmo = weapon.mgClipSize;
+                    weapon.mgReserveAmmo -= weapon.mgClipSize;
+                }
+            }
         }
     } else {
         reloadKeyPressed = false;
@@ -377,6 +430,11 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 fireFrame = 0;
                 isFiringAnim = false;
             }
+            else if (currentItem == ItemType::Mg && fireFrame >= MG_FIRE_FRAMES) {
+                // Mg animation over, return to idle
+                fireFrame = 0;
+                isFiringAnim = false;
+            }
         }
     }
 
@@ -393,6 +451,9 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
             }
             else if (currentItem == ItemType::Pistol) {
                 RELOAD_FRAMES = 7;   // frames 6–12
+            }
+            else if (currentItem == ItemType::Mg) {
+                RELOAD_FRAMES = 9;   // frames 7–15
             }
 
             if (reloadFrame >= RELOAD_FRAMES) {
@@ -455,6 +516,9 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
             }
             else if (currentItem == ItemType::Shotgun) {
                 damage = 200;
+            }
+            else if (currentItem == ItemType::Mg) {
+                damage = 25;
             }
             e.takeDamage(damage);
 

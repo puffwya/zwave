@@ -17,7 +17,7 @@ enum class ItemType {
     None,
     Pistol,
     Shotgun,
-    // future weapons to be added
+    Mg
 };
 
 
@@ -63,8 +63,9 @@ public:
     float fireFrameTimer = 0.0f;
 
     static constexpr float FIRE_FRAME_DURATION = 0.05f; // 50ms per frame
-    static constexpr int PISTOL_FIRE_FRAMES = 6;        // idle + 5 Pistol firing frames
-    static constexpr int SHOTGUN_FIRE_FRAMES = 4;        // idle + 3 Shotgun firing frames
+    static constexpr int PISTOL_FIRE_FRAMES = 6; // idle + 5 Pistol firing frames
+    static constexpr int SHOTGUN_FIRE_FRAMES = 4; // idle + 3 Shotgun firing frames
+    static constexpr int MG_FIRE_FRAMES = 7; // idle + 6 Mg firing frames
 
     // Reload Anim 
     bool reloading = false;

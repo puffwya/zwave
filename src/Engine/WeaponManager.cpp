@@ -33,8 +33,7 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         }
         pistolAnim.frames.push_back(tex);
     }
-
-    pistolAnim.frameTime = 0.07f; // fast <70ms
+    pistolAnim.frameTime = 0.09f; // <90ms
     animations[WeaponType::Pistol] = pistolAnim;
 
     // Load shotgun frames
@@ -61,8 +60,40 @@ bool WeaponManager::loadAssets(SDL_Renderer* renderer) {
         }
         shotgunAnim.frames.push_back(tex);
     }
-    shotgunAnim.frameTime = 0.12f;
+    shotgunAnim.frameTime = 0.14f;
     animations[WeaponType::Shotgun] = shotgunAnim;
+
+    // Load MG frames
+    Animation mgAnim;
+    const char* mgPaths[] = {
+        "Assets/Mg0.png",
+        "Assets/Mg1.png",
+        "Assets/Mg2.png",
+        "Assets/Mg3.png",
+        "Assets/Mg4.png",
+        "Assets/Mg5.png",
+        "Assets/Mg6.png",
+        "Assets/Mg7.png",
+        "Assets/Mg8.png",
+        "Assets/Mg9.png",
+        "Assets/Mg10.png",
+        "Assets/Mg11.png",
+        "Assets/Mg12.png",
+        "Assets/Mg13.png",
+        "Assets/Mg14.png",
+        "Assets/Mg15.png",
+    };
+    for (const char* path : mgPaths) {
+        SDL_Texture* tex = IMG_LoadTexture(renderer, path);
+        if (!tex) {
+            std::cerr << "Failed to load mg frame: " << path
+                      << " | " << IMG_GetError() << "\n";  
+            return false;
+        }
+        mgAnim.frames.push_back(tex);
+    }
+    mgAnim.frameTime = 0.01f;
+    animations[WeaponType::Mg] = mgAnim;
 
     return true;
 }
@@ -96,7 +127,12 @@ void WeaponManager::playReloadAnimation(WeaponType weapon)
         anim.startFrame = 6;
         anim.endFrame = 13;
     }
-    // ... to add other weapons
+    // Set reload frame range
+    else if (weapon == WeaponType::Mg) {
+        anim.startFrame = 7;
+        anim.endFrame = 16;
+        anim.frameTime = 0.05f;
+    }
     
     anim.current = anim.startFrame;  // only set once here
     anim.timer = 0.0f;
@@ -105,11 +141,19 @@ void WeaponManager::playReloadAnimation(WeaponType weapon)
 
 void WeaponManager::playShootAnimation(WeaponType weapon) {
     auto it = animations.find(weapon);
-    if (it == animations.end() || it->second.frames.empty()) return; // safe early exit
+    if (it == animations.end()) return;
 
     Animation& anim = it->second;
-    anim.playing = true;
-    anim.timer = 0.0f;
+
+    if (weapon == WeaponType::Mg) {
+        anim.frameTime = 0.02;
+    }
+
+    if (!anim.playing) {
+        anim.playing = true;
+        anim.timer = 0.0f;
+        anim.current = 0;
+    }
 }
 
 int WeaponManager::getDrawOffsetY() const {
@@ -150,24 +194,22 @@ void WeaponManager::update(float delta, const Player& player) {
 
         anim.timer += delta;
 
-        if (anim.timer >= anim.frameTime) {
-            anim.timer = 0.0f;
+        while (anim.timer >= anim.frameTime) {
+            anim.timer -= anim.frameTime;
             anim.current++;
 
-            int endFrame;
-            if (currentWeapon == WeaponType::Shotgun && !(player.reloading)) {
-                endFrame = 4;
-            }
-            else if (currentWeapon == WeaponType::Pistol && !(player.reloading)) {
-                endFrame = 6;
-            }
-            else {
-                endFrame = (int)anim.frames.size();
+            int endFrame = anim.frames.size();
+
+            if (!player.reloading) {
+                if (currentWeapon == WeaponType::Pistol) endFrame = 6;
+                else if (currentWeapon == WeaponType::Shotgun) endFrame = 4;
+                else if (currentWeapon == WeaponType::Mg) endFrame = 7;
             }
 
             if (anim.current >= endFrame) {
                 anim.current = 0;
-                anim.playing = false; // stop after 1 cycle
+                anim.playing = false;
+                break;
             }
         }
     }
@@ -176,8 +218,8 @@ void WeaponManager::update(float delta, const Player& player) {
     bool moving = std::fabs(player.velX) > 0.05f || std::fabs(player.velY) > 0.05f;
 
     if (moving) {
-        bobTimer += delta * 6.0f;   // bobbing speed
-        bobAmount = 25.0f;        // pixel magnitude
+        bobTimer += delta * 6.0f; // bobbing speed
+        bobAmount = 25.0f; // pixel magnitude
     } else {
         // reduce amplitude smoothy (frame rate dependent)
         bobAmount = std::lerp(bobAmount, 0.0f, 5.0f * delta);

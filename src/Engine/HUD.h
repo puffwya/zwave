@@ -3,6 +3,12 @@
 #include "Player.h"
 #include "WeaponTypes.h"
 
+struct AmmoTickStyle {
+    int tickW;
+    int tickH;
+    int spacing;
+};
+
 class HUD {
 public:
     bool init(SDL_Renderer* renderer);
@@ -23,12 +29,19 @@ private:
                          SDL_Color frameColor,
                          int thickness = 2);
 
-    void drawAmmo(SDL_Renderer* renderer,
-                   int clip,
-                   int reserve,
-                   int x,
-                   int y,
-                   int scale);
+    void drawReserveAmmo(SDL_Renderer* renderer,
+                          int reserve,
+                          int x,
+                          int y,
+                          int scale);
+
+    void drawAmmoTicks(SDL_Renderer* renderer,
+                        int clip,
+                        int clipSize,
+                        int x,
+                        int y,
+                        int scale,
+                        const AmmoTickStyle& style);
 
     void drawWaveBanner(SDL_Renderer* renderer,
                         int screenW,
@@ -54,7 +67,10 @@ private:
 
     void drawArmorShield(SDL_Renderer* renderer, int cx, int cy, int size, SDL_Color color, int thickness = 2);
 
-    void drawRoundedTopLeft(SDL_Renderer* renderer, SDL_Rect rect, int radius, SDL_Color color);
+    // Ammo tick size
+    AmmoTickStyle pistolTicks  { 3, 20, 2 };
+    AmmoTickStyle shotgunTicks { 8, 22, 5 };
+    AmmoTickStyle mgTicks   { 2, 18, 2 };
 
     SDL_Texture* digitTextures[11]{};
     int digitW = 0;

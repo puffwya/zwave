@@ -64,6 +64,46 @@ bool HUD::init(SDL_Renderer* renderer) {
     return true;
 }
 
+void HUD::drawAmmoTicks(SDL_Renderer* renderer,
+                        int clip,
+                        int clipSize,
+                        int x,     // RIGHT EDGE of ticks
+                        int y,
+                        int scale,
+                        const AmmoTickStyle& style)
+{
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    int w = style.tickW * scale;
+    int h = style.tickH * scale;
+    int spacing = style.spacing * scale;
+
+    int totalTicksW =
+        clipSize * w +
+        (clipSize - 1) * spacing;
+
+    int startX = x - totalTicksW;
+
+    for (int i = 0; i < clipSize; i++) {
+        bool filled = i < clip;
+
+        SDL_Color col = filled
+            ? SDL_Color{ 230, 230, 235, 255 }
+            : SDL_Color{ 120, 120, 125, 120 };
+
+        SDL_SetRenderDrawColor(renderer, col.r, col.g, col.b, col.a);
+
+        SDL_Rect tick{
+            startX + i * (w + spacing),
+            y,
+            w,
+            h
+        };
+
+        SDL_RenderFillRect(renderer, &tick);
+    }
+}
+
 void HUD::drawWaveBanner(SDL_Renderer* renderer,
                          int screenW,
                          int screenH,
@@ -193,43 +233,30 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
     }
 }
 
-void HUD::drawAmmo(SDL_Renderer* renderer,
-                   int clip,
-                   int reserve,
-                   int x,
-                   int y,
-                   int scale)
+void HUD::drawReserveAmmo(SDL_Renderer* renderer,
+                          int reserve,
+                          int x,
+                          int y,
+                          int scale)
 {
-    // convert both numbers to strings
-    std::string clipStr = std::to_string(clip);
     std::string reserveStr = std::to_string(reserve);
 
     int spacing = 2 * scale;
 
-    // calculate total width: clip + separator + reserve
-    int totalW = (clipStr.size() + 1 + reserveStr.size()) * (digitW * scale) 
-                 + ((clipStr.size() + 1 + reserveStr.size() - 1) * spacing);
+    int totalW =
+        reserveStr.size() * (digitW * scale) +
+        (reserveStr.size() - 1) * spacing;
 
-    // right align at x
     int drawX = x - totalW;
 
-    // draw clip digits
-    for (char c : clipStr) {
-        int d = c - '0';
-        SDL_Rect dst{ drawX, y, digitW * scale, digitH * scale };
-        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dst);
-        drawX += digitW * scale + spacing;
-    }
-
-    // draw separator "/"
-    SDL_Rect slashDst{ drawX, y, digitW * scale, digitH * scale };
-    SDL_RenderCopy(renderer, digitTextures[10], nullptr, &slashDst); // digitTextures[10] = "/"
-    drawX += digitW * scale + spacing;
-
-    // draw reserve digits
     for (char c : reserveStr) {
         int d = c - '0';
-        SDL_Rect dst{ drawX, y, digitW * scale, digitH * scale };
+        SDL_Rect dst{
+            drawX,
+            y,
+            digitW * scale,
+            digitH * scale
+        };
         SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dst);
         drawX += digitW * scale + spacing;
     }
@@ -324,34 +351,6 @@ void HUD::drawArmorShield(SDL_Renderer* renderer, int cx, int cy, int size, SDL_
             SDL_RenderDrawLine(renderer,
                                points[i].x, points[i].y + t,
                                points[i+1].x, points[i+1].y + t);
-        }
-    }
-}
-
-void HUD::drawRoundedTopLeft(SDL_Renderer* renderer, SDL_Rect rect, int radius, SDL_Color color)
-{
-    // Enable alpha blending
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-
-    // Draw rectangle excluding top-left corner
-    SDL_Rect mainRect = { rect.x + radius, rect.y, rect.w - radius, rect.h };
-    SDL_RenderFillRect(renderer, &mainRect);
-
-    SDL_Rect sideRect = { rect.x, rect.y + radius, radius, rect.h - radius };
-    SDL_RenderFillRect(renderer, &sideRect);
-
-    // Draw top-left corner as filled quarter-circle
-    int cx = rect.x + radius;
-    int cy = rect.y + radius;
-    for (int w = -radius; w <= 0; w++)
-    {
-        for (int h = -radius; h <= 0; h++)
-        {
-            if ((w*w + h*h) <= radius*radius)
-            {
-                SDL_RenderDrawPoint(renderer, cx + w, cy + h);
-            }
         }
     }
 }
@@ -496,50 +495,166 @@ void HUD::render(SDL_Renderer* renderer,
     drawArmorShield(renderer, armorCx, armorCy, armorPlateSize, armorFrame, armorThickness);
 
     // Ammo panel dimensions
-    int ammoWidth  = screenW / 6;   // wide rectangle, stretches off screen
-    int ammoHeight = screenH / 12;  // proportional to diamond height
+    int ammoWidth  = screenW / 6;
+    int ammoHeight = screenH / 12;
 
     // Base positions (bottom-right)
-    int ammoX = screenW - ammoWidth;   // no padding so it goes off screen
-    int ammoY = screenH - ammoHeight;  // bottom of screen
+    int ammoX = screenW - ammoWidth;
+    int ammoY = screenH - ammoHeight;
 
     // Ammo screen scaling
     float hudScaleF = (float)screenH / 720.0f;
     hudScaleF *= 0.75f;
     int hudScale = std::max((int)hudScaleF, 1);
 
-    // Ammo text padding inside panel
-    int ammoTextPaddingX = paddingX; // horizontal padding for numbers
-    int ammoTextPaddingY = paddingY; // vertical padding for numbers
+    // Padding inside panel
+    int ammoTextPaddingX = paddingX;
+    int ammoTextPaddingY = paddingY;
 
+    // Right-aligned reserve digits
     int ammoTextX = screenW - ammoTextPaddingX;
     int ammoTextY = ammoY + ammoTextPaddingY;
 
-    // Draw only if we have a current item
-    if (player.currentItem == ItemType::Pistol || player.currentItem == ItemType::Shotgun) 
-    {
-        // Draw background first
-        SDL_Rect ammoBg { ammoX, ammoY, ammoWidth, ammoHeight };
-        int cornerRadius = ammoHeight / 2;
-        SDL_Color panelColor = { 40, 40, 45, 200 }; // charcoal
-        drawRoundedTopLeft(renderer, ammoBg, cornerRadius, panelColor);
+    int digitSpacing = 2 * hudScale;
 
-        // Draw ammo counts
-        if (player.currentItem == ItemType::Pistol) {
-            drawAmmo(renderer,
-             weapon.pClipAmmo,
-             weapon.pReserveAmmo,
-             ammoTextX,
-             ammoTextY,
-             hudScale);
+    int reserve = 3;
+
+    int styleH = 18;
+
+    int styleW = 5;
+
+    int styleSpacing = 4;
+
+    int clipSize = 30;
+
+    if (player.currentItem == ItemType::Pistol) {
+        reserve  = weapon.pReserveAmmo;
+        styleH = pistolTicks.tickH;
+        styleW = pistolTicks.tickW;
+        styleSpacing = pistolTicks.spacing;
+        clipSize = 8;
+    }
+    else if (player.currentItem == ItemType::Shotgun) {
+        reserve  = weapon.sReserveAmmo;
+        styleH = shotgunTicks.tickH;
+        styleW = shotgunTicks.tickW;
+        styleSpacing = shotgunTicks.spacing;
+        clipSize = 2;
+    }
+    else if (player.currentItem == ItemType::Mg) {
+        reserve  = weapon.mgReserveAmmo;
+        styleH = mgTicks.tickH;
+        styleW = mgTicks.tickW;
+        styleSpacing = mgTicks.spacing;
+        clipSize = 30;
+    }
+
+    std::string reserveStr = std::to_string(reserve);
+
+    int reserveDigitsW =
+        reserveStr.size() * (digitW * hudScale) +
+        (reserveStr.size() - 1) * digitSpacing;
+
+    // Tick origin (left side of panel)
+    int tickGap = 6 * hudScale;
+
+    int tickX = ammoTextX - reserveDigitsW - tickGap;
+
+    int tickY = ammoTextY + (digitH * hudScale - styleH * hudScale) / 2;
+
+    // Tick width
+    int tickW = styleW * hudScale;
+    int tickSpacing = styleSpacing * hudScale;
+
+    int ticksW =
+        clipSize * tickW +
+        (clipSize - 1) * tickSpacing;
+
+    // Padding
+    int padX = 10 * hudScale;
+    int padY = 6 * hudScale;
+    int gapBetween = 8 * hudScale;
+
+    // Final panel size
+    int panelW = padX + ticksW + gapBetween + reserveDigitsW + padX + 20 * hudScale;
+    int tickH = styleH * hudScale;
+    int contentH = std::max(digitH * hudScale, tickH);
+    int panelH = contentH + padY * 6;
+
+    int panelX = screenW - panelW;
+    int panelY = screenH - panelH;
+
+    // Only draw if holding a gun with ammo
+    if (player.currentItem == ItemType::Pistol ||
+        player.currentItem == ItemType::Shotgun || player.currentItem == ItemType::Mg)
+    {
+        // Background panel
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 25, 25, 30, 110);
+        SDL_Rect ammoBg{ panelX, panelY, panelW, panelH };
+        SDL_RenderFillRect(renderer, &ammoBg);
+
+        if (player.currentItem == ItemType::Pistol)
+        {
+            // Clip ticks
+            drawAmmoTicks(
+                renderer,
+                weapon.pClipAmmo,
+                weapon.pClipSize,
+                tickX,
+                tickY,
+                hudScale,
+                pistolTicks
+            );
+
+            // Reserve digits
+            drawReserveAmmo(
+                renderer,
+                weapon.pReserveAmmo,
+                ammoTextX,
+                ammoTextY,
+                hudScale
+            );
         }
-        else if (player.currentItem == ItemType::Shotgun) {
-            drawAmmo(renderer,
-             weapon.sClipAmmo,
-             weapon.sReserveAmmo,
-             ammoTextX,
-             ammoTextY,
-             hudScale);
+        else if (player.currentItem == ItemType::Shotgun)
+        {
+            drawAmmoTicks(
+                renderer,
+                weapon.sClipAmmo,
+                weapon.sClipSize,
+                tickX,
+                tickY,
+                hudScale,
+                shotgunTicks
+            );
+
+            drawReserveAmmo(
+                renderer,
+                weapon.sReserveAmmo,
+                ammoTextX,
+                ammoTextY,
+                hudScale
+            );
+        }
+        else if (player.currentItem == ItemType::Mg)
+        {
+            drawAmmoTicks(
+                renderer,
+                weapon.mgClipAmmo,
+                weapon.mgClipSize,
+                tickX,
+                tickY,
+                hudScale,
+                mgTicks
+            );  
+                
+            drawReserveAmmo(
+                renderer,
+                weapon.mgReserveAmmo,
+                ammoTextX,
+                ammoTextY,
+                hudScale
+            );
         }
     }
 }

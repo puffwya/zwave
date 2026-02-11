@@ -17,6 +17,8 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     }
 
     // Wave defs (temp)
+
+    // Wave 1
     waves.push_back({
         6.0f, // spawn interval
         {
@@ -24,13 +26,35 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
         }
     });
 
+    // Wave 2
     waves.push_back({
         5.0f, // spawn interval
         {
-            EnemyType::Base, EnemyType::Base, EnemyType::Base,
-            EnemyType::Shooter, EnemyType::Shooter, EnemyType::Shooter,
-            EnemyType::Base, EnemyType::Base, EnemyType::Base,
-            EnemyType::Tank
+            EnemyType::Base
+        }
+    });
+
+    // Wave 3
+    waves.push_back({
+        5.0f, // spawn interval
+        {
+            EnemyType::Base                                   
+        }
+    });  
+
+    // Wave 4
+    waves.push_back({
+        4.0f, // spawn interval
+        {
+            EnemyType::Base
+        }
+    });
+
+    // Wave 5
+    waves.push_back({
+        4.0f, // spawn interval
+        {
+            EnemyType::Base
         }
     });
 
@@ -49,6 +73,9 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Start in post-wave delay so wave 1 begins after 8s
     waveState = WaveState::PostWaveDelay;
     postWaveTimer = 0.0f;
+
+    // TEMP
+    player.giveItem(ItemType::Mg);
 }
 
 GameSession::~GameSession() {
@@ -125,6 +152,61 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
             wallAnims.push_back(anim);
 
             pickupManager.addPickup(25.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
+        }
+    }
+    // Wave 2 (wave three)
+    else if (waveIndex == 2) {
+            
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {24, 20},
+            {24, 21},
+            {24, 22}
+        };  
+            
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+            
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 1.0f
+            anim.targetHeight = 0.0f;         // slide down
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+ 
+            wallAnims.push_back(anim);
+
+            pickupManager.addPickup(25.0f, 21.5f, 0.0f, PickupType::Health, WeaponType::None);
+            pickupManager.addPickup(26.0f, 21.5f, 0.0f, PickupType::Armor, WeaponType::None);
+        }
+    }
+    // Wave 3 (wave four)
+    else if (waveIndex == 3) {
+            
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {5, 7},
+            {5, 8},
+            {5, 9}
+        };  
+            
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+            
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 1.0f
+            anim.targetHeight = 0.0f;         // slide down
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+ 
+            wallAnims.push_back(anim);
+
+            pickupManager.addPickup(4.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Mg);
         }
     }
     // Special case for when leaving spawn, walls go back up
@@ -267,6 +349,7 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
     WeaponType wType = WeaponType::None;
     if (player.currentItem == ItemType::Pistol) wType = WeaponType::Pistol;
     else if (player.currentItem == ItemType::Shotgun) wType = WeaponType::Shotgun;
+    else if (player.currentItem == ItemType::Mg) wType = WeaponType::Mg;
 
     SDL_Texture* itemTex = weaponManager.getCurrentFrame(wType);
 

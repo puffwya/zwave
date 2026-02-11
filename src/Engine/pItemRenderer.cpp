@@ -12,7 +12,7 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
     int yOffset = 0;
 
     // "bobbing" offset
-    float bobOffsetX = std::sin(wm.bobTimer) * wm.bobAmount;        // horizontal sway
+    float bobOffsetX = std::sin(wm.bobTimer) * wm.bobAmount; // horizontal sway
     float bobOffsetY = std::fabs(std::cos(wm.bobTimer)) * (wm.bobAmount * 0.4f); // vertical bob
 
     bool isGun = false;
@@ -35,6 +35,12 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
             isGun = true;
             itemScale = 1.2f;
             yOffset = 25;
+            break;
+        case ItemType::Mg:
+            xOffset = 100;
+            yOffset = 30;
+            itemScale = 1.5f;
+            isGun = true;
             break;
         default:
             isGun = false;
@@ -76,11 +82,11 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
             int length = 10;
             int thickness = 2;
 
-            SDL_Rect left  = {centerX - gap - length, centerY - thickness/2, length, thickness};
-            SDL_Rect right = {centerX + gap,         centerY - thickness/2, length, thickness};
+            SDL_Rect left = {centerX - gap - length, centerY - thickness/2, length, thickness};
+            SDL_Rect right = {centerX + gap, centerY - thickness/2, length, thickness};
 
-            SDL_Rect up    = {centerX - thickness/2, centerY - gap - length, thickness, length};
-            SDL_Rect down  = {centerX - thickness/2, centerY + gap,          thickness, length};
+            SDL_Rect up = {centerX - thickness/2, centerY - gap - length, thickness, length};
+            SDL_Rect down = {centerX - thickness/2, centerY + gap, thickness, length};
 
             SDL_RenderFillRect(renderer, &left);
             SDL_RenderFillRect(renderer, &right);
@@ -91,8 +97,8 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
         //  SHOTGUN RETICLE
         if (itemType == ItemType::Shotgun) {
 
-            int radius = 20;        // circle size
-            int thickness = 2;      // circle stroke thickness
+            int radius = 20; // circle size
+            int thickness = 2; // circle stroke thickness
 
             int cx = centerX;
             int cy = centerY;
@@ -125,8 +131,6 @@ void pItemRenderer::renderPItem(SDL_Renderer* renderer,
                 }
             }
         }
-
     }
-
 }
 
