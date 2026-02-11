@@ -22,8 +22,9 @@ public:
     // -----------------------------
     struct Cell {
         TileType type;
-        float height;     // 0 = floor, 1 = normal wall, 0> & <1 = step, <0 = pit
-        float cHeight;    // Ceiling Height 
+        float height; // 0 = floor, 1 = normal wall, 0> & <1 = step, <0 = pit
+        float cHeight; // Ceiling Height 
+        bool isSliding = false; // for sliding walls
     };
 
     // -----------------------------
@@ -55,11 +56,11 @@ public:
         {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
         {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
 
-        {1,1,1,0,0,0,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
-        {1,1,1,0,0,0,2,0,1,1,1,0,0,0,0, 0,0,2,0,1,1,1,0,0,1,0,0,1,1,1},
-        {1,1,1,0,0,0,0,0,1,1,1,0,0,1,0, 0,1,0,0,1,1,1,0,0,1,0,0,1,1,1},
+        {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
+        {1,1,1,0,0,1,2,0,1,1,1,0,0,1,0, 0,1,2,0,1,1,1,0,0,1,0,0,1,1,1},
+        {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
         {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,0, 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 
         {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -157,6 +158,36 @@ public:
         data[17][16].height = -0.25f;
         data[17][17].height = -0.25f;
         data[17][18].height = -0.25f;
+
+        // Starting room sliding walls
+        data[4][14].isSliding = true;
+        data[5][14].isSliding = true;
+        data[4][15].isSliding = true;
+        data[5][15].isSliding = true;
+
+        // Wave 1 sliding walls
+        data[7][24].isSliding = true;
+        data[8][24].isSliding = true;
+        data[9][24].isSliding = true;
+
+        // Wave 2 sliding walls
+        data[20][24].isSliding = true;
+        data[21][24].isSliding = true;
+        data[22][24].isSliding = true;
+
+        // Wave 3 sliding walls
+        data[7][5].isSliding = true;
+        data[8][5].isSliding = true;
+        data[9][5].isSliding = true;
+
+        // Wave 4 sliding walls
+        data[20][5].isSliding = true;
+        data[21][5].isSliding = true;
+        data[22][5].isSliding = true;
+
+        // Wave 5 sliding walls
+        data[24][14].isSliding = true;
+        data[24][15].isSliding = true;
     }
 
     // Convert raw ints to structured Cell data

@@ -73,9 +73,6 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Start in post-wave delay so wave 1 begins after 8s
     waveState = WaveState::PostWaveDelay;
     postWaveTimer = 0.0f;
-
-    // TEMP
-    player.giveItem(ItemType::Mg);
 }
 
 GameSession::~GameSession() {
@@ -127,7 +124,7 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
             wallAnims.push_back(anim);
         }
     }
-    // Wave 1 (wave two)
+    // Wave 1 (start of wave two)
     else if (waveIndex == 1) {
         
         // Tiles to animate
@@ -154,7 +151,7 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
             pickupManager.addPickup(25.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
         }
     }
-    // Wave 2 (wave three)
+    // Wave 2 (start of wave three)
     else if (waveIndex == 2) {
             
         // Tiles to animate
@@ -182,7 +179,7 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
             pickupManager.addPickup(26.0f, 21.5f, 0.0f, PickupType::Armor, WeaponType::None);
         }
     }
-    // Wave 3 (wave four)
+    // Wave 3 (start of wave four)
     else if (waveIndex == 3) {
             
         // Tiles to animate
@@ -207,6 +204,58 @@ void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
             wallAnims.push_back(anim);
 
             pickupManager.addPickup(4.5f, 8.5f, 0.0f, PickupType::Weapon, WeaponType::Mg);
+        }
+    }
+    // Wave 4 (start of wave five)
+    else if (waveIndex == 4) {
+            
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {5, 20},
+            {5, 21},
+            {5, 22}
+        };  
+            
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+            
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 1.0f
+            anim.targetHeight = 0.0f;         // slide down
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+ 
+            wallAnims.push_back(anim);
+
+            pickupManager.addPickup(5.0f, 21.5f, 0.0f, PickupType::Health, WeaponType::None);
+            pickupManager.addPickup(4.0f, 21.5f, 0.0f, PickupType::Armor, WeaponType::None);
+        }
+    }
+    // Wave 5 (after wave five, final wave)
+    else if (waveIndex == 5) {
+            
+        // Tiles to animate
+        const std::vector<std::pair<int,int>> tiles = {
+            {14, 24},
+            {15, 24},
+        };
+          
+        for (auto& [x, y] : tiles) {
+            auto& tile = worldMap.get(x, y);
+            
+            WallHeightAnim anim;
+            anim.x = x;
+            anim.y = y;
+            anim.startHeight = tile.height;   // should be 1.0f
+            anim.targetHeight = 0.0f;         // slide down
+            anim.progress = 0.0f;
+            anim.speed = 0.75f;
+            anim.finished = false;
+     
+            wallAnims.push_back(anim);            
         }
     }
     // Special case for when leaving spawn, walls go back up

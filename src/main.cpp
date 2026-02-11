@@ -57,6 +57,7 @@ int main() {
 
     textures.load("floor1", "Assets/geometry_textures/floor1.png");
     textures.load("wall1", "Assets/geometry_textures/wall1.png");
+    textures.load("wallSliding", "Assets/geometry_textures/wallSliding.png");
     textures.load("lava1", "Assets/geometry_textures/lava1.png");
     textures.load("wallTop1", "Assets/geometry_textures/wallTop1.png");
 

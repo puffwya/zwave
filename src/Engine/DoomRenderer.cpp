@@ -303,11 +303,18 @@ void DoomRenderer::traverseBSP(
         const Map::Cell& cell = map.get(tx, ty);
         float h = cell.height;
 
-        const Texture& wallTex = textureManager.get("wall1");
+        const Texture* wallTex = nullptr;
+
+        if (cell.isSliding == true) {
+            wallTex = &textureManager.get("wallSliding");
+        }
+        else {
+            wallTex = &textureManager.get("wall1");
+        }
 
         // Draw vertical walls (normal or pit)
         if (h != 0.0f) {
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, wallTex);
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex);
         }
     }
 

@@ -51,8 +51,6 @@ Animation loadAnimation(const std::vector<std::string>& paths, float frameTime) 
             anim.frames.push_back(std::move(frame));
         }
     }
-
-    std::cerr << "Loaded animation with " << anim.frames.size() << " frames\n";
     return anim;
 }
 
@@ -369,18 +367,20 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
 
 void EnemyManager::trySpawnAmmoDrop(const Enemy& e, PickupManager& pickupManager) {
     static std::mt19937 rng{ std::random_device{}() };
-    static std::uniform_real_distribution<float> chanceDist(0.0f, 1.0f);
+    constexpr int AMMO_TYPE_COUNT = 3;
+    std::uniform_int_distribution<int> ammoDist(0, AMMO_TYPE_COUNT - 1);
 
     float dropChance = 0.45f;
-    if (chanceDist(rng) > dropChance)
+    if (ammoDist(rng) > dropChance)
         return;
 
     WeaponType weaponType;
-    int r = rng() % 3;
+    int r = ammoDist(rng);
 
     switch (r) {
         case 0: weaponType = WeaponType::Pistol; break;
         case 1: weaponType = WeaponType::Shotgun; break;
+        case 2: weaponType = WeaponType::Mg; break;
     }
 
     pickupManager.addPickup(

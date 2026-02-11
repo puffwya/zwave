@@ -49,6 +49,11 @@ void PickupManager::loadPickupAssets() {
         std::cerr << "Failed to load ammo pickup\n";
     pickupsVisuals[{PickupType::Ammo, WeaponType::Shotgun}] = shotgunAmmo;
 
+    PickupVisual mgAmmo;
+    if (!loadPickupFrame("Assets/Pickups/mg_ammo.png", mgAmmo))
+        std::cerr << "Failed to load ammo pickup\n";
+    pickupsVisuals[{PickupType::Ammo, WeaponType::Mg}] = mgAmmo;
+
     PickupVisual pistolWeapon;
     if (!loadPickupFrame("Assets/Pickups/p_gun.png", pistolWeapon))
         std::cerr << "Failed to load gun pickup\n";
@@ -219,6 +224,14 @@ void PickupManager::applyPickup(Pickup& p, Player& player, Weapon& weapon, Audio
                         weapon.sMaxReserve
                     );
                     audio.playSFX("ammo_pickup");
+                    break;
+
+                case WeaponType::Mg:
+                    weapon.mgReserveAmmo = std::min(
+                        weapon.mgReserveAmmo + 30,
+                        weapon.mgMaxReserve
+                    );
+                    audio.playSFX("ammo_pickup"); 
                     break;
 
                 default:
