@@ -36,6 +36,14 @@ public:
     float velY = 0.0f;
     float velZ = 0.0f;
 
+    float damageFlashTimer = 0.0f;
+    float damageFlashDuration = 0.35f;   // how long flash lasts
+    float damageFlashIntensity = 0.0f;
+
+    float lavaTickTimer = 0.0f;
+    float lavaTickInterval = 0.5f;   // damage every 0.5 seconds
+    int lavaDamage = 5;              // damage per tick
+
     bool onGround = true;
 
     const float ACCEL = 14.0f;       // how fast player reaches max speed
@@ -94,6 +102,8 @@ public:
     WeaponType itemToWeapon(ItemType item);
 
     void applyDamage(int damage, float shieldMultiplier);
+
+    void renderDamageFlash(uint32_t* pixels, int screenW, int screenH, float intensity);
 };
 
 #endif

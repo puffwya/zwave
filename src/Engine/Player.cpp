@@ -1,6 +1,51 @@
 #include "Player.h"
 #include "WeaponManager.h"
 
+void Player::renderDamageFlash(uint32_t* pixels, int screenW, int screenH, float intensity)
+{
+    if (intensity <= 0.0f) return;
+
+    float centerX = screenW * 0.5f;
+    float centerY = screenH * 0.5f;
+    float maxDist = std::sqrt(centerX * centerX + centerY * centerY);
+
+    for (int y = 0; y < screenH; y++)
+    {
+        for (int x = 0; x < screenW; x++)
+        {
+            float dx = x - centerX;
+            float dy = y - centerY;
+            float dist = std::sqrt(dx * dx + dy * dy);
+
+            float radial = dist / maxDist;        // 0 center -> 1 edge
+            float edgeFactor = radial * radial;   // stronger toward edges
+
+            float alpha = edgeFactor * intensity;
+
+            if (alpha > 0.01f)
+            {
+                // Blend red over pixel
+                uint32_t& pixel = pixels[y * screenW + x];
+
+                uint8_t r = 255;
+                uint8_t g = 0;
+                uint8_t b = 0;
+
+                // Simple blend
+                uint8_t pr = (pixel >> 16) & 0xFF;
+                uint8_t pg = (pixel >> 8) & 0xFF;
+                uint8_t pb = pixel & 0xFF;
+
+                pr = uint8_t(pr + (r - pr) * alpha);
+                pg = uint8_t(pg + (g - pg) * alpha);
+                pb = uint8_t(pb + (b - pb) * alpha);
+
+                pixel = (pr << 16) | (pg << 8) | pb;
+            }
+        }
+    }
+}
+
 WeaponType Player::itemToWeapon(ItemType item) {
     switch (item) {
         case ItemType::Pistol: return WeaponType::Pistol;
@@ -10,31 +55,64 @@ WeaponType Player::itemToWeapon(ItemType item) {
     }
 }
 
-void Player::applyDamage(int damage, float shieldMultiplier) {
+void Player::applyDamage(int damage, float shieldMultiplier)
+{
     if (damage <= 0) return;
 
-    if (armor > 0) {
+    if (armor > 0)
+    {
         int shieldDamage = int(damage * shieldMultiplier);
-
-        // Clamp so don't over-drain shield
         shieldDamage = std::min(shieldDamage, armor);
 
         armor -= shieldDamage;
         damage -= shieldDamage;
     }
 
-    if (damage > 0) {
+    if (damage > 0)
+    {
         health -= damage;
         if (health < 0) health = 0;
+
+        damageFlashTimer = damageFlashDuration;
+        damageFlashIntensity = std::min(1.0f, float(damage) / 40.0f);
     }
 }
 
 void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio) {
+    // Update damage flash
+    if (damageFlashTimer > 0.0f)
+    {
+        damageFlashTimer -= delta;
+        damageFlashIntensity = damageFlashTimer / damageFlashDuration;
+
+        if (damageFlashTimer < 0.0f)
+            damageFlashTimer = 0.0f;
+    }
+    // Lava damage check
+    if (onGround)
+    {
+        if (map.get(int(x), int(y)).isLava)
+        {
+            lavaTickTimer -= delta;
+
+            if (lavaTickTimer <= 0.0f)
+            {
+                applyDamage(lavaDamage, 0.25f);
+                audio.playSFX("lava_burn");
+                lavaTickTimer = lavaTickInterval;
+            }
+        }
+        else
+        {
+            lavaTickTimer = 0.0f;
+        }
+    }
+
     // Apply acceleration
     float inputX = 0.0f;
     float inputY = 0.0f;
 
-    footstepTimer -= delta;
+    footstepTimer -= delta;    
 
     // Move forwards
     if (keys[SDL_SCANCODE_W]) {

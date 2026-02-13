@@ -51,6 +51,7 @@ int main() {
     audio.loadSFX("tank_attack", "Assets/audio/tank_attack.mp3");
     audio.loadSFX("shooter_attack", "Assets/audio/shooter_attack.mp3");
     audio.loadSFX("fast_attack", "Assets/audio/fast_attack.mp3");
+    audio.loadSFX("lava_burn", "Assets/audio/lava_burn.mp3");
 
     // Load geometry textures
     TextureManager textures;

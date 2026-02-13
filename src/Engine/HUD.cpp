@@ -112,7 +112,7 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
                          int enemiesRemaining,
                          float postWaveTimer)
 {
-    constexpr int WAVE_START_DELAY = 8;
+    constexpr int WAVE_START_DELAY = 5;
 
     int countdownSeconds = 0;
     bool drawCountdown = postWaveTimer > 0.0f;
@@ -165,10 +165,17 @@ void HUD::drawWaveBanner(SDL_Renderer* renderer,
     x += texW + spacing;
 
     // Draw current wave digits
-    for (char c : currentWaveStr) {
-        int d = c - '0';
+    if (currentWave <= totalWaves - 1) {
+        for (char c : currentWaveStr) {
+            int d = c - '0';
+            SDL_Rect dstDigit { x, y, waveH, waveH }; // scale digits to match Wave text height
+            SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+            x += waveH + spacing;
+        }
+    }
+    else {
         SDL_Rect dstDigit { x, y, waveH, waveH }; // scale digits to match Wave text height
-        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+        SDL_RenderCopy(renderer, digitTextures[5], nullptr, &dstDigit);
         x += waveH + spacing;
     }
 

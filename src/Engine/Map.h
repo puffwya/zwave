@@ -25,6 +25,7 @@ public:
         float height; // 0 = floor, 1 = normal wall, 0> & <1 = step, <0 = pit
         float cHeight; // Ceiling Height 
         bool isSliding = false; // for sliding walls
+        bool isLava = false; // For lava pit
     };
 
     // -----------------------------
@@ -188,6 +189,35 @@ public:
         // Wave 5 sliding walls
         data[24][14].isSliding = true;
         data[24][15].isSliding = true;
+
+        // Lava
+        data[12][11].isLava = true;
+        data[12][12].isLava = true;
+        data[12][13].isLava = true;
+        data[12][14].isLava = true;
+        data[12][15].isLava = true;
+        data[12][16].isLava = true;
+        data[12][17].isLava = true;
+        data[12][18].isLava = true;
+        
+        data[13][11].isLava = true; 
+        data[14][11].isLava = true;  
+        data[15][11].isLava = true;
+        data[16][11].isLava = true;
+        
+        data[13][18].isLava = true;
+        data[14][18].isLava = true;
+        data[15][18].isLava = true;
+        data[16][18].isLava = true;
+        
+        data[17][11].isLava = true;
+        data[17][12].isLava = true;
+        data[17][13].isLava = true;
+        data[17][14].isLava = true;
+        data[17][15].isLava = true; 
+        data[17][16].isLava = true; 
+        data[17][17].isLava = true;
+        data[17][18].isLava = true;
     }
 
     // Convert raw ints to structured Cell data

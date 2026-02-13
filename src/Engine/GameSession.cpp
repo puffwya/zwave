@@ -20,7 +20,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     // Wave 1
     waves.push_back({
-        6.0f, // spawn interval
+        5.0f, // spawn interval
         {
             EnemyType::Base
         }
@@ -28,7 +28,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     // Wave 2
     waves.push_back({
-        5.0f, // spawn interval
+        4.0f, // spawn interval
         {
             EnemyType::Base
         }
@@ -36,7 +36,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     // Wave 3
     waves.push_back({
-        5.0f, // spawn interval
+        4.0f, // spawn interval
         {
             EnemyType::Base                                   
         }
@@ -52,7 +52,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     // Wave 5
     waves.push_back({
-        4.0f, // spawn interval
+        3.0f, // spawn interval
         {
             EnemyType::Base
         }
@@ -70,7 +70,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     doomRenderer->setPickupManager(pickupManager);
 
-    // Start in post-wave delay so wave 1 begins after 8s
+    // Start in post-wave delay so wave 1 begins after 5s
     waveState = WaveState::PostWaveDelay;
     postWaveTimer = 0.0f;
 }
@@ -365,7 +365,7 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
         case WaveState::PostWaveDelay: {
             postWaveTimer += dt;
 
-            if (postWaveTimer >= 8.0f) {
+            if (postWaveTimer >= 5.0f) {
                 currentWaveIndex++;
                 enemiesSpawned = 0;
                 spawnTimer = 0.0f;
@@ -390,6 +390,8 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
         pixels, w, h,
         player, worldMap, zBuffer, enemyManager, textureManager
     );
+
+    player.renderDamageFlash(pixels, w, h, player.damageFlashIntensity);
 
     renderer.updateTexture(pixels);
     renderer.beginFrame();
@@ -444,6 +446,8 @@ void GameSession::renderPaused(
         pixels, w, h,
         player, worldMap, zBuffer, enemyManager, textureManager
     );
+
+    player.renderDamageFlash(pixels, w, h, player.damageFlashIntensity);
 
     renderer.updateTexture(pixels);
     renderer.beginFrame();
