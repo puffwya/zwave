@@ -5,6 +5,7 @@
 
 #include "Menu/MainMenu.h"
 #include "Menu/PauseMenu.h"
+#include "Menu/LevelEnd.h"
 #include "Intro/StudioIntro.h"
 
 #include "audio/AudioManager.h"
@@ -29,6 +30,9 @@ int main() {
 
     StudioIntro studioIntro;
     studioIntro.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    LevelEnd levelEnd;
+    levelEnd.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
 
     AudioManager audio;
     audio.init();
@@ -59,6 +63,7 @@ int main() {
     textures.load("floor1", "Assets/geometry_textures/floor1.png");
     textures.load("wall1", "Assets/geometry_textures/wall1.png");
     textures.load("wallSliding", "Assets/geometry_textures/wallSliding.png");
+    textures.load("wallDoor", "Assets/geometry_textures/wallDoor.png");
     textures.load("lava1", "Assets/geometry_textures/lava1.png");
     textures.load("wallTop1", "Assets/geometry_textures/wallTop1.png");
 
@@ -167,6 +172,37 @@ int main() {
                 float dt = (now - last) / 1000.f;
                 last = now;
 
+                // -------------------------
+                // LEVEL END
+                // -------------------------
+                if (gameState == GameState::LevelEnd) {
+                    if (!levelEnd.startedMusic) {
+                        audio.stopMusic();   
+                        audio.playMusic("Assets/audio/FurySyrgeLvlComplete.mp3", false);
+                        levelEnd.startedMusic = true;
+                    }
+
+                    SDL_Event e;
+                    while (SDL_PollEvent(&e)) {
+                        if (e.type == SDL_QUIT) {
+                            running = false;
+                            mainRun = false;
+                        }
+                        levelEnd.handleInput(e, gameState, running);
+                    }
+
+                    levelEnd.update(dt, gameState);
+
+                    if (gameState == GameState::MainMenu && session) {
+                        session.reset(); // now it’s safe
+                        levelEnd.startedMusic = false;
+                        break;
+                    }
+
+                    levelEnd.render(renderer.getSDLRenderer());
+                    renderer.present();
+                }
+
                 // ======================
                 // PAUSED
                 // ======================
@@ -220,12 +256,30 @@ int main() {
                     if (gameState == GameState::MainMenu) {
                         session.reset();
                         pauseT = 0.0f;
+
+                        // Restore clean renderer state
+                        SDL_Renderer* sdl = renderer.getSDLRenderer();
+                    
+                        SDL_SetRenderDrawBlendMode(sdl, SDL_BLENDMODE_NONE);
+                        SDL_SetRenderDrawColor(sdl, 0, 0, 0, 255);
+   
+                        SDL_Texture* screen = renderer.getScreenTexture();
+                        SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_NONE);
+                        SDL_SetTextureAlphaMod(screen, 255);
+
                         break;
                     }
 
                     pauseMenu.updateCursor();
                     pauseMenu.render(renderer.getSDLRenderer());
                     renderer.present();
+
+                    // Restore clean renderer state                        
+                    SDL_SetRenderDrawBlendMode(sdl, SDL_BLENDMODE_NONE);
+                    SDL_SetRenderDrawColor(sdl, 0, 0, 0, 255);
+                            
+                    SDL_SetTextureBlendMode(screen, SDL_BLENDMODE_NONE);
+                    SDL_SetTextureAlphaMod(screen, 255);
                 }
 
                 // ======================
@@ -250,7 +304,6 @@ int main() {
             }
         }
     }
-
     delete[] pixels;
     audio.shutdown();
     IMG_Quit();

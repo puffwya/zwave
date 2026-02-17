@@ -24,12 +24,12 @@ void Player::renderDamageFlash(uint32_t* pixels, int screenW, int screenH, float
 
             if (alpha > 0.01f)
             {
-                // Blend red over pixel
+                // Blend color over pixel
                 uint32_t& pixel = pixels[y * screenW + x];
 
-                uint8_t r = 255;
-                uint8_t g = 0;
-                uint8_t b = 0;
+                uint8_t r = flashR;
+                uint8_t g = flashG;
+                uint8_t b = flashB;
 
                 // Simple blend
                 uint8_t pr = (pixel >> 16) & 0xFF;
@@ -59,26 +59,56 @@ void Player::applyDamage(int damage, float shieldMultiplier)
 {
     if (damage <= 0) return;
 
+    int originalDamage = damage;
+    int armorDamage = 0;
+    int healthDamage = 0;
+
+    // Armor absorption
     if (armor > 0)
     {
-        int shieldDamage = int(damage * shieldMultiplier);
-        shieldDamage = std::min(shieldDamage, armor);
+        armorDamage = int(damage * shieldMultiplier);
+        armorDamage = std::min(armorDamage, armor);
 
-        armor -= shieldDamage;
-        damage -= shieldDamage;
+        armor -= armorDamage;
+        damage -= armorDamage;
     }
 
+    // Health damage
     if (damage > 0)
     {
+        healthDamage = damage;
         health -= damage;
         if (health < 0) health = 0;
+    }
 
+    // Trigger flash if any damage occurred
+    if (originalDamage > 0)
+    {
         damageFlashTimer = damageFlashDuration;
-        damageFlashIntensity = std::min(1.0f, float(damage) / 40.0f);
+        damageFlashIntensity = std::min(1.0f, float(originalDamage) / 40.0f);
+
+        if (healthDamage > 0)
+        {
+            // Health hit = red
+            flashR = 255;
+            flashG = 0;
+            flashB = 0;
+        }
+        else if (armorDamage > 0)
+        {
+            // Shield only = blue
+            flashR = 40;
+            flashG = 120;
+            flashB = 255;
+        }
     }
 }
 
 void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio) {
+    // Check for level completion
+    if (map.get(int(x), int(y)).isEscape) {
+        gs = GameState::LevelEnd;
+    }
     // Update damage flash
     if (damageFlashTimer > 0.0f)
     {
@@ -299,7 +329,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     if (angle >= 2*M_PI) angle -= 2*M_PI;
 
     // Pause Handling
-    if (keys[SDL_SCANCODE_P]) {
+    if (keys[SDL_SCANCODE_P] && gs != GameState::LevelEnd) {
         gs = GameState::Paused;
     }
 

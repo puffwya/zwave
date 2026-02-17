@@ -104,6 +104,10 @@ public:
     void applyDamage(int damage, float shieldMultiplier);
 
     void renderDamageFlash(uint32_t* pixels, int screenW, int screenH, float intensity);
+
+    uint8_t flashR = 255;
+    uint8_t flashG = 0;
+    uint8_t flashB = 0;
 };
 
 #endif

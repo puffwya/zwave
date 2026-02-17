@@ -14,6 +14,7 @@ set(SOURCES
     Engine/HUD.cpp
     Menu/MainMenu.cpp
     Menu/PauseMenu.cpp
+    Menu/LevelEnd.cpp
     audio/AudioManager.cpp
     Engine/GameSession.cpp
     Engine/TextureManager.cpp

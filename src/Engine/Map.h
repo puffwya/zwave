@@ -24,6 +24,8 @@ public:
         TileType type;
         float height; // 0 = floor, 1 = normal wall, 0> & <1 = step, <0 = pit
         float cHeight; // Ceiling Height 
+        bool isExit = false;
+        bool isEscape = false;
         bool isSliding = false; // for sliding walls
         bool isLava = false; // For lava pit
     };
@@ -61,7 +63,7 @@ public:
         {1,1,1,0,0,1,2,0,1,1,1,0,0,1,0, 0,1,2,0,1,1,1,0,0,1,0,0,1,1,1},
         {1,1,1,0,0,1,0,0,1,1,1,0,0,0,0, 0,0,0,0,1,1,1,0,0,1,0,0,1,1,1},
         {1,1,1,1,1,1,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,1,1,1,1,1,1},
-        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
+        {1,1,1,1,1,1,1,1,1,1,1,1,1,1,0, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 
         {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,1,1,1,1,1,1,1,1},
         {1,1,1,1,1,1,1,1,1,1,1,1,1,0,0, 0,0,1,1,1,1,1,1,1,1,1,1,1,1,1},
@@ -187,8 +189,16 @@ public:
         data[22][5].isSliding = true;
 
         // Wave 5 sliding walls
-        data[24][14].isSliding = true;
+        //data[24][14].isSliding = true;
         data[24][15].isSliding = true;
+
+        // LevelEnd Doors
+        data[28][14].isExit = true;
+        data[28][15].isExit = true;
+
+        // LevelEnd Tiles
+        data[27][14].isEscape = true;
+        data[27][15].isEscape = true;
 
         // Lava
         data[12][11].isLava = true;

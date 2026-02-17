@@ -490,6 +490,30 @@ Intro/StudioIntro.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.s
 .PHONY : Intro/StudioIntro.cpp.s
 
+Menu/LevelEnd.o: Menu/LevelEnd.cpp.o
+.PHONY : Menu/LevelEnd.o
+
+# target to build an object file
+Menu/LevelEnd.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o
+.PHONY : Menu/LevelEnd.cpp.o
+
+Menu/LevelEnd.i: Menu/LevelEnd.cpp.i
+.PHONY : Menu/LevelEnd.i
+
+# target to preprocess a source file
+Menu/LevelEnd.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.i
+.PHONY : Menu/LevelEnd.cpp.i
+
+Menu/LevelEnd.s: Menu/LevelEnd.cpp.s
+.PHONY : Menu/LevelEnd.s
+
+# target to generate assembly for a file
+Menu/LevelEnd.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.s
+.PHONY : Menu/LevelEnd.cpp.s
+
 Menu/MainMenu.o: Menu/MainMenu.cpp.o
 .PHONY : Menu/MainMenu.o
 
@@ -640,6 +664,9 @@ help:
 	@echo "... Intro/StudioIntro.o"
 	@echo "... Intro/StudioIntro.i"
 	@echo "... Intro/StudioIntro.s"
+	@echo "... Menu/LevelEnd.o"
+	@echo "... Menu/LevelEnd.i"
+	@echo "... Menu/LevelEnd.s"
 	@echo "... Menu/MainMenu.o"
 	@echo "... Menu/MainMenu.i"
 	@echo "... Menu/MainMenu.s"

@@ -67,7 +67,7 @@ void PickupManager::loadPickupAssets() {
     PickupVisual mgWeapon;
     if (!loadPickupFrame("Assets/Pickups/mg_gun.png", mgWeapon))
         std::cerr << "Failed to load gun pickup\n";
-    pickupsVisuals[{PickupType::Weapon, WeaponType::Mg}] = mgWeapon;
+    pickupsVisuals[{PickupType::Weapon, WeaponType::Mg}] = mgWeapon;    
 }
 
 // Add a pickup to the world

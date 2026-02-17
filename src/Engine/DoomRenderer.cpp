@@ -308,6 +308,9 @@ void DoomRenderer::traverseBSP(
         if (cell.isSliding == true) {
             wallTex = &textureManager.get("wallSliding");
         }
+        else if (cell.isExit == true) {
+            wallTex = &textureManager.get("wallDoor");
+        }
         else {
             wallTex = &textureManager.get("wall1");
         }
