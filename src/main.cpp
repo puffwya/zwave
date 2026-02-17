@@ -36,6 +36,7 @@ int main() {
 
     AudioManager audio;
     audio.init();
+    audio.loadSFX("lvlEnd_wordsCollide", "Assets/audio/lvlEnd_wordsCollide.mp3");
     audio.loadSFX("wall_slide", "Assets/audio/wall_slide.mp3");
     audio.loadSFX("walk", "Assets/audio/walk1.mp3");
     audio.loadSFX("jump", "Assets/audio/jump.mp3");
@@ -191,11 +192,12 @@ int main() {
                         levelEnd.handleInput(e, gameState, running);
                     }
 
-                    levelEnd.update(dt, gameState);
+                    levelEnd.update(dt, gameState, audio);
 
                     if (gameState == GameState::MainMenu && session) {
                         session.reset(); // now it’s safe
                         levelEnd.startedMusic = false;
+                        levelEnd.resetAnimation();
                         break;
                     }
 
@@ -206,7 +208,7 @@ int main() {
                 // ======================
                 // PAUSED
                 // ======================
-                if (gameState == GameState::Paused) {
+                else if (gameState == GameState::Paused) {
                     pauseT = std::min(pauseT + 0.1f, 1.0f);
 
                     // Render frozen world
