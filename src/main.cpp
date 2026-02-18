@@ -201,7 +201,7 @@ int main() {
                         break;
                     }
 
-                    levelEnd.render(renderer.getSDLRenderer());
+                    levelEnd.render(renderer.getSDLRenderer(), session->player, session->enemyManager);
                     renderer.present();
                 }
 

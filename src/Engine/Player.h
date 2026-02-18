@@ -108,6 +108,11 @@ public:
     uint8_t flashR = 255;
     uint8_t flashG = 0;
     uint8_t flashB = 0;
+
+    // Stat vars
+    int shotsFired = 0;
+    int shotsHit = 0;
+    float timeElapsed = 0.0f;
 };
 
 #endif

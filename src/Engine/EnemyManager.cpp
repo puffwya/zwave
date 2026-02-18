@@ -406,6 +406,8 @@ void EnemyManager::update(float dt, const Player& player, PickupManager& pickupM
         // Death logic
         if (e.deathJustFinished) {
             trySpawnAmmoDrop(e, pickupManager);
+            // Keep track of enemies killed
+            enemiesKilled += 1;
             e.deathJustFinished = false;
         }
 

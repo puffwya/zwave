@@ -105,6 +105,9 @@ void Player::applyDamage(int damage, float shieldMultiplier)
 }
 
 void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio) {
+    // Keep track of time elapsed
+    timeElapsed += delta;
+
     // Check for level completion
     if (map.get(int(x), int(y)).isEscape) {
         gs = GameState::LevelEnd;
@@ -578,6 +581,10 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
 }
 
 void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map) {
+
+    // Keep track of shots fired
+    shotsFired += 1;
+
     const float hitWidth = 0.08f;
     const float maxRange = 10.0f;
 
@@ -628,6 +635,8 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
             else if (currentItem == ItemType::Mg) {
                 damage = 25;
             }
+            // Keep track of shots hit
+            shotsHit += 1;
             e.takeDamage(damage);
 
             break;

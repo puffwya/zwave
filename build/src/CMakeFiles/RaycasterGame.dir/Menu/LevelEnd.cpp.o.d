@@ -794,4 +794,11 @@ src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Menu/LevelEnd.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/Menu/../audio/AudioManager.h \
-  /Users/wyattpuff/Raycaster/src/Menu/../audio/../third_party/miniaudio.h
+  /Users/wyattpuff/Raycaster/src/Menu/../audio/../third_party/miniaudio.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/Player.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/Map.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/EnemyManager.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/Enemy.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/../audio/AudioManager.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/PickupManager.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/WeaponTypes.h

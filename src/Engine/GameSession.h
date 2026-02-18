@@ -52,11 +52,13 @@ public:
     std::vector<WallHeightAnim> wallAnims;
     int currentWaveIndex = -1;
 
-private:
     // Core gameplay state
     Player player;
-    Map worldMap;
     EnemyManager enemyManager;
+
+private:
+    // Core gameplay state
+    Map worldMap;
     PickupManager pickupManager;
     WeaponManager weaponManager;
     Weapon weapon;

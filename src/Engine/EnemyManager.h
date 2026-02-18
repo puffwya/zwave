@@ -48,6 +48,8 @@ public:
 
     std::unordered_map<EnemyType, EnemyVisual> enemyVisualsDamaged;
 
+    int enemiesKilled = 0;
+
 private:
     std::vector<SpawnPoint> spawnPoints;
     int nextSpawnIndex = 0;
