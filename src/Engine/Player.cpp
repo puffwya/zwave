@@ -110,8 +110,10 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
         gs = GameState::PlayerDead;
     }
 
-    // Keep track of time elapsed
-    timeElapsed += delta;
+    // Keep track of time elapsed while in game play state
+    if (gs == GameState::Playing) {
+        timeElapsed += delta;
+    }
 
     // Check for level completion
     if (map.get(int(x), int(y)).isEscape) {
