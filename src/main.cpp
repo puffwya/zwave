@@ -5,6 +5,7 @@
 
 #include "Menu/MainMenu.h"
 #include "Menu/PauseMenu.h"
+#include "Menu/GameOver.h"
 #include "Menu/LevelEnd.h"
 #include "Intro/StudioIntro.h"
 
@@ -31,12 +32,16 @@ int main() {
     StudioIntro studioIntro;
     studioIntro.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
 
+    GameOver gameOver;
+    gameOver.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
+
     LevelEnd levelEnd;
     levelEnd.init(renderer.getSDLRenderer(), SCREEN_WIDTH, SCREEN_HEIGHT);
 
     AudioManager audio;
     audio.init();
     audio.loadSFX("lvlEnd_wordsCollide", "Assets/audio/lvlEnd_wordsCollide.mp3");
+    audio.loadSFX("GameOverOOF", "Assets/audio/GameOverOOF.mp3");
     audio.loadSFX("wall_slide", "Assets/audio/wall_slide.mp3");
     audio.loadSFX("walk", "Assets/audio/walk1.mp3");
     audio.loadSFX("jump", "Assets/audio/jump.mp3");
@@ -195,13 +200,47 @@ int main() {
                     levelEnd.update(dt, gameState, audio);
 
                     if (gameState == GameState::MainMenu && session) {
-                        session.reset(); // now it’s safe
+                        session.reset();
                         levelEnd.startedMusic = false;
                         levelEnd.resetAnimation();
                         break;
                     }
 
                     levelEnd.render(renderer.getSDLRenderer(), session->player, session->enemyManager);
+                    renderer.present();
+                }
+
+                // ======================
+                // PLAYER DIE
+                // ======================
+                if (gameState == GameState::PlayerDead)
+                {
+                    if (!gameOver.startedMusic) {
+                        audio.stopMusic();
+                        audio.playMusic("Assets/audio/GameOver.mp3", false);
+                        audio.playSFX("GameOverOOF");
+                        gameOver.startedMusic = true;
+                    }
+
+                    SDL_Event e;
+                    while (SDL_PollEvent(&e)) {
+                        if (e.type == SDL_QUIT)
+                        {
+                            running = false;
+                            mainRun = false;
+                        }
+                        gameOver.handleInput(e, gameState, running);
+                    }
+
+                    gameOver.update(dt, gameState);
+
+                    if (gameState == GameState::MainMenu && session) {
+                        session.reset();
+                        gameOver.startedMusic = false;
+                        gameOver.reset();
+                        break;
+                    }
+                    gameOver.render(renderer.getSDLRenderer());
                     renderer.present();
                 }
 

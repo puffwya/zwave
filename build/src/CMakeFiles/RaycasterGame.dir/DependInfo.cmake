@@ -23,6 +23,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/wyattpuff/Raycaster/src/Engine/WeaponManager.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/pItemRenderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Intro/StudioIntro.cpp" "src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Menu/GameOver.cpp" "src/CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/LevelEnd.cpp" "src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/MainMenu.cpp" "src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/PauseMenu.cpp" "src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Menu/PauseMenu.cpp.o.d"

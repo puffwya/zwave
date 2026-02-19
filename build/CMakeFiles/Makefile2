@@ -104,12 +104,12 @@ src/clean: src/CMakeFiles/RaycasterGame.dir/clean
 src/CMakeFiles/RaycasterGame.dir/all:
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/depend
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 "Built target RaycasterGame"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 "Built target RaycasterGame"
 .PHONY : src/CMakeFiles/RaycasterGame.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/RaycasterGame.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /Users/wyattpuff/Raycaster/build/CMakeFiles 21
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/wyattpuff/Raycaster/build/CMakeFiles 22
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/CMakeFiles/RaycasterGame.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /Users/wyattpuff/Raycaster/build/CMakeFiles 0
 .PHONY : src/CMakeFiles/RaycasterGame.dir/rule
@@ -121,7 +121,7 @@ RaycasterGame: src/CMakeFiles/RaycasterGame.dir/rule
 # codegen rule for target.
 src/CMakeFiles/RaycasterGame.dir/codegen:
 	$(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/codegen
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 "Finished codegen for target RaycasterGame"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/wyattpuff/Raycaster/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 "Finished codegen for target RaycasterGame"
 .PHONY : src/CMakeFiles/RaycasterGame.dir/codegen
 
 # clean rule for target.

@@ -105,6 +105,11 @@ void Player::applyDamage(int damage, float shieldMultiplier)
 }
 
 void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio) {
+    // Check if player died
+    if (health <= 0) {
+        gs = GameState::PlayerDead;
+    }
+
     // Keep track of time elapsed
     timeElapsed += delta;
 

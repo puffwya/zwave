@@ -31,6 +31,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/RaycasterGame.dir/Engine/pItemRenderer.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Intro/StudioIntro.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Menu/GameOver.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o"
