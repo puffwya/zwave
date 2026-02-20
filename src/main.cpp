@@ -240,6 +240,10 @@ int main() {
                         gameOver.reset();
                         break;
                     }
+                    if (session) {
+                        session->render(renderer, pixels, SCREEN_WIDTH, SCREEN_HEIGHT, textures);
+                    }
+
                     gameOver.render(renderer.getSDLRenderer());
                     renderer.present();
                 }

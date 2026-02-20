@@ -18,6 +18,18 @@ private:
     int width = 0;
     int height = 0;
 
+    // Text/overlay textures
+    SDL_Texture* playerDiedTexture = nullptr;
+    SDL_Texture* bloodOverlayTexture = nullptr;
+
+    // Rects
+    SDL_Rect playerDiedRect{};
+    SDL_Rect bloodOverlayRect{};
+
+    float blackFadeDuration = 1.5f;
+    float textFadeStart = 1.5f;
+    float textFadeDuration = 1.5f;
+
     float elapsedTime = 0.0f;
     const float duration = 8.0f;
 };
