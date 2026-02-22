@@ -2,234 +2,185 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
-bool PauseMenu::init(SDL_Renderer* renderer, int screenW, int screenH) {
+// Texture Loader helper
+SDL_Texture* PauseMenu::loadTexture(SDL_Renderer* renderer,
+                                     const std::string& path)
+{
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface) {
+        std::cerr << "Failed to load: " << path
+                  << " | SDL_image error: " << IMG_GetError() << "\n";
+        return nullptr;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    if (!texture)
+        std::cerr << "Failed to create texture from: " << path << "\n";
+
+    return texture;
+}
+
+// Init
+bool PauseMenu::init(SDL_Renderer* renderer, int w, int h)
+{
+    screenW = w;
+    screenH = h;
+
     const float buttonWidth = screenW * 0.20f;
-    const float buttonGap = screenH * 0.06f;
+    const float buttonGap = screenH * 0.08f;
 
-    // Main Menu Background
+    // Load textures
+    mainBgTexture = loadTexture(renderer, "assets/pixDigit/mainBgPix.png");
+    mainLogoFgTexture = loadTexture(renderer, "assets/pixDigit/main_logo_fg.png");
+    mainLogoBgTexture = loadTexture(renderer, "assets/pixDigit/main_logo_bg.png");
+    startTexture = loadTexture(renderer, "assets/pixDigit/startPix.png");
+    optionsTexture = loadTexture(renderer, "assets/pixDigit/optionsPix.png");
+    quitTexture = loadTexture(renderer, "assets/pixDigit/quitPix.png");
+    cursorTexture = loadTexture(renderer, "assets/pixDigit/cursorPix.png");
 
-    SDL_Surface* surface = IMG_Load("assets/pixDigit/mainBgPix.png");
-    if (!surface) {
-        std::cerr << "Failed to load main background img: " << IMG_GetError() << std::endl;
+    if (!mainLogoFgTexture || !mainLogoBgTexture ||
+        !startTexture || !optionsTexture ||
+        !quitTexture || !cursorTexture)
         return false;
-    }
-    
-    mainBgTexture = SDL_CreateTextureFromSurface(renderer, surface);
-    
-    float mainBgAspect  = (float)surface->h / surface->w;
-    
-    mainBgRect.w = screenW;
-    mainBgRect.h = screenH;
-    
-    mainBgRect.x = 0;
-    mainBgRect.y = 0;
-    
-    SDL_FreeSurface(surface);
-    
-    if (!mainBgTexture) {
-        std::cerr << "Failed to create main background texture\n";
-        return false;
-    }
 
-    // Main Logo
+    mainBgRect = { 0, 0, screenW, screenH };
 
-    surface = IMG_Load("assets/pixDigit/main_logo_fg.png");
-    if (!surface) {
-        std::cerr << "Failed to load main logo fg: " << IMG_GetError() << std::endl;
-        return false;
-    }   
-        
-    mainLogoFgTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    // Logo
+    int texW, texH;
+    SDL_QueryTexture(mainLogoFgTexture, nullptr, nullptr, &texW, &texH);
+    float logoAspect = static_cast<float>(texH) / texW;
 
-    float logoAspect  = (float)surface->h / surface->w;
-
-    mainLogoRect.w = (int)(screenW * 0.40f);
-    mainLogoRect.h = (int)(mainLogoRect.w * logoAspect);
-
+    mainLogoRect.w = static_cast<int>(screenW * 0.40f);
+    mainLogoRect.h = static_cast<int>(mainLogoRect.w * logoAspect);
     mainLogoRect.x = (screenW - mainLogoRect.w) / 2;
-    mainLogoRect.y = (int)(screenH * 0.15f);
-     
-    SDL_FreeSurface(surface);
-    
-    if (!mainLogoFgTexture) {
-        std::cerr << "Failed to create main logo texture\n";
-        return false;
-    }
+    mainLogoRect.y = static_cast<int>(screenH * 0.15f);
 
-    surface = IMG_Load("assets/pixDigit/main_logo_bg.png");
-    if (!surface) {
-        std::cerr << "Failed to load main logo bg: " << IMG_GetError() << std::endl;
-        return false;
-    }
+    // Buttons
+    auto setupButton = [&](SDL_Texture* tex, SDL_Rect& rect, int y)
+    {
+        int wTex, hTex;
+        SDL_QueryTexture(tex, nullptr, nullptr, &wTex, &hTex);
+        float aspect = static_cast<float>(hTex) / wTex;
 
-    mainLogoBgTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        rect.w = static_cast<int>(buttonWidth);
+        rect.h = static_cast<int>(rect.w * aspect);
+        rect.x = (screenW - rect.w) / 2;
+        rect.y = y;
+    };
 
-    SDL_FreeSurface(surface);
-    
-    if (!mainLogoBgTexture) {
-        std::cerr << "Failed to create main logo texture\n";
-        return false;
-    }
+    int startY = static_cast<int>(screenH * 0.45f);
 
-    // Start Button
-
-    surface = IMG_Load("assets/pixDigit/startPix.png");
-    if (!surface) {
-        std::cerr << "Failed to load start button: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    startTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float startAspect  = (float)surface->h / surface->w;
-
-    startRect.w = (int)(screenW * 0.20f);
-    startRect.h = (int)(startRect.w * startAspect);
-
-    startRect.x = (screenW - startRect.w) / 2;
-    startRect.y = (int)(screenH * 0.45f);
+    setupButton(startTexture, startRect, startY);
+    setupButton(optionsTexture, optionsRect,
+                startRect.y + startRect.h + buttonGap);
+    setupButton(quitTexture, quitRect,
+                optionsRect.y + optionsRect.h + buttonGap);
 
     menuRects[MENU_START] = startRect;
-
-    SDL_FreeSurface(surface);
-
-    if (!startTexture) {
-        std::cerr << "Failed to create start texture\n";
-        return false;
-    }
-
-    // Options Button
-
-    surface = IMG_Load("assets/pixDigit/optionsPix.png");
-    if (!surface) {
-        std::cerr << "Failed to load options button: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    optionsTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float optionsAspect  = (float)surface->h / surface->w;
-
-    optionsRect.w = startRect.w;
-    optionsRect.h = (int)(optionsRect.w * optionsAspect);
-
-    optionsRect.x = startRect.x;
-    optionsRect.y = startRect.y + buttonGap;
-
     menuRects[MENU_OPTIONS] = optionsRect;
-
-    SDL_FreeSurface(surface);
-
-    if (!optionsTexture) {
-        std::cerr << "Failed to create options texture\n";
-        return false;
-    }
-
-    // Quit Button
-
-    surface = IMG_Load("assets/pixDigit/quitPix.png");
-    if (!surface) {
-        std::cerr << "Failed to load quit button: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    quitTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float quitAspect  = (float)surface->h / surface->w;
-
-    quitRect.w = startRect.w;
-    quitRect.h = (int)(quitRect.w * quitAspect);
-
-    quitRect.x = startRect.x;
-    quitRect.y = optionsRect.y + buttonGap;
-
     menuRects[MENU_QUIT] = quitRect;
 
-    SDL_FreeSurface(surface);
+    // Cursor
+    SDL_QueryTexture(cursorTexture, nullptr, nullptr, &texW, &texH);
+    float cursorAspect = static_cast<float>(texH) / texW;
 
-    if (!quitTexture) {
-        std::cerr << "Failed to create quit texture\n";
-        return false;
-    }
+    cursorRect.w = static_cast<int>(screenW * 0.05f);
+    cursorRect.h = static_cast<int>(cursorRect.w * cursorAspect);
 
-    // Select Cursor
-    
-    surface = IMG_Load("assets/pixDigit/cursorPix.png");
-    if (!surface) {
-        std::cerr << "Failed to load cursor: " << IMG_GetError() << std::endl;
-        return false;
-    }
- 
-    cursorTexture = SDL_CreateTextureFromSurface(renderer, surface);
-     
-    float cursorAspect  = (float)surface->h / surface->w;
-    
-    cursorRect.w = (int)(screenW * 0.05f);
-    cursorRect.h = (int)(cursorRect.w * cursorAspect);
-    
-    cursorRect.x = menuRects[selectedIndex].x + 12;
-    cursorRect.y = menuRects[selectedIndex].y;
-
-    SDL_FreeSurface(surface);
-    
-    if (!cursorTexture) {
-        std::cerr << "Failed to create cursor texture\n";
-        return false;
-    }
+    updateCursor();
 
     return true;
 }
 
-void PauseMenu::handleInput(const SDL_Event& e, GameState& gs, bool& running) {
+// Input
+void PauseMenu::handleInput(const SDL_Event& e,
+                            GameState& gs,
+                            bool& running)
+{
     if (e.type != SDL_KEYDOWN) return;
 
-    switch (e.key.keysym.sym) {
+    switch (e.key.keysym.sym)
+    {
         case SDLK_UP:
-            selectedIndex--;
-            if (selectedIndex < 0)
-                selectedIndex = MENU_COUNT - 1;
+            selectedIndex =
+                (selectedIndex - 1 + MENU_COUNT) % MENU_COUNT;
             break;
 
         case SDLK_DOWN:
-            selectedIndex++;
-            if (selectedIndex >= MENU_COUNT)
-                selectedIndex = 0;
+            selectedIndex =
+                (selectedIndex + 1) % MENU_COUNT;
             break;
 
         case SDLK_RETURN:
             activateSelected(gs, running);
             break;
+
+        default:
+            break;
     }
+
+    updateCursor();
 }
 
-void PauseMenu::updateCursor() {
+// Cursor Position
+void PauseMenu::updateCursor()
+{
     const SDL_Rect& target = menuRects[selectedIndex];
 
-    cursorRect.x = target.x + target.w + 12; // to the RIGHT of button
-    cursorRect.y = target.y + (target.h / 2) - (cursorRect.h / 2);
+    cursorRect.x = target.x + target.w + 12;
+    cursorRect.y = target.y + (target.h / 2)
+                 - (cursorRect.h / 2);
 }
 
-void PauseMenu::activateSelected(GameState& gs, bool& running) {
-    if (selectedIndex == MENU_START) {
-        gs = GameState::Playing;
-    }
-    else if (selectedIndex == MENU_OPTIONS) {
-        gs = GameState::MainMenu;
-    }
-    else if (selectedIndex == MENU_QUIT) {
-        gs = GameState::MainMenu;
-        running = false;
+// Selection Logic
+void PauseMenu::activateSelected(GameState& gs,
+                                 bool& running)
+{
+    switch (selectedIndex)
+    {
+        case MENU_START:
+            gs = GameState::Playing;
+            break;
+
+        case MENU_OPTIONS:
+            gs = GameState::MainMenu;
+            break;
+
+        case MENU_QUIT:
+            gs = GameState::MainMenu;
+            running = false;
+            break;
     }
 }
 
-void PauseMenu::render(SDL_Renderer* renderer) {
-    //SDL_RenderClear(renderer);
+// Render
+void PauseMenu::render(SDL_Renderer* renderer)
+{
+    // NOTE:
+    // We intentionally DO NOT clear or draw background here.
+    // Pause menu overlays the current gameplay frame.
 
-    //SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
     SDL_RenderCopy(renderer, mainLogoFgTexture, nullptr, &mainLogoRect);
     SDL_RenderCopy(renderer, mainLogoBgTexture, nullptr, &mainLogoRect);
+
     SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
     SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);
     SDL_RenderCopy(renderer, quitTexture, nullptr, &quitRect);
+
     SDL_RenderCopy(renderer, cursorTexture, nullptr, &cursorRect);
 }
+
+// Cleanup
+void PauseMenu::shutdown()
+{
+    SDL_DestroyTexture(mainBgTexture);
+    SDL_DestroyTexture(mainLogoFgTexture);
+    SDL_DestroyTexture(mainLogoBgTexture);
+    SDL_DestroyTexture(startTexture);
+    SDL_DestroyTexture(optionsTexture);
+    SDL_DestroyTexture(quitTexture);
+    SDL_DestroyTexture(cursorTexture);
+}
+

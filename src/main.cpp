@@ -40,15 +40,19 @@ int main() {
 
     AudioManager audio;
     audio.init();
+
     audio.loadSFX("lvlEnd_wordsCollide", "Assets/audio/lvlEnd_wordsCollide.mp3");
     audio.loadSFX("GameOverOOF", "Assets/audio/GameOverOOF.mp3");
+
     audio.loadSFX("wall_slide", "Assets/audio/wall_slide.mp3");
     audio.loadSFX("walk", "Assets/audio/walk1.mp3");
     audio.loadSFX("jump", "Assets/audio/jump.mp3");
+
     audio.loadSFX("gun_pickup", "Assets/audio/gun_pickup.mp3");
     audio.loadSFX("heal_pickup", "Assets/audio/heal_pickup.mp3");
     audio.loadSFX("armor_pickup", "Assets/audio/armor_pickup.mp3");
     audio.loadSFX("ammo_pickup", "Assets/audio/ammo_pickup.mp3");
+
     audio.loadSFX("gun_click", "Assets/audio/gun_click.mp3");
     audio.loadSFX("item_swap", "Assets/audio/item_swap.mp3");
     audio.loadSFX("pistol_shoot", "Assets/audio/pistol_shoot.mp3");
@@ -57,11 +61,27 @@ int main() {
     audio.loadSFX("shotgun_reload", "Assets/audio/shotgun_reload.mp3");
     audio.loadSFX("mg_shoot", "Assets/audio/mg_shoot.mp3");
     audio.loadSFX("mg_reload", "Assets/audio/mg_reload.mp3");
+
     audio.loadSFX("base_attack", "Assets/audio/base_attack.mp3");
     audio.loadSFX("tank_attack", "Assets/audio/tank_attack.mp3");
     audio.loadSFX("shooter_attack", "Assets/audio/shooter_attack.mp3");
     audio.loadSFX("fast_attack", "Assets/audio/fast_attack.mp3");
     audio.loadSFX("lava_burn", "Assets/audio/lava_burn.mp3");
+
+    audio.loadSFX("zombie_dead_base", "Assets/audio/zombie_dead_base.mp3");
+    audio.loadSFX("zombie_dead_fast", "Assets/audio/zombie_dead_fast.mp3");
+    audio.loadSFX("zombie_dead_shooter", "Assets/audio/zombie_dead_shooter.mp3");
+    audio.loadSFX("zombie_dead_tank", "Assets/audio/zombie_dead_tank.mp3");
+
+    audio.loadSFX("zombie_idle_base", "Assets/audio/zombie_idle_base.mp3");
+    audio.loadSFX("zombie_idle_fast", "Assets/audio/zombie_idle_fast.mp3");
+    audio.loadSFX("zombie_idle_shooter", "Assets/audio/zombie_idle_shooter.mp3");
+    audio.loadSFX("zombie_idle_tank", "Assets/audio/zombie_idle_tank.mp3");
+
+    audio.loadSFX("zombie_chase_base", "Assets/audio/zombie_chase_base.mp3");
+    audio.loadSFX("zombie_chase_fast", "Assets/audio/zombie_chase_fast.mp3");
+    audio.loadSFX("zombie_chase_shooter", "Assets/audio/zombie_chase_shooter.mp3");
+    audio.loadSFX("zombie_chase_tank", "Assets/audio/zombie_chase_tank.mp3");
 
     // Load geometry textures
     TextureManager textures;

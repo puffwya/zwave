@@ -20,9 +20,9 @@ void Enemy::activate(int tx, int ty, EnemyType t, EnemyManager& manager) {
     lateralOffset = ((rand() % 201) - 100) / 100.0f; // -1.0 to 1.0
 
     switch (type) {
-        case EnemyType::Base: speed = 1.5f; break;
-        case EnemyType::Fast: speed = 2.5f; break;
-        case EnemyType::Tank: speed = 1.0f; break;
+        case EnemyType::Base: speed = 1.4f; break;
+        case EnemyType::Fast: speed = 2.25f; break;
+        case EnemyType::Tank: speed = 1.1f; break;
         case EnemyType::Shooter: speed = 1.25f; break;
     }
 
@@ -124,15 +124,66 @@ bool Enemy::hasLineOfSight(const Player& player, const Map& map) const {
     return true;
 }
 
-void Enemy::chasePlayer(float dt, const Player& player) {
+void Enemy::playChaseSound(AudioManager& audio)
+{
+    switch (type)
+    {
+        case EnemyType::Base:
+            audio.playSFX("zombie_idle_base");
+            break;
+
+        case EnemyType::Fast:
+            audio.playSFX("zombie_idle_fast");
+            break;
+
+        case EnemyType::Shooter:
+            audio.playSFX("zombie_idle_shooter");
+            break;
+
+        case EnemyType::Tank:
+            audio.playSFX("zombie_idle_tank");
+            break;
+    }
+}
+
+void Enemy::chasePlayer(float dt, const Player& player, AudioManager& audio) {
     float dx = player.x - x;
     float dy = player.y - y;
     angle = std::atan2(dy, dx);
     x += std::cos(angle) * speed * dt;
     y += std::sin(angle) * speed * dt;
+
+    if (ambientSoundTimer <= 0.0f)
+    {
+        playChaseSound(audio);
+        // 10–20 seconds until next sound
+        ambientSoundTimer = 10.0f + ((float)rand() / RAND_MAX) * 10.0f;
+    }
 }
 
-void Enemy::wander(float dt) {
+void Enemy::playWanderSound(AudioManager& audio)
+{
+    switch (type)
+    {
+        case EnemyType::Base:
+            audio.playSFX("zombie_chase_base");
+            break;
+
+        case EnemyType::Fast:
+            audio.playSFX("zombie_chase_fast");
+            break;
+
+        case EnemyType::Shooter:
+            audio.playSFX("zombie_chase_shooter");
+            break;
+
+        case EnemyType::Tank:
+            audio.playSFX("zombie_chase_tank");
+            break;
+    }
+}
+
+void Enemy::wander(float dt, AudioManager& audio) {
     wanderTimer -= dt;
 
     if (wanderTimer <= 0.0f) {
@@ -142,6 +193,12 @@ void Enemy::wander(float dt) {
 
     x += std::cos(wanderAngle) * speed * 0.3f * dt;
     y += std::sin(wanderAngle) * speed * 0.3f * dt;
+
+    if (ambientSoundTimer <= 0.0f) {
+        playWanderSound(audio);
+        // 16–26 seconds until next sound
+        ambientSoundTimer = 16.0f + ((float)rand() / RAND_MAX) * 10.0f;
+    }
 }
 
 void Enemy::updateAnimation(float dt) {
@@ -280,7 +337,7 @@ void Enemy::handleAttack(float dt, Player& player, AudioManager& audio) {
     }
 }
 
-void Enemy::update(float dt, const Player& player, const Map& map, AudioManager& audio) {
+void Enemy::update(float dt, const Player& player, const Map& map, AudioManager& audio, EnemyType t) {
     if (!active) return;
 
     if (isDead()) {
@@ -288,11 +345,32 @@ void Enemy::update(float dt, const Player& player, const Map& map, AudioManager&
             animState = EnemyAnimState::Death;
             animFrame = 0;
             animTimer = 0.0f;
+
+            switch (t)
+            {
+                case EnemyType::Base:
+                    audio.playSFX("zombie_dead_base");
+                    break;
+
+                case EnemyType::Fast:
+                    audio.playSFX("zombie_dead_fast");
+                    break;
+
+                case EnemyType::Shooter:
+                    audio.playSFX("zombie_dead_shooter");
+                    break;
+
+                case EnemyType::Tank:
+                    audio.playSFX("zombie_dead_tank");
+                    break;
+            }
         }
 
         updateAnimation(dt);
         return;
     }
+
+    ambientSoundTimer -= dt;
 
     bool seesPlayer = hasLineOfSight(player, map);
 
@@ -304,7 +382,7 @@ void Enemy::update(float dt, const Player& player, const Map& map, AudioManager&
         case EnemyState::Idle:
             animState = EnemyAnimState::Idle;
             if (seesPlayer) state = EnemyState::Chasing;
-            else wander(dt);
+            else wander(dt, audio);
             break;
 
         case EnemyState::Chasing:
@@ -322,7 +400,7 @@ void Enemy::update(float dt, const Player& player, const Map& map, AudioManager&
                     break;
                 }
 
-                chasePlayer(dt, player);
+                chasePlayer(dt, player, audio);
                 loseSightTimer = 1.0f;
             } else {
                 state = EnemyState::Searching;
@@ -332,7 +410,7 @@ void Enemy::update(float dt, const Player& player, const Map& map, AudioManager&
         case EnemyState::Searching:
             animState = EnemyAnimState::Walk;
             loseSightTimer -= dt;
-            chasePlayer(dt, player);
+            chasePlayer(dt, player, audio);
             if (loseSightTimer <= 0.0f) state = EnemyState::Idle;
             break;
 

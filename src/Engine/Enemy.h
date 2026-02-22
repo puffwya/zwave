@@ -42,6 +42,8 @@ public:
     bool active = false;
     EnemyType type = EnemyType::Base;
 
+    float ambientSoundTimer = 2.0f + ((float)rand() / RAND_MAX) * 10.0f;
+
     EnemyAnimState animState = EnemyAnimState::Idle;
     int animFrame = 0;
     float animTimer = 0.0f;
@@ -85,9 +87,9 @@ public:
     bool isDead() const;
 
     bool hasLineOfSight(const Player& player, const Map& map) const;
-    void chasePlayer(float dt, const Player& player);
-    void wander(float dt);
-    void update(float dt, const Player& player, const Map& map, AudioManager& audio);
+    void chasePlayer(float dt, const Player& player, AudioManager& audio);
+    void wander(float dt, AudioManager& audio);
+    void update(float dt, const Player& player, const Map& map, AudioManager& audio, EnemyType t);
 
     bool canAttack(const Player& player) const;
 
@@ -113,6 +115,10 @@ private:
     float getHitChance(const Player& player) const;
 
     float getShieldMultiplier() const;
+
+    void playWanderSound(AudioManager& audio);
+
+    void playChaseSound(AudioManager& audio);
 };
 
 #endif

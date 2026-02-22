@@ -53,7 +53,7 @@ public:
 private:
     std::vector<SpawnPoint> spawnPoints;
     int nextSpawnIndex = 0;
-    void trySpawnAmmoDrop(const Enemy& e, PickupManager& pickupManager);
+    void trySpawnAmmoDrop(const Enemy& e, const Player& player, PickupManager& pickupManager);
 };
 
 #endif

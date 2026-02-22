@@ -1,7 +1,9 @@
 #include "EnemyManager.h"
+#include "Player.h"
 #include <random>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <iostream>
 #include <SDL2/SDL_image.h>
 
@@ -365,22 +367,36 @@ Enemy* EnemyManager::spawnEnemy(EnemyType type) {
     return nullptr;
 }
 
-void EnemyManager::trySpawnAmmoDrop(const Enemy& e, PickupManager& pickupManager) {
+void EnemyManager::trySpawnAmmoDrop(
+    const Enemy& e,
+    const Player& player,
+    PickupManager& pickupManager)
+{
     static std::mt19937 rng{ std::random_device{}() };
-    constexpr int AMMO_TYPE_COUNT = 3;
-    std::uniform_int_distribution<int> ammoDist(0, AMMO_TYPE_COUNT - 1);
+    std::uniform_real_distribution<float> dropRoll(0.0f, 1.0f);
 
     float dropChance = 0.45f;
-    if (ammoDist(rng) > dropChance)
+    if (dropRoll(rng) > dropChance)
         return;
 
     WeaponType weaponType;
-    int r = ammoDist(rng);
 
-    switch (r) {
-        case 0: weaponType = WeaponType::Pistol; break;
-        case 1: weaponType = WeaponType::Shotgun; break;
-        case 2: weaponType = WeaponType::Mg; break;
+    switch (player.currentItem)
+    {
+        case ItemType::Pistol:
+            weaponType = WeaponType::Pistol;
+            break;
+
+        case ItemType::Shotgun:
+            weaponType = WeaponType::Shotgun;
+            break;
+
+        case ItemType::Mg:
+            weaponType = WeaponType::Mg;
+            break;
+
+        default:
+            return; // no valid weapon equipped
     }
 
     pickupManager.addPickup(
@@ -401,11 +417,11 @@ void EnemyManager::update(float dt, const Player& player, PickupManager& pickupM
         float oldX = e.x;
         float oldY = e.y;
 
-        e.update(dt, player, map, audio);
+        e.update(dt, player, map, audio, e.type);
 
         // Death logic
         if (e.deathJustFinished) {
-            trySpawnAmmoDrop(e, pickupManager);
+            trySpawnAmmoDrop(e, player, pickupManager);
             // Keep track of enemies killed
             enemiesKilled += 1;
             e.deathJustFinished = false;

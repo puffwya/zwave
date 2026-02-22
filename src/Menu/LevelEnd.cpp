@@ -1,219 +1,119 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
+#include <algorithm>
 #include "LevelEnd.h"
 
-bool LevelEnd::init(SDL_Renderer* renderer, int screenW, int screenH) {
+constexpr int STAT_VERTICAL_SPACING = 40;
+constexpr int DIGIT_OFFSET_X = 150;
+
+SDL_Texture* LevelEnd::loadTexture(SDL_Renderer* renderer, const std::string& path)
+{
+    SDL_Surface* surface = IMG_Load(path.c_str());
+    if (!surface) {
+        std::cerr << "Failed to load: " << path
+                  << " | SDL_image error: " << IMG_GetError() << "\n";
+        return nullptr;
+    }
+
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_FreeSurface(surface);
+
+    if (!texture)
+        std::cerr << "Failed to create texture from: " << path << "\n";
+
+    return texture;
+}
+
+bool LevelEnd::init(SDL_Renderer* renderer, int screenW, int screenH)
+{
     width = screenW;
     height = screenH;
 
-    SDL_Surface* surface = nullptr;
-
-    // Load digits 0-9 + "/"
-    for (int i = 0; i < 11; ++i) {
+    // Load digits 0-9
+    for (int i = 0; i < DIGIT_COUNT; ++i)
+    {
         std::string path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
-
-        SDL_Texture* tex = IMG_LoadTexture(renderer, path.c_str());
-        if (!tex) {
-            std::cerr << "Failed to load digit " << i
-                      << " from path: " << path
-                      << " | SDL_image error: " << IMG_GetError() << "\n";
-            return false;
-        }
-        digitTextures[i] = tex;
+        digitTextures[i] = loadTexture(renderer, path);
+        if (!digitTextures[i]) return false;
     }
 
-    // SECTOR png
-    surface = IMG_Load("Assets/pixDigit/lvlEndSector.png");
-    if (!surface) {
-        std::cerr << "Failed to load sector png: " << IMG_GetError() << std::endl;
-        return false;
-    }
+    sectorTexture = loadTexture(renderer, "Assets/pixDigit/lvlEndSector.png");
+    purgedTexture = loadTexture(renderer, "Assets/pixDigit/lvlEndPurged.png");
 
-    sectorTexture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!sectorTexture || !purgedTexture) return false;
 
-    float sectorAspect = (float)surface->h / surface->w;
+    // Setup title layout
+    int sectorW = static_cast<int>(screenW * 0.45f);
 
-    sectorRect.w = (int)(screenW * 0.45f);
-    sectorRect.h = (int)(sectorRect.w * sectorAspect);
+    int texW, texH;
+    SDL_QueryTexture(sectorTexture, nullptr, nullptr, &texW, &texH);
+    float sectorAspect = static_cast<float>(texH) / texW;
 
+    sectorRect.w = sectorW;
+    sectorRect.h = static_cast<int>(sectorW * sectorAspect);
+    sectorRect.x = -sectorRect.w;
     sectorRect.y = (screenH / 2) - sectorRect.h;
 
-    // Start off-screen left
-    sectorRect.x = -sectorRect.w;
+    SDL_QueryTexture(purgedTexture, nullptr, nullptr, &texW, &texH);
+    float purgedAspect = static_cast<float>(texH) / texW;
 
-    SDL_FreeSurface(surface);
-
-    if (!sectorTexture) {
-        std::cerr << "Failed to create sector texture\n";
-        return false;
-    }
-
-    // PURGED png
-    surface = IMG_Load("Assets/pixDigit/lvlEndPurged.png");
-    if (!surface) {
-        std::cerr << "Failed to load purged png: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    purgedTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float purgedAspect = (float)surface->h / surface->w;
-
-    purgedRect.w = sectorRect.w;
-    purgedRect.h = (int)(purgedRect.w * purgedAspect);
-
+    purgedRect.w = sectorW;
+    purgedRect.h = static_cast<int>(sectorW * purgedAspect);
+    purgedRect.x = screenW;
     purgedRect.y = (screenH / 2) + 10;
 
-    // Start off-screen right
-    purgedRect.x = screenW;
-
-    SDL_FreeSurface(surface);
-
-    if (!purgedTexture) {
-        std::cerr << "Failed to create purged texture\n";
-        return false;
-    }
-
-    // Target center positions
     sectorTargetX = (screenW / 2) - sectorRect.w;
     purgedTargetX = (screenW / 2);
 
-    sectorYFloat = (float)sectorRect.y;
-    purgedYFloat = (float)purgedRect.y;
+    sectorYFloat = static_cast<float>(sectorRect.y);
+    purgedYFloat = static_cast<float>(purgedRect.y);
 
-    // Target y pos after slide up
     finalTopY = height / 6;
 
-    int statBlockWidth = (int)(screenW * 0.25f);
-
+    int statBlockWidth = static_cast<int>(screenW * 0.25f);
     int statBlockX = (screenW - statBlockWidth) / 4;
-
     int statStartY = finalTopY + sectorRect.h + 150;
 
-    surface = IMG_Load("Assets/pixDigit/enemiesTerm.png");
-    if (!surface) {
-        std::cerr << "Failed to load enemiesTerm png: " << IMG_GetError() << std::endl;
-        return false;
-    }
+    auto setupStat = [&](SDL_Texture*& texture,
+                         SDL_Rect& rect,
+                         const std::string& path,
+                         int y)
+    {
+        texture = loadTexture(renderer, path);
+        if (!texture) return false;
 
-    enemiesTermTexture = SDL_CreateTextureFromSurface(renderer, surface);
+        int w, h;
+        SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
+        float aspect = static_cast<float>(h) / w;
 
-    float enemiesAspect = (float)surface->h / surface->w;
+        rect.w = statBlockWidth;
+        rect.h = static_cast<int>(statBlockWidth * aspect);
+        rect.x = statBlockX;
+        rect.y = y;
 
-    enemiesTermRect.w = statBlockWidth;
-    enemiesTermRect.h = (int)(statBlockWidth * enemiesAspect);
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        return true;
+    };
 
-    // Center to the left of screen
-    enemiesTermRect.x = statBlockX;
+    if (!setupStat(enemiesTermTexture, enemiesTermRect,
+                   "Assets/pixDigit/enemiesTerm.png",
+                   statStartY)) return false;
 
-    // Vertical position (we’ll refine later during layout phase)
-    enemiesTermRect.y = statStartY;
+    if (!setupStat(shotsFiredTexture, shotsFiredRect,
+                   "Assets/pixDigit/shotsFired.png",
+                   enemiesTermRect.y + enemiesTermRect.h + STAT_VERTICAL_SPACING)) return false;
 
-    SDL_FreeSurface(surface);
+    if (!setupStat(directHitsTexture, directHitsRect,
+                   "Assets/pixDigit/directHits.png",
+                   shotsFiredRect.y + shotsFiredRect.h + STAT_VERTICAL_SPACING)) return false;
 
-    if (!enemiesTermTexture) {
-        std::cerr << "Failed to create enemiesTerm texture\n";
-        return false;
-    }
+    if (!setupStat(accuracyTexture, accuracyRect,
+                   "Assets/pixDigit/accuracy.png",
+                   directHitsRect.y + directHitsRect.h + STAT_VERTICAL_SPACING)) return false;
 
-    surface = IMG_Load("Assets/pixDigit/shotsFired.png");
-    if (!surface) {
-        std::cerr << "Failed to load shotsFired png: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    shotsFiredTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float shotsAspect = (float)surface->h / surface->w;
-
-    shotsFiredRect.w = statBlockWidth;
-    shotsFiredRect.h = (int)(statBlockWidth * shotsAspect);
-
-    shotsFiredRect.x = statBlockX;
-    shotsFiredRect.y = enemiesTermRect.y + enemiesTermRect.h + 40;
-
-    SDL_FreeSurface(surface);
-
-    if (!shotsFiredTexture) {
-        std::cerr << "Failed to create shotsFired texture\n";
-        return false;
-    }
-
-    surface = IMG_Load("Assets/pixDigit/directHits.png");
-    if (!surface) {
-        std::cerr << "Failed to load directHits png: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    directHitsTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float hitsAspect = (float)surface->h / surface->w;
-
-    directHitsRect.w = statBlockWidth;
-    directHitsRect.h = (int)(statBlockWidth * hitsAspect);
-
-    directHitsRect.x = statBlockX;
-    directHitsRect.y = shotsFiredRect.y + shotsFiredRect.h + 40;
-
-    SDL_FreeSurface(surface);
-
-    if (!directHitsTexture) {
-        std::cerr << "Failed to create directHits texture\n";
-        return false;
-    }
-
-    surface = IMG_Load("Assets/pixDigit/accuracy.png");
-    if (!surface) {
-        std::cerr << "Failed to load accuracy png: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    accuracyTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float accuracyAspect = (float)surface->h / surface->w;
-
-    accuracyRect.w = statBlockWidth;
-    accuracyRect.h = (int)(statBlockWidth * accuracyAspect);
-
-    accuracyRect.x = statBlockX;
-    accuracyRect.y = directHitsRect.y + directHitsRect.h + 40;
-
-    SDL_FreeSurface(surface);
-
-    if (!accuracyTexture) {
-        std::cerr << "Failed to create accuracy texture\n";
-        return false;
-    }
-
-    surface = IMG_Load("Assets/pixDigit/timeElapsed.png");
-    if (!surface) {
-        std::cerr << "Failed to load timeElapsed png: " << IMG_GetError() << std::endl;
-        return false;
-    }
-
-    timeElapsedTexture = SDL_CreateTextureFromSurface(renderer, surface);
-
-    float timeAspect = (float)surface->h / surface->w;
-
-    timeElapsedRect.w = statBlockWidth;
-    timeElapsedRect.h = (int)(statBlockWidth * timeAspect);
-
-    timeElapsedRect.x = statBlockX;
-    timeElapsedRect.y = accuracyRect.y + accuracyRect.h + 40;
-
-    SDL_FreeSurface(surface);
-
-    if (!timeElapsedTexture) {
-        std::cerr << "Failed to create timeElapsed texture\n";
-        return false;
-    }
-
-    // For fade in
-    SDL_SetTextureBlendMode(enemiesTermTexture, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureBlendMode(shotsFiredTexture, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureBlendMode(directHitsTexture, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureBlendMode(accuracyTexture, SDL_BLENDMODE_BLEND);
-    SDL_SetTextureBlendMode(timeElapsedTexture, SDL_BLENDMODE_BLEND);
+    if (!setupStat(timeElapsedTexture, timeElapsedRect,
+                   "Assets/pixDigit/timeElapsed.png",
+                   accuracyRect.y + accuracyRect.h + STAT_VERTICAL_SPACING)) return false;
 
     return true;
 }
@@ -235,46 +135,43 @@ void LevelEnd::renderStat(SDL_Renderer* renderer,
                           float timer,
                           float appearTime,
                           int value)
-{               
+{
     if (timer < appearTime)
         return;
-    
+
     float t = (timer - appearTime) / fadeDuration;
     if (t > 1.0f) t = 1.0f;
-        
-    Uint8 alpha = (Uint8)(255 * t);
-        
-    SDL_SetTextureAlphaMod(texture, alpha);        
+
+    Uint8 alpha = static_cast<Uint8>(255 * t);
+
+    SDL_SetTextureAlphaMod(texture, alpha);
     SDL_RenderCopy(renderer, texture, nullptr, &rect);
 
-    // Render digits underneath
-    renderStatNumbers(renderer, rect, value, digitTextures, alpha);
+    renderStatNumbers(renderer, rect, value, alpha);
 }
 
 void LevelEnd::renderStatNumbers(SDL_Renderer* renderer,
                                  SDL_Rect labelRect,
                                  int value,
-                                 SDL_Texture* digitTextures[10],
                                  float alpha,
                                  int spacing)
 {
     std::string valStr = std::to_string(value);
 
-    // Digit size (match label height)
     int digitSize = labelRect.h;
-
-    int x = labelRect.x + labelRect.w + 150;
+    int x = labelRect.x + labelRect.w + DIGIT_OFFSET_X;
     int y = labelRect.y;
 
     for (char c : valStr)
     {
         int d = c - '0';
-        SDL_Rect dstDigit { x, y, digitSize, digitSize };
+        if (d < 0 || d >= DIGIT_COUNT)
+            continue;
 
-        // Apply same alpha as label for fade-in
-        SDL_SetTextureAlphaMod(digitTextures[d], (Uint8)alpha);
+        SDL_Rect dst { x, y, digitSize, digitSize };
 
-        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dstDigit);
+        SDL_SetTextureAlphaMod(digitTextures[d], static_cast<Uint8>(alpha));
+        SDL_RenderCopy(renderer, digitTextures[d], nullptr, &dst);
 
         x += digitSize + spacing;
     }
@@ -512,8 +409,17 @@ void LevelEnd::resetAnimation()
     startedMusic = false;
 }
 
-void LevelEnd::cleanup() {
-    if (sectorTexture) SDL_DestroyTexture(sectorTexture);
-    if (purgedTexture) SDL_DestroyTexture(purgedTexture);
-}
+void LevelEnd::cleanup()
+{
+    for (int i = 0; i < DIGIT_COUNT; ++i)
+        if (digitTextures[i])
+            SDL_DestroyTexture(digitTextures[i]);
 
+    SDL_DestroyTexture(sectorTexture);
+    SDL_DestroyTexture(purgedTexture);
+    SDL_DestroyTexture(enemiesTermTexture);
+    SDL_DestroyTexture(shotsFiredTexture);
+    SDL_DestroyTexture(directHitsTexture);
+    SDL_DestroyTexture(accuracyTexture);
+    SDL_DestroyTexture(timeElapsedTexture);
+}

@@ -20,9 +20,11 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     // Wave 1
     waves.push_back({
-        5.0f, // spawn interval
+        6.0f, // spawn interval
         {
-            EnemyType::Base
+            EnemyType::Base, EnemyType::Tank, EnemyType::Shooter, EnemyType::Fast,
+            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base,
+            EnemyType::Base, EnemyType::Fast
         }
     });
 
@@ -30,7 +32,9 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         4.0f, // spawn interval
         {
-            EnemyType::Base
+            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base,
+            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base,
+            EnemyType::Shooter, EnemyType::Base, EnemyType::Base, EnemyType::Shooter,
         }
     });
 
@@ -38,7 +42,10 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         4.0f, // spawn interval
         {
-            EnemyType::Base                                   
+            EnemyType::Base, EnemyType::Shooter, EnemyType::Fast, EnemyType::Base,
+            EnemyType::Base, EnemyType::Fast, EnemyType::Shooter, EnemyType::Base,
+            EnemyType::Shooter, EnemyType::Base, EnemyType::Base, EnemyType::Base,
+            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Base
         }
     });  
 
@@ -46,7 +53,10 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         4.0f, // spawn interval
         {
-            EnemyType::Base
+            EnemyType::Base, EnemyType::Shooter, EnemyType::Base, EnemyType::Shooter,
+            EnemyType::Shooter, EnemyType::Fast, EnemyType::Base, EnemyType::Shooter,
+            EnemyType::Base, EnemyType::Fast, EnemyType::Base, EnemyType::Shooter,
+            EnemyType::Fast, EnemyType::Base, EnemyType::Shooter, EnemyType::Fast
         }
     });
 
@@ -54,7 +64,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     waves.push_back({
         3.0f, // spawn interval
         {
-            EnemyType::Base
+            EnemyType::Tank, EnemyType::Tank, EnemyType::Tank, EnemyType::Tank
         }
     });
 

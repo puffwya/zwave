@@ -29,48 +29,44 @@ public:
 
     int selectedIndex = MENU_START;
 
-    SDL_Rect menuRects[MENU_COUNT];
+private:
+    // Screen
+    int screenW = 0;
+    int screenH = 0;
 
+    // Textures
+    SDL_Texture* mainBgTexture = nullptr;
+    SDL_Texture* mainLogoFgTexture = nullptr;
+    SDL_Texture* mainLogoBgTexture = nullptr;
+    SDL_Texture* startTexture = nullptr;
+    SDL_Texture* optionsTexture = nullptr;
+    SDL_Texture* quitTexture = nullptr;
+    SDL_Texture* cursorTexture = nullptr;
+
+    // Layout
+    SDL_Rect mainBgRect{};
+    SDL_Rect mainLogoRect{};
+    SDL_Rect startRect{};
+    SDL_Rect optionsRect{};
+    SDL_Rect quitRect{};
     SDL_Rect cursorRect{};
+    SDL_Rect menuRects[MENU_COUNT]{};
 
-    std::vector<AshParticle> ashParticles;
-
-    // Cursor motion
+    // Cursor physics
     float cursorX = 0.0f;
     float cursorY = 0.0f;
     float cursorVX = 0.0f;
     float cursorVY = 0.0f;
-
-    // Cursor scale
     float cursorScale = 1.0f;
     float cursorScaleVel = 0.0f;
-
-    // Tracking selection change
     int lastSelectedIndex = -1;
 
-private:
-    SDL_Texture* mainBgTexture = nullptr;
-    SDL_Rect mainBgRect{};
+    // Ash particles
+    std::vector<AshParticle> ashParticles;
 
-    SDL_Texture* mainLogoFgTexture = nullptr;
-    SDL_Texture* mainLogoBgTexture = nullptr; // Glowing Background 
-    SDL_Rect mainLogoRect{};
-
-    SDL_Texture* startTexture = nullptr;
-    SDL_Rect startRect{};
-
-    SDL_Texture* optionsTexture = nullptr;
-    SDL_Rect optionsRect{};
-
-    SDL_Texture* quitTexture = nullptr;
-    SDL_Rect quitRect{};
-
-    SDL_Texture* cursorTexture = nullptr;
-
-    int screenW = 0;
-    int screenH = 0;
-
+    // Helpers
     void spawnAshParticle();
     void updateAndRenderAsh(SDL_Renderer* renderer, float dt);
+    SDL_Texture* loadTexture(SDL_Renderer* renderer, const std::string& path);
 };
 
