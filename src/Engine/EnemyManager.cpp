@@ -488,27 +488,13 @@ void EnemyManager::update(float dt, const Player& player, PickupManager& pickupM
     }
 }
 
-void EnemyManager::updateEnemy(Enemy& e, float dt) {
-    e.animState = e.attacking ? EnemyAnimState::Attack : EnemyAnimState::Walk;
-
-    const EnemyVisual& visual = enemyVisuals[e.type];
-    const Animation& anim = visual.animations.at(e.animState);
-
-    e.animTimer += dt;
-    if (e.animTimer >= anim.frameDuration) {
-        e.animTimer -= anim.frameDuration;
-        e.animFrame = (e.animFrame + 1) % anim.frames.size();
-    }
-}
-
-bool EnemyManager::hasActiveEnemies() const {
-    for (int i = 0; i < MAX_ENEMIES; i++) {
-        if (!enemies[i].active)
-            continue;
-
-        if (enemies[i].deathAnimFinished == false)
+bool EnemyManager::hasActiveEnemies() const
+{
+    for (int i = 0; i < MAX_ENEMIES; i++)
+        if (enemies[i].active &&
+            !enemies[i].deathAnimFinished)
             return true;
-    }
+
     return false;
 }
 

@@ -300,11 +300,11 @@ void Enemy::handleAttack(float dt, Player& player, AudioManager& audio) {
         bool hit = true;
 
         switch (type) {
-            case EnemyType::Tank: audio.playSFX("tank_attack");
-            case EnemyType::Shooter: audio.playSFX("shooter_attack");
-            case EnemyType::Fast: audio.playSFX("fast_attack");
-            case EnemyType::Base: audio.playSFX("base_attack");
-            default: audio.playSFX("base_attack");
+            case EnemyType::Tank: audio.playSFX("tank_attack"); break;
+            case EnemyType::Shooter: audio.playSFX("shooter_attack"); break;
+            case EnemyType::Fast: audio.playSFX("fast_attack"); break;
+            case EnemyType::Base: audio.playSFX("base_attack"); break;
+            default: audio.playSFX("base_attack"); break;
         }
 
         // Determine if shooter zombie hits or misses

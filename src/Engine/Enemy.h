@@ -2,9 +2,13 @@
 #define ENEMY_H
 
 #include <vector>
+#include <SDL2/SDL.h>
 #include "Map.h"
 #include "../audio/AudioManager.h"
-#include <SDL2/SDL.h>
+
+class Player;
+class EnemyManager;
+struct Animation;
 
 enum class EnemyType {
     Base,
@@ -27,99 +31,85 @@ enum class EnemyAnimState {
     Death
 };
 
-class Player;
-
-class EnemyManager;
-
-struct Animation;
-
 class Enemy {
 public:
-    float x = 0, y = 0, z = 0;
+    // Core
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
     float height = 0;
-    float speed = 0;
-    float angle = 0;
+
+    float speed = 0.0f;
+    float angle = 0.0f;
     bool active = false;
+
     EnemyType type = EnemyType::Base;
-
-    float ambientSoundTimer = 2.0f + ((float)rand() / RAND_MAX) * 10.0f;
-
+    EnemyState state = EnemyState::Idle;
     EnemyAnimState animState = EnemyAnimState::Idle;
-    int animFrame = 0;
-    float animTimer = 0.0f;
 
-    bool attacking = false;
+    // Health
+    int health = 0;
+    int maxHealth = 0;
 
-    // Attack data
+    // Combat
     float attackRange = 0.0f;
     int attackDamage = 0;
     float attackCooldown = 0.0f;
     float attackTimer = 0.0f;
-
+    int attackHitFrame = 0;
+    bool attacking = false;
     bool hasDealtDamageThisAttack = false;
-    int attackHitFrame = 0; // animation frame where damage occurs
 
-    int health = 0;
-    int maxHealth = 0;
+    // Animation
+    int animFrame = 0;
+    float animTimer = 0.0f;
+    bool deathAnimFinished = false;
+    bool deathJustFinished = false;
 
-    int spriteW = 0;
-    int spriteH = 0;
-
-    std::vector<uint32_t> spritePixels;
-
-    EnemyManager* managerPtr = nullptr;
-    
     Animation* normalAnimation  = nullptr;
     Animation* damagedAnimation = nullptr;
 
-    EnemyState state = EnemyState::Idle;
+    int spriteW = 0;
+    int spriteH = 0;
+    std::vector<uint32_t> spritePixels;
+
+    // Enemy AI
+    float ambientSoundTimer = 2.0f + ((float)rand() / RAND_MAX) * 10.0f;
     float loseSightTimer = 0.0f;
     float wanderAngle = 0.0f;
     float wanderTimer = 0.0f;
-
     float lateralOffset = 0.0f;
+
+    EnemyManager* managerPtr = nullptr;
 
     Enemy();
 
     void activate(int tx, int ty, EnemyType t, EnemyManager& manager);
+    void update(float dt, const Player& player, const Map& map, AudioManager& audio, EnemyType t);
+    void reset();
+    void deactivate() { active = false; }
 
     void takeDamage(int amount);
     bool isDead() const;
+    bool isDamaged() const;
 
     bool hasLineOfSight(const Player& player, const Map& map) const;
     void chasePlayer(float dt, const Player& player, AudioManager& audio);
     void wander(float dt, AudioManager& audio);
-    void update(float dt, const Player& player, const Map& map, AudioManager& audio, EnemyType t);
 
     bool canAttack(const Player& player) const;
-
     void handleAttack(float dt, Player& player, AudioManager& audio);
 
-    bool isDamaged() const;
-
-    bool deathAnimFinished = false;
-
-    bool deathJustFinished = false;
-
     void updateAnimation(float dt);
-
-    void deactivate() { active = false; }
-
-    void reset();
-
     float distanceTo(const Player& player) const;
 
 private:
     int getMaxHealthForType(EnemyType t) const;
-
     float getHitChance(const Player& player) const;
-
     float getShieldMultiplier() const;
 
     void playWanderSound(AudioManager& audio);
-
     void playChaseSound(AudioManager& audio);
 };
 
 #endif
-

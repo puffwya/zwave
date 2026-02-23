@@ -33,20 +33,18 @@ public:
 
     Enemy enemies[MAX_ENEMIES];
 
+    std::unordered_map<EnemyType, EnemyVisual> enemyVisuals;
+    std::unordered_map<EnemyType, EnemyVisual> enemyVisualsDamaged;
+
     void scanMapForSpawnPoints(const Map& map);
     Enemy* spawnEnemy(EnemyType type);
 
     void loadEnemyAssets();
     void update(float dt, const Player& player, PickupManager& pickupManager, const Map& map, AudioManager& audio);
-    void updateEnemy(Enemy& e, float dt);
 
     bool hasActiveEnemies() const;
     int getActiveEnemyCount() const;
     void deactivateAll();
-
-    std::unordered_map<EnemyType, EnemyVisual> enemyVisuals;
-
-    std::unordered_map<EnemyType, EnemyVisual> enemyVisualsDamaged;
 
     int enemiesKilled = 0;
 
