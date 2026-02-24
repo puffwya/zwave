@@ -57,6 +57,28 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
     const float cy = screenH * 0.5f;
     const float EPS = 1e-6f;
 
+    // Get time in seconds for animation
+    float timeSec = float(SDL_GetTicks()) / 1000.0f;
+
+    // Precompute lava animation for this tile
+    bool isLava = map.get(wx, wy).isLava;
+    float lavaOffsetX = 0.0f, lavaOffsetY = 0.0f;
+    float lavaFlicker = 1.0f;
+
+    if (isLava) {
+        // Slower, smooth diagonal flow
+        float lavaSpeedX = 0.08f; // tiles/sec
+        float lavaSpeedY = 0.05f;
+
+        float tileSeed = std::fmod(wx * 13.1f + wy * 7.7f, 1.0f);
+
+        lavaOffsetX = fmod((timeSec + tileSeed) * lavaSpeedX * floorTex.w, float(floorTex.w));
+        lavaOffsetY = fmod((timeSec + tileSeed) * lavaSpeedY * floorTex.h, float(floorTex.h));
+
+        // Subtle flicker per tile
+        lavaFlicker = 0.97f + 0.03f * sinf(timeSec * 2.0f + wx + wy);
+    }
+
     for (int sx = 0; sx < screenW; ++sx) {
         float s = (float(sx) - cx) / cx;
 
@@ -117,7 +139,6 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
         uint32_t* px = pixels + yTop * screenW + sx;
 
         for (int y = yTop; y <= yBottom; ++y) {
-            // Compute the current row's distance from the camera plane
             float p = float(y - screenH * 0.5f); // row relative to center
             if (fabs(p) < 1e-6f) continue;
 
@@ -131,13 +152,30 @@ void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, i
             float localX = (worldX - wx) * invSize;
             float localY = (worldY - wy) * invSize;
 
-            // Map to [0, width/height]
             int texX = int(localX * floorTex.w) % floorTex.w;
             int texY = int(localY * floorTex.h) % floorTex.h;
             if (texX < 0) texX += floorTex.w;
             if (texY < 0) texY += floorTex.h;
 
-            *px = floorTex.pixels[texY * floorTex.w + texX];
+            uint32_t color = floorTex.pixels[texY * floorTex.w + texX];
+
+            // Apply lava animation only for lava tiles
+            if (isLava) {
+                // Slight per-row variation for a bubbly effect
+                int rowOffsetX = int(lavaOffsetX + (y * 0.05f)) % floorTex.w;  // small fractional shift per row
+                int lavaTexX = (texX + rowOffsetX) % floorTex.w;
+                int lavaTexY = (int(texY + lavaOffsetY)) % floorTex.h;
+
+                color = floorTex.pixels[lavaTexY * floorTex.w + lavaTexX];
+
+                // Apply subtle flicker/glow
+                uint8_t r = std::min(255, int(((color >> 16) & 0xFF) * lavaFlicker));
+                uint8_t g = std::min(255, int(((color >> 8) & 0xFF) * (lavaFlicker * 0.7f)));
+                uint8_t b = std::min(255, int((color & 0xFF) * (lavaFlicker * 0.5f)));
+                color = (r << 16) | (g << 8) | b;
+            }
+
+            *px = color;
             px += screenW;
         }
     }

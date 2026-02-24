@@ -101,7 +101,7 @@ void PickupManager::renderPickups(
         float dist;
     };
 
-    DrawInfo drawList[128]; // adjust max pickups if needed
+    DrawInfo drawList[MAX_PICKUPS];
     int count = 0;
 
     // Collect active pickups and compute distance to player
@@ -109,8 +109,8 @@ void PickupManager::renderPickups(
         if (!p.active) continue;
         float dx = p.x - player.x;
         float dy = p.y - player.y;
-        float dist = std::sqrt(dx*dx + dy*dy);
-        drawList[count++] = { &p, dist };
+        float distSq = dx*dx + dy*dy;
+        drawList[count++] = { &p, distSq };
     }
 
     if (count == 0) return;
@@ -126,16 +126,17 @@ void PickupManager::renderPickups(
     float planeX = -dirY * 0.66f;
     float planeY = dirX * 0.66f;
 
+    float invDet = 1.0f / (planeX * dirY - dirX * planeY);
+
     for (int i = 0; i < count; i++) {
         Pickup* p = drawList[i].pickup;
-        PickupVisual& v = pickupsVisuals.at({p->type, p->id});
+        PickupVisual& v = *p->visual;
 
         // Compute relative position in world plane (ignore z for horizontal projection)
         float dx = p->x - player.x;
         float dy = p->y - player.y;
 
         // Transform to camera space
-        float invDet = 1.0f / (planeX * dirY - dirX * planeY);
         float transformX = invDet * ( dirY * dx - dirX * dy );
         float transformY = invDet * (-planeY * dx + planeX * dy );
 

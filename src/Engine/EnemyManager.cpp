@@ -375,7 +375,7 @@ void EnemyManager::trySpawnAmmoDrop(
     static std::mt19937 rng{ std::random_device{}() };
     std::uniform_real_distribution<float> dropRoll(0.0f, 1.0f);
 
-    float dropChance = 0.45f;
+    float dropChance = 0.65f;
     if (dropRoll(rng) > dropChance)
         return;
 

@@ -221,6 +221,8 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     }
     else {
         onGround = true;
+        velZ = 0.0f;
+        z = 0.5f + map.get(int(x), int(y)).height;
     }
 
     // Clamp max speed
