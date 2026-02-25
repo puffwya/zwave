@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/wyattpuff/Raycaster/src/Engine/BSP.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/DoomRenderer.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/Enemy.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Engine/EnemyManager.cpp" "src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o" "gcc" "src/CMakeFiles/RaycasterGame.dir/Engine/EnemyManager.cpp.o.d"

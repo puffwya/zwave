@@ -3,6 +3,16 @@
 
 #include <algorithm>
 
+struct RayHit {
+    int tileX;
+    int tileY;
+    float hitX;        // world X coordinate of ray intersection
+    float hitY;        // world Y coordinate of ray intersection
+    bool vertical;     // true if hit vertical wall
+    float hitFraction; // 0-1 along the tile (horizontal or vertical)
+    float hitHeight;   // world Z coordinate of impact
+};
+
 class Map {
 public:
     static const int SIZE = 30;
@@ -277,6 +287,85 @@ public:
         int chunkX = x / CHUNK_SIZE;
         int chunkY = y / CHUNK_SIZE;
         return chunkY * 2 + chunkX;
+    }
+
+    // Simple 2D grid DDA
+    bool raycastWall(float x, float y, float dirX, float dirY, float maxRange, RayHit& outHit) const {
+        int mapX = int(x);
+        int mapY = int(y);
+
+        float deltaDistX = (dirX != 0) ? std::abs(1.0f / dirX) : 1e30f;
+        float deltaDistY = (dirY != 0) ? std::abs(1.0f / dirY) : 1e30f;
+
+        int stepX = (dirX < 0) ? -1 : 1;
+        int stepY = (dirY < 0) ? -1 : 1;
+
+        float sideDistX = (dirX < 0) ? (x - mapX) * deltaDistX : (mapX + 1.0f - x) * deltaDistX;
+        float sideDistY = (dirY < 0) ? (y - mapY) * deltaDistY : (mapY + 1.0f - y) * deltaDistY;
+
+        bool hit = false;
+        bool verticalHit = false;
+
+        float distance = 0.0f;
+
+        while (!hit && distance < maxRange) {
+            if (sideDistX < sideDistY) {
+                sideDistX += deltaDistX;
+                mapX += stepX;
+                verticalHit = true;
+                distance = sideDistX - deltaDistX;
+            } else {
+                sideDistY += deltaDistY;
+                mapY += stepY;
+                verticalHit = false;
+                distance = sideDistY - deltaDistY;
+            }
+
+            if (mapY >= 0 && mapY < SIZE && mapX >= 0 && mapX < SIZE && rawMap[mapY][mapX] != 0) {
+                hit = true;
+            }
+        }
+
+        if (!hit) return false;
+
+        // Compute exact intersection position in world space
+        float hitX = x + dirX * distance;
+        float hitY = y + dirY * distance;
+
+        outHit.tileX = mapX;
+        outHit.tileY = mapY;
+        outHit.vertical = verticalHit;
+        if (verticalHit) {
+            outHit.hitFraction = hitY - mapY;  // normal
+            if (dirX > 0) outHit.hitFraction = 1.0f - outHit.hitFraction; // flip if coming from right
+        } else {
+            outHit.hitFraction = hitX - mapX;  // normal
+            if (dirY > 0) outHit.hitFraction = 1.0f - outHit.hitFraction; // flip if coming from bottom
+        }
+        outHit.hitHeight = 0.5f; // just use player height for now
+
+        return true;
+    }
+
+    // Map.h (inside class Map)
+    inline bool isVerticalWall(int tileX, int tileY, float hitFraction, float rayDirX, float rayDirY) const {
+        // Basic approach: compare delta along X vs Y
+        // If the ray hits closer to a vertical edge, treat as vertical wall
+        // If the ray hits closer to a horizontal edge, treat as horizontal wall
+
+        // If hitFraction is near 0 or 1 along X/Y we can decide
+        // A more robust approach: check which neighbor tile is empty to determine orientation
+        int left  = std::max(0, tileX-1);
+        int right = std::min(SIZE-1, tileX+1);
+        int top   = std::max(0, tileY-1);
+        int bottom= std::min(SIZE-1, tileY+1);
+
+        // Check neighbors to see which side has a wall
+        if (rawMap[tileY][left] == 0 || rawMap[tileY][right] == 0) return true;  // vertical wall
+        if (rawMap[top][tileX] == 0 || rawMap[bottom][tileX] == 0) return false; // horizontal wall
+
+        // fallback: pick based on ray direction
+        return std::fabs(rayDirX) > std::fabs(rayDirY);
     }
 };
 

@@ -12,6 +12,8 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     weaponManager.loadAssets(renderer.getSDLRenderer());
 
+    bulletHoleManager.init("Assets/geometry_textures/bulletHole.png");
+
     if (!hud.init(renderer.getSDLRenderer())) {
         std::cerr << "Failed to initialize HUD\n";
     }
@@ -76,7 +78,7 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
 
-    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
+    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Mg);
 
     doomRenderer->setPickupManager(pickupManager);
 
@@ -326,10 +328,11 @@ void GameSession::updateWallAnimations(float dt, AudioManager& audio) {
 }
 
 void GameSession::update(float dt, const Uint8* keys, GameState& gameState, AudioManager& audio) {
-    player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio);
+    player.update(dt, keys, worldMap, enemyManager, weaponManager, weapon, gameState, audio, bulletHoleManager);
     enemyManager.update(dt, player, pickupManager, worldMap, audio);
     pickupManager.update(player, dt, weapon, audio);
     weaponManager.update(dt, player);
+    bulletHoleManager.update(dt);
     updateWallAnimations(dt, audio);
 
     if (currentWaveIndex >= (int)waves.size())
@@ -398,7 +401,7 @@ void GameSession::render(Renderer& renderer, uint32_t* pixels, int w, int h, Tex
 
     doomRenderer->render(
         pixels, w, h,
-        player, worldMap, zBuffer, enemyManager, textureManager
+        player, worldMap, zBuffer, enemyManager, textureManager, bulletHoleManager
     );
 
     player.renderDamageFlash(pixels, w, h, player.damageFlashIntensity);
@@ -454,7 +457,7 @@ void GameSession::renderPaused(
 ) {
     doomRenderer->render(
         pixels, w, h,
-        player, worldMap, zBuffer, enemyManager, textureManager
+        player, worldMap, zBuffer, enemyManager, textureManager, bulletHoleManager
     );
 
     player.renderDamageFlash(pixels, w, h, player.damageFlashIntensity);

@@ -767,6 +767,8 @@ src/CMakeFiles/RaycasterGame.dir/Engine/PickupManager.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_version.h \
   /opt/homebrew/include/SDL2/SDL_locale.h \
   /opt/homebrew/include/SDL2/SDL_misc.h \
+  /Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/MapToSegments.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \

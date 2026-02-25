@@ -38,6 +38,67 @@ void DoomRenderer::drawSegmentColumnSolid(uint32_t* pixels, int screenW, int scr
     }
 }
 
+void DoomRenderer::drawBulletHolesOnWall(
+    const GridSegment& seg,
+    float sxA, float sxB,
+    int screenW, int screenH,
+    uint32_t* pixels,
+    BulletHoleManager& bulletHoleManager
+) {
+    const auto& visual = bulletHoleManager.getVisual();
+    const int texW = visual.w;
+    const int texH = visual.h;
+
+    for (const BulletHole& hole : bulletHoleManager.getAll()) {
+        // Only draw holes for this tile face
+        if (hole.tileX != seg.tileX || hole.tileY != seg.tileY || hole.dir != seg.dir)
+            continue;
+                                             
+        // Horizontal position along the wall
+        float sx = (sxA < sxB) 
+                     ? sxA + hole.hitFraction * (sxB - sxA) 
+                     : sxA - hole.hitFraction * (sxA - sxB);
+        int px = int(sx + 0.5f);
+        if (px < 0 || px >= screenW) continue;
+    
+        // Vertical position: player height + vertical offset
+        int midY = screenH / 2 + hole.verticalOffset;
+
+        // Draw the bullet hole texture
+        for (int ty = 0; ty < texH; ++ty) {
+            int py = midY - texH/2 + ty;
+            if (py < 0 || py >= screenH) continue;
+
+            for (int tx = 0; tx < texW; ++tx) {
+                int pxOffset = px - texW/2 + tx;
+                if (pxOffset < 0 || pxOffset >= screenW) continue;
+
+                uint32_t texPixel = visual.pixels[ty * texW + tx];
+                uint8_t alpha = texPixel >> 24;
+                if (alpha == 0) continue; // fully transparent
+
+                // simple alpha blend (assuming ARGB)
+                uint32_t dst = pixels[py * screenW + pxOffset];
+
+                uint8_t srcR = (texPixel >> 16) & 0xFF;
+                uint8_t srcG = (texPixel >> 8) & 0xFF;
+                uint8_t srcB = texPixel & 0xFF;
+
+                uint8_t dstR = (dst >> 16) & 0xFF;
+                uint8_t dstG = (dst >> 8) & 0xFF;
+                uint8_t dstB = dst & 0xFF;
+
+                float a = alpha / 255.0f;
+                uint8_t outR = uint8_t(srcR * a + dstR * (1.0f - a));
+                uint8_t outG = uint8_t(srcG * a + dstG * (1.0f - a));
+                uint8_t outB = uint8_t(srcB * a + dstB * (1.0f - a));
+
+                pixels[py * screenW + pxOffset] = (0xFF << 24) | (outR << 16) | (outG << 8) | outB;
+            }
+        }
+    }
+}
+
 void DoomRenderer::renderWorldTileRasterized(uint32_t* pixels, float* zBuffer, int screenW, int screenH,
                                              const Player& player,
                                              float wx, float wy, float sizeWorld, float tileHeight,
@@ -200,7 +261,7 @@ bool DoomRenderer::projectPointToCamera(float wx, float wy, const Player& player
 // seg endpoints: seg.a (wx,wy) -> seg.b
 void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                                      uint32_t* pixels, int screenW, int screenH,
-                                     const Player& player, const Map& map, float* zBuffer, const Texture& wallTex)
+                                     const Player& player, const Map& map, float* zBuffer, const Texture& wallTex, BulletHoleManager& bulletHoleManager)
 {
     // Project endpoints to camera space
     float a_camX, a_camY, b_camX, b_camY;
@@ -285,6 +346,8 @@ void DoomRenderer::rasterizeSegment(const GridSegment& seg, int mapTileX, int ma
             px += screenW;
         }
 
+        drawBulletHolesOnWall(seg, sxA, sxB, screenW, screenH, pixels, bulletHoleManager);
+
         if (tileH > 0.0f) { // Only blocking walls
             if (depth < zBuffer[sx]) {
                 zBuffer[sx] = depth;
@@ -312,7 +375,8 @@ void DoomRenderer::traverseBSP(
     const Map& map,
     float* zBuffer,
     uint8_t* tileDrawn,
-    TextureManager& textureManager
+    TextureManager& textureManager,
+    BulletHoleManager& bulletHoleManager
 ) {
     if (!node) return;
 
@@ -328,7 +392,7 @@ void DoomRenderer::traverseBSP(
 
     // Traverse far side first
     if (second)
-        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
+        traverseBSP(second, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager, bulletHoleManager);
 
     // Pass 1: vertical walls only
     for (const auto& seg : node->onPlane) {
@@ -355,7 +419,7 @@ void DoomRenderer::traverseBSP(
 
         // Draw vertical walls (normal or pit)
         if (h != 0.0f) {
-            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex);
+            rasterizeSegment(seg, tx, ty, pixels, screenW, screenH, player, map, zBuffer, *wallTex, bulletHoleManager);
         }
     }
 
@@ -412,12 +476,12 @@ void DoomRenderer::traverseBSP(
 
     // Traverse near side last
     if (first)
-        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager);
+        traverseBSP(first, player, pixels, screenW, screenH, map, zBuffer, tileDrawn, textureManager, bulletHoleManager);
 }
 
 // Main render entry
 void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager)
+                          const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager, BulletHoleManager& bulletHoleManager)
 {
     const uint32_t CEIL_COLOR = 0xFF202040; // World ceiling color (change to texture in the future)
 
@@ -433,7 +497,7 @@ void DoomRenderer::render(uint32_t* pixels, int screenW, int screenH,
     tileDrawn.assign(Map::SIZE * Map::SIZE, 0);
 
     // Traverse BSP and draw segments front-to-back
-    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data(), textureManager);
+    traverseBSP(m_bspRoot.get(), player, pixels, screenW, screenH, map, zBuffer, tileDrawn.data(), textureManager, bulletHoleManager);
 
     // Fill Ceiling
     for (int y = 0; y < screenH / 2; ++y)

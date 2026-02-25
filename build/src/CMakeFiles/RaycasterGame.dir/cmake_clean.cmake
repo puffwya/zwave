@@ -3,6 +3,8 @@ file(REMOVE_RECURSE
   "../bin/RaycasterGame.pdb"
   "CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.o.d"
+  "CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.o"
+  "CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o"
   "CMakeFiles/RaycasterGame.dir/Engine/DoomRenderer.cpp.o.d"
   "CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o"

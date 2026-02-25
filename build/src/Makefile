@@ -154,6 +154,30 @@ Engine/BSP.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BSP.cpp.s
 .PHONY : Engine/BSP.cpp.s
 
+Engine/BulletHoleManager.o: Engine/BulletHoleManager.cpp.o
+.PHONY : Engine/BulletHoleManager.o
+
+# target to build an object file
+Engine/BulletHoleManager.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.o
+.PHONY : Engine/BulletHoleManager.cpp.o
+
+Engine/BulletHoleManager.i: Engine/BulletHoleManager.cpp.i
+.PHONY : Engine/BulletHoleManager.i
+
+# target to preprocess a source file
+Engine/BulletHoleManager.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.i
+.PHONY : Engine/BulletHoleManager.cpp.i
+
+Engine/BulletHoleManager.s: Engine/BulletHoleManager.cpp.s
+.PHONY : Engine/BulletHoleManager.s
+
+# target to generate assembly for a file
+Engine/BulletHoleManager.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/RaycasterGame.dir/build.make src/CMakeFiles/RaycasterGame.dir/Engine/BulletHoleManager.cpp.s
+.PHONY : Engine/BulletHoleManager.cpp.s
+
 Engine/DoomRenderer.o: Engine/DoomRenderer.cpp.o
 .PHONY : Engine/DoomRenderer.o
 
@@ -646,6 +670,9 @@ help:
 	@echo "... Engine/BSP.o"
 	@echo "... Engine/BSP.i"
 	@echo "... Engine/BSP.s"
+	@echo "... Engine/BulletHoleManager.o"
+	@echo "... Engine/BulletHoleManager.i"
+	@echo "... Engine/BulletHoleManager.s"
 	@echo "... Engine/DoomRenderer.o"
 	@echo "... Engine/DoomRenderer.i"
 	@echo "... Engine/DoomRenderer.s"

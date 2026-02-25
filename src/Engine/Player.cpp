@@ -104,7 +104,7 @@ void Player::applyDamage(int damage, float shieldMultiplier)
     }
 }
 
-void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio) {
+void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio, BulletHoleManager& bulletHoleManager) {
     // Check if player died
     if (health <= 0) {
         gs = GameState::PlayerDead;
@@ -384,7 +384,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 fireCooldown = 0.75f;
             }
             else {
-                shoot(enemyManager, weaponManager, map);
+                shoot(enemyManager, weaponManager, map, bulletHoleManager);
                 fireCooldown = 0.75f; // pistol fires once every 0.75 seconds
 
                 // Start animation
@@ -411,7 +411,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 fireCooldown = 0.75f;
             }
             else {
-                shoot(enemyManager, weaponManager, map);
+                shoot(enemyManager, weaponManager, map, bulletHoleManager);
                 fireCooldown = 0.75f; // Shotgun fires once every 0.75 seconds
 
                 // Start animation
@@ -438,7 +438,7 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
                 fireCooldown = 0.7f;
             }
             else {
-                shoot(enemyManager, weaponManager, map);
+                shoot(enemyManager, weaponManager, map, bulletHoleManager);
                 fireCooldown = 0.1f; // Mg fires once every 0.1 seconds
              
                 // Start animation
@@ -589,8 +589,8 @@ void Player::update(float delta, const uint8_t* keys, Map& map, EnemyManager& en
     int currentChunk = map.getChunkID(int(std::floor(x)), int(std::floor(y)));
 }
 
-void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map) {
-
+void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map, BulletHoleManager& bulletHoleManager)
+{
     // Keep track of shots fired
     shotsFired += 1;
 
@@ -609,6 +609,11 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     float planeX = -dirY * fovScale;
     float planeY =  dirX * fovScale;
 
+    bool enemyHit = false;
+
+    // ------------------------
+    // Check for enemy hits
+    // ------------------------
     for (int i = 0; i < manager.MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
         if (!e.active) continue;
@@ -628,30 +633,66 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
         float lateral = transformX / transformY;
 
         if (std::fabs(lateral) < hitWidth) {
-
-            if (!e.hasLineOfSight(*this, map)) {
-                continue;
-            }
+            if (!e.hasLineOfSight(*this, map)) continue;
 
             // Apply damage
             int damage = 0;
-            if (currentItem == ItemType::Pistol) {
-                damage = 50;
-            }
-            else if (currentItem == ItemType::Shotgun) {
-                damage = 200;
-            }
-            else if (currentItem == ItemType::Mg) {
-                damage = 25;
-            }
-            // Keep track of shots hit
+            if (currentItem == ItemType::Pistol) damage = 50;
+            else if (currentItem == ItemType::Shotgun) damage = 200;
+            else if (currentItem == ItemType::Mg) damage = 25;
+
             shotsHit += 1;
             e.takeDamage(damage);
 
+            enemyHit = true;
             break;
         }
     }
 
+    // ------------------------
+    // Wall hit (bullet hole) if no enemy was hit
+    // ------------------------
+    if (!enemyHit) {
+        RayHit wallHit;
+        if (map.raycastWall(x, y, dirX, dirY, maxRange, wallHit)) {
+
+            bool verticalWall = wallHit.vertical;
+
+            float correctedFraction = wallHit.hitFraction;
+
+            if (!verticalWall && dirY < 0)
+                correctedFraction = 1.0f - wallHit.hitFraction;   // flip for up-going rays
+
+            GridSegment::Dir face;
+
+            if (verticalWall) {
+                if (dirX > 0)
+                    face = GridSegment::Dir::West;   // ray moving east hit west face
+                else
+                    face = GridSegment::Dir::East;   // ray moving west hit east face
+            } else {
+                if (dirY > 0)
+                    face = GridSegment::Dir::North;  // ray moving south hit north face
+                else
+                    face = GridSegment::Dir::South;  // ray moving north hit south face
+            }
+
+            // Spawn bullet hole on that tile if tile.height > player.height
+            if (map.get(wallHit.tileX, wallHit.tileY).height > z) {
+                bulletHoleManager.spawn(
+                    wallHit.tileX,
+                    wallHit.tileY,
+                    face,
+                    correctedFraction
+                );
+            }
+        }
+    }
+
+
+    // ------------------------
+    // Fire animation
+    // ------------------------
     isFiringAnim = true;
     fireFrame = 1;
     fireFrameTimer = FIRE_FRAME_DURATION;

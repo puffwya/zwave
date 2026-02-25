@@ -5,6 +5,7 @@
 #include "EnemyManager.h"
 #include "PickupManager.h"
 #include "WeaponManager.h"
+#include "BulletHoleManager.h"
 #include "WeaponTypes.h"
 #include "HUD.h"
 #include "MapToSegments.h"
@@ -62,6 +63,7 @@ private:
     PickupManager pickupManager;
     WeaponManager weaponManager;
     Weapon weapon;
+    BulletHoleManager bulletHoleManager;
     HUD hud;
 
     // BSP world rendering

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <vector>
 #include "WeaponTypes.h"
+#include "BulletHoleManager.h"
 #include "GameState.h"
 #include "../audio/AudioManager.h"
 
@@ -92,8 +93,8 @@ public:
         lastChunkID = -1;
     }
 
-    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio);
-    void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map);
+    void update(float delta, const uint8_t* keys, Map& map, EnemyManager& enemyManager, WeaponManager& weaponManager, Weapon& weapon, GameState& gs, AudioManager& audio, BulletHoleManager& bulletHoleManager);
+    void shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map, BulletHoleManager& bulletHoleManager);
 
     void giveItem(ItemType item);
     ItemType nextItem() const;

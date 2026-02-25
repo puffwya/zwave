@@ -767,4 +767,6 @@ src/CMakeFiles/RaycasterGame.dir/Engine/Enemy.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Engine/EnemyManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
+  /Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/MapToSegments.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h

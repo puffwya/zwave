@@ -6,6 +6,7 @@
 #include "BSP.h"         // uses Segment type (GridSegment)
 #include "Map.h"
 #include "Player.h"
+#include "BulletHoleManager.h"
 #include "SpriteRenderer.h"
 #include "PickupManager.h"
 #include "TextureManager.h"
@@ -20,11 +21,16 @@ public:
 
     // Render into pixels buffer. zBuffer must be length screenW
     void render(uint32_t* pixels, int screenW, int screenH,
-                const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager);
+                const Player& player, Map& map, float* zBuffer, EnemyManager& em, TextureManager& textureManager, BulletHoleManager& bulletHoleManager);
 
     float colWallTop[1200]; // store the ceiling Y for each column
 
     void setPickupManager(PickupManager& manager) { pickupManager = &manager; }
+
+    void drawBulletHolesOnWall(
+            const GridSegment& seg, float sxA, float sxB, int screenW,
+            int screenH, uint32_t* pixels,
+            BulletHoleManager& bulletHoleManager);
 
 private:
     std::vector<GridSegment> m_segments;
@@ -48,12 +54,12 @@ private:
     // Rasterize segment between two projected endpoints (screen Xs / depths)
     void rasterizeSegment(const GridSegment& seg, int mapTileX, int mapTileY,
                           uint32_t* pixels, int screenW, int screenH,
-                          const Player& player, const Map& map, float* zBuffer, const Texture& wallTex);
+                          const Player& player, const Map& map, float* zBuffer, const Texture& wallTex, BulletHoleManager& bulletHoleManager);
 
     // BSP traversal
     void traverseBSP(const BSPNode* node, const Player& player,
                      uint32_t* pixels, int screenW, int screenH,
-                     const Map& map, float* zBuffer, uint8_t* tileDrawn, TextureManager& textureManager);
+                     const Map& map, float* zBuffer, uint8_t* tileDrawn, TextureManager& textureManager, BulletHoleManager& bulletHoleManager);
 
     // small side test helper
     static float sideOfLine(float ax, float ay, float bx, float by, float px, float py);

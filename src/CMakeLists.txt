@@ -8,6 +8,7 @@ set(SOURCES
     Engine/SpriteRenderer.cpp
     Engine/pItemRenderer.cpp
     Engine/WeaponManager.cpp
+    Engine/BulletHoleManager.cpp
     Engine/MapToSegments.cpp
     Engine/BSP.cpp
     Engine/DoomRenderer.cpp

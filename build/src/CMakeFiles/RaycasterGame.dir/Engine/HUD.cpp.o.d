@@ -768,6 +768,8 @@ src/CMakeFiles/RaycasterGame.dir/Engine/HUD.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__functional/unary_negate.h \
   /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
   /Users/wyattpuff/Raycaster/src/Engine/WeaponTypes.h \
+  /Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/MapToSegments.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /opt/homebrew/include/SDL2/SDL_image.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \

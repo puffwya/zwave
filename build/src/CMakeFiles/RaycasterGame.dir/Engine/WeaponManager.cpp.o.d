@@ -771,6 +771,8 @@ src/CMakeFiles/RaycasterGame.dir/Engine/WeaponManager.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/string_view \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__fwd/string_view.h \
   /Users/wyattpuff/Raycaster/src/Engine/PickupManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/BulletHoleManager.h \
+  /Users/wyattpuff/Raycaster/src/Engine/MapToSegments.h \
   /Users/wyattpuff/Raycaster/src/Engine/GameState.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \

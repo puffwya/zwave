@@ -801,4 +801,6 @@ src/CMakeFiles/RaycasterGame.dir/Menu/LevelEnd.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/Enemy.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/../audio/AudioManager.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/PickupManager.h \
-  /Users/wyattpuff/Raycaster/src/Menu/../Engine/WeaponTypes.h
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/WeaponTypes.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/BulletHoleManager.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Engine/MapToSegments.h
