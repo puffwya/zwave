@@ -611,12 +611,10 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
 
     bool enemyHit = false;
 
-    // ------------------------
     // Check for enemy hits
-    // ------------------------
     for (int i = 0; i < manager.MAX_ENEMIES; i++) {
         Enemy& e = manager.enemies[i];
-        if (!e.active) continue;
+        if (e.active == false || e.deathAnimFinished == true) continue;
 
         float dx = e.x - x;
         float dy = e.y - y;
@@ -649,9 +647,7 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
         }
     }
 
-    // ------------------------
     // Wall hit (bullet hole) if no enemy was hit
-    // ------------------------
     if (!enemyHit) {
         RayHit wallHit;
         if (map.raycastWall(x, y, dirX, dirY, maxRange, wallHit)) {
@@ -690,9 +686,7 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
     }
 
 
-    // ------------------------
     // Fire animation
-    // ------------------------
     isFiringAnim = true;
     fireFrame = 1;
     fireFrameTimer = FIRE_FRAME_DURATION;
