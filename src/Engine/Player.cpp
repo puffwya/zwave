@@ -675,12 +675,24 @@ void Player::shoot(EnemyManager& manager, WeaponManager& weaponManager, Map& map
 
             // Spawn bullet hole on that tile if tile.height > player.height
             if (map.get(wallHit.tileX, wallHit.tileY).height > z) {
-                bulletHoleManager.spawn(
-                    wallHit.tileX,
-                    wallHit.tileY,
-                    face,
-                    correctedFraction
-                );
+                if (currentItem == ItemType::Pistol || currentItem == ItemType::Mg) {
+                    bulletHoleManager.spawn(
+                        wallHit.tileX,
+                        wallHit.tileY,
+                        face,
+                        correctedFraction,
+                        BulletHoleType::Pistol
+                    );
+                }
+                else if (currentItem == ItemType::Shotgun) {
+                    bulletHoleManager.spawn(
+                        wallHit.tileX,
+                        wallHit.tileY,
+                        face,
+                        correctedFraction,
+                        BulletHoleType::Shotgun
+                    );
+                }
             }
         }
     }

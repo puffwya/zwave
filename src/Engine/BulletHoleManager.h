@@ -3,6 +3,11 @@
 #include <string>
 #include "MapToSegments.h"
 
+enum class BulletHoleType {
+    Pistol,
+    Shotgun
+};
+
 struct BulletHole {
     int tileX;
     int tileY;
@@ -10,6 +15,7 @@ struct BulletHole {
     float hitFraction;      // normalized along wall
     float lifetime;
     int verticalOffset;
+    BulletHoleType type;
 };
 
 struct BulletHoleVisual {
@@ -21,16 +27,17 @@ struct BulletHoleVisual {
 class BulletHoleManager
 {
 public:
-    bool init(const std::string& texturePath);
+    bool loadVisual(BulletHoleType type, const std::string& path);
     void update(float dt);
-    void spawn(int tileX, int tileY, GridSegment::Dir dir, float hitFraction);
+    void spawn(int tileX, int tileY, GridSegment::Dir dir, float hitFraction, BulletHoleType type);
 
     const std::vector<BulletHole>& getAll() const;
-    const BulletHoleVisual& getVisual() const;
+    const BulletHoleVisual& getVisual(BulletHoleType type) const;
 
 private:
+    std::unordered_map<BulletHoleType, BulletHoleVisual> visuals;
     std::vector<BulletHole> holes;
-    BulletHoleVisual bulletVisual;
+    // BulletHoleVisual bulletVisual;
 
     float maxLifetime = 8.0f;
     size_t maxHoles = 25;

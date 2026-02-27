@@ -105,6 +105,9 @@ int main() {
     GameState gameState = GameState::StudioIntro;
     std::unique_ptr<GameSession> session = nullptr;
 
+    // Game Difficulty
+    Difficulty difficulty = Difficulty::Medium;
+
     bool running = true;
     bool mainRun = true;
 
@@ -167,7 +170,7 @@ int main() {
                         mainRun = false;
                     }
 
-                    mainMenu.handleInput(e, gameState, running, mainRun);
+                    mainMenu.handleInput(e, gameState, running, mainRun, difficulty);
                 }
 
                 // Start game and create new game session
@@ -180,7 +183,7 @@ int main() {
                 }
 
                 mainMenu.updateCursor(dt);
-                mainMenu.render(renderer.getSDLRenderer());
+                mainMenu.render(renderer.getSDLRenderer(), difficulty);
                 renderer.present();
             }
         }

@@ -45,14 +45,14 @@ void DoomRenderer::drawBulletHolesOnWall(
     uint32_t* pixels,
     BulletHoleManager& bulletHoleManager
 ) {
-    const auto& visual = bulletHoleManager.getVisual();
-    const int texW = visual.w;
-    const int texH = visual.h;
-
     for (const BulletHole& hole : bulletHoleManager.getAll()) {
         // Only draw holes for this tile face
         if (hole.tileX != seg.tileX || hole.tileY != seg.tileY || hole.dir != seg.dir)
             continue;
+
+        const auto& visual = bulletHoleManager.getVisual(hole.type);
+        const int texW = visual.w;
+        const int texH = visual.h;
                                              
         // Horizontal position along the wall
         float sx = (sxA < sxB) 

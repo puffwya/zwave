@@ -28,20 +28,26 @@ bool MainMenu::init(SDL_Renderer* renderer, int w, int h)
     screenH = h;
 
     const int leftPadding = static_cast<int>(screenW * 0.05f);
-    const int topPadding  = static_cast<int>(screenH * 0.08f);
-    const int buttonGap   = static_cast<int>(screenH * 0.04f);
+    const int topPadding = static_cast<int>(screenH * 0.08f);
+    const int buttonGap = static_cast<int>(screenH * 0.04f);
+    const int difficultyOptionGap = static_cast<int>(screenW * 0.015f);
 
     // Load textures
-    mainBgTexture     = loadTexture(renderer, "assets/pixDigit/mainBgPix.png");
+    mainBgTexture = loadTexture(renderer, "assets/pixDigit/mainBgPix.png");
     mainLogoFgTexture = loadTexture(renderer, "assets/pixDigit/main_logo_fg.png");
     mainLogoBgTexture = loadTexture(renderer, "assets/pixDigit/main_logo_bg.png");
-    startTexture      = loadTexture(renderer, "assets/pixDigit/startPix.png");
-    optionsTexture    = loadTexture(renderer, "assets/pixDigit/optionsPix.png");
-    quitTexture       = loadTexture(renderer, "assets/pixDigit/quitPix.png");
-    cursorTexture     = loadTexture(renderer, "assets/pixDigit/cursorPix.png");
+    startTexture = loadTexture(renderer, "assets/pixDigit/startPix.png");
+    optionsTexture = loadTexture(renderer, "assets/pixDigit/optionsPix.png");
+    difficultyTexture = loadTexture(renderer, "assets/pixDigit/difficulty.png");
+    easyTexture = loadTexture(renderer, "assets/pixDigit/easy.png");
+    mediumTexture = loadTexture(renderer, "assets/pixDigit/medium.png");
+    hardTexture = loadTexture(renderer, "assets/pixDigit/hard.png");
+    backTexture = loadTexture(renderer, "assets/pixDigit/back.png");
+    quitTexture = loadTexture(renderer, "assets/pixDigit/quitPix.png");
+    cursorTexture = loadTexture(renderer, "assets/pixDigit/cursorPix.png");
 
     if (!mainBgTexture || !mainLogoFgTexture || !mainLogoBgTexture ||
-        !startTexture || !optionsTexture || !quitTexture || !cursorTexture)
+        !startTexture || !optionsTexture || !difficultyTexture ||!easyTexture || !mediumTexture || !hardTexture || !backTexture || !quitTexture || !cursorTexture)
         return false;
 
     mainBgRect = { 0, 0, screenW, screenH };
@@ -75,12 +81,42 @@ bool MainMenu::init(SDL_Renderer* renderer, int w, int h)
     setupButton(optionsTexture, optionsRect,
         startRect.y + startRect.h + buttonGap);
 
+    setupButton(difficultyTexture, difficultyRect,
+        mainLogoRect.y + mainLogoRect.h + buttonGap);
+
+    setupButton(easyTexture, easyRect,
+        mainLogoRect.y + mainLogoRect.h + buttonGap);
+    easyRect.x = difficultyRect.x + difficultyRect.w + difficultyOptionGap;
+    easyRect.y += difficultyRect.h / 4;
+    easyRect.w /= 2;
+    easyRect.h /= 2.5;
+
+    setupButton(mediumTexture, mediumRect,   
+        mainLogoRect.y + mainLogoRect.h + buttonGap);
+    mediumRect.x = difficultyRect.x + difficultyRect.w + difficultyOptionGap;
+    mediumRect.y = easyRect.y;
+    mediumRect.w /= 2;
+    mediumRect.h /= 2;
+
+    setupButton(hardTexture, hardRect,   
+        mainLogoRect.y + mainLogoRect.h + buttonGap);
+    hardRect.x = difficultyRect.x + difficultyRect.w + difficultyOptionGap;
+    hardRect.y = easyRect.y;
+    hardRect.w /= 2;
+    hardRect.h /= 2.5;
+
+    setupButton(backTexture, backRect,   
+        difficultyRect.y + difficultyRect.h + buttonGap);
+
     setupButton(quitTexture, quitRect,
         optionsRect.y + optionsRect.h + buttonGap);
 
-    menuRects[MENU_START]   = startRect;
+    menuRects[MENU_START] = startRect;
     menuRects[MENU_OPTIONS] = optionsRect;
-    menuRects[MENU_QUIT]    = quitRect;
+    menuRects[MENU_QUIT] = quitRect;
+
+    optionRects[DIFFICULTY_SELECT] = mediumRect;
+    optionRects[BACK] = backRect;
 
     // Cursor
     SDL_QueryTexture(cursorTexture, nullptr, nullptr, &texW, &texH);
@@ -98,84 +134,169 @@ bool MainMenu::init(SDL_Renderer* renderer, int w, int h)
 }
 
 void MainMenu::handleInput(const SDL_Event& e, GameState& gs,
-                           bool& running, bool& mRunning)
+                           bool& running, bool& mRunning, Difficulty& difficulty)
 {
     if (e.type != SDL_KEYDOWN) return;
 
-    switch (e.key.keysym.sym)
-    {
-        case SDLK_UP:
-            selectedIndex = (selectedIndex - 1 + MENU_COUNT) % MENU_COUNT;
-            break;
+    if (optionsOpen) {
+        switch (e.key.keysym.sym)
+        {
+            case SDLK_UP:
+                selectedIndexOptions = (selectedIndexOptions - 1 + OPTIONS_COUNT) % OPTIONS_COUNT;
+                break;
+    
+            case SDLK_DOWN:
+                selectedIndexOptions = (selectedIndexOptions + 1) % OPTIONS_COUNT;
+                break;
+    
+            case SDLK_RETURN:
+                activateSelected(gs, running, mRunning, difficulty);
+                break;
+    
+            default:
+                break;
+        }
+    }
+    else {
+        switch (e.key.keysym.sym)
+        {
+            case SDLK_UP:
+                selectedIndex = (selectedIndex - 1 + MENU_COUNT) % MENU_COUNT;
+                break;
 
-        case SDLK_DOWN:
-            selectedIndex = (selectedIndex + 1) % MENU_COUNT;
-            break;
+            case SDLK_DOWN:
+                selectedIndex = (selectedIndex + 1) % MENU_COUNT;
+                break;
 
-        case SDLK_RETURN:
-            activateSelected(gs, running, mRunning);
-            break;
+            case SDLK_RETURN:
+                activateSelected(gs, running, mRunning, difficulty);
+                break;
 
-        default:
-            break;
+            default:
+                break;
+        }
     }
 }
 
 void MainMenu::updateCursor(float dt)
 {
-    const SDL_Rect& target = menuRects[selectedIndex];
+    if (optionsOpen) {
+        const SDL_Rect& target = optionRects[selectedIndexOptions];
+    
+        float targetX = target.x + target.w + 12.0f;
+        float targetY = target.y + target.h * 0.5f - cursorRect.h * 0.5f;
+    
+        if (selectedIndexOptions != lastSelectedIndex)
+        {
+            float dir = (selectedIndexOptions > lastSelectedIndex) ? 1.0f : -1.0f;
+            cursorVY += dir * 180.0f;
+            cursorScaleVel += 3.5f;
+            lastSelectedIndex = selectedIndexOptions;
+        }
 
-    float targetX = target.x + target.w + 12.0f;
-    float targetY = target.y + target.h * 0.5f - cursorRect.h * 0.5f;
+        const float stiffness = 70.0f;
+        const float damping   = 12.0f;
 
-    if (selectedIndex != lastSelectedIndex)
-    {
-        float dir = (selectedIndex > lastSelectedIndex) ? 1.0f : -1.0f;
-        cursorVY += dir * 180.0f;
-        cursorScaleVel += 3.5f;
-        lastSelectedIndex = selectedIndex;
+        cursorVX += (targetX - cursorX) * stiffness * dt;
+        cursorVY += (targetY - cursorY) * stiffness * dt;
+
+        cursorVX *= std::exp(-damping * dt);
+        cursorVY *= std::exp(-damping * dt);
+
+        cursorX += cursorVX * dt;
+        cursorY += cursorVY * dt;
+
+        const float scaleStiffness = 22.0f;
+        const float scaleDamping   = 14.0f;
+
+        cursorScaleVel += (1.0f - cursorScale) * scaleStiffness * dt;
+        cursorScaleVel *= std::exp(-scaleDamping * dt);
+        cursorScale += cursorScaleVel * dt;
+
+        cursorRect.x = static_cast<int>(cursorX);
+        cursorRect.y = static_cast<int>(cursorY);
     }
+    else {
+        const SDL_Rect& target = menuRects[selectedIndex];
 
-    const float stiffness = 70.0f;
-    const float damping   = 12.0f;
+        float targetX = target.x + target.w + 12.0f;
+        float targetY = target.y + target.h * 0.5f - cursorRect.h * 0.5f;
 
-    cursorVX += (targetX - cursorX) * stiffness * dt;
-    cursorVY += (targetY - cursorY) * stiffness * dt;
+        if (selectedIndex != lastSelectedIndex)
+        {
+            float dir = (selectedIndex > lastSelectedIndex) ? 1.0f : -1.0f;
+            cursorVY += dir * 180.0f;
+            cursorScaleVel += 3.5f;
+            lastSelectedIndex = selectedIndex;
+        }
 
-    cursorVX *= std::exp(-damping * dt);
-    cursorVY *= std::exp(-damping * dt);
+        const float stiffness = 70.0f;
+        const float damping   = 12.0f;
 
-    cursorX += cursorVX * dt;
-    cursorY += cursorVY * dt;
+        cursorVX += (targetX - cursorX) * stiffness * dt;
+        cursorVY += (targetY - cursorY) * stiffness * dt;
 
-    const float scaleStiffness = 22.0f;
-    const float scaleDamping   = 14.0f;
+        cursorVX *= std::exp(-damping * dt);
+        cursorVY *= std::exp(-damping * dt);
 
-    cursorScaleVel += (1.0f - cursorScale) * scaleStiffness * dt;
-    cursorScaleVel *= std::exp(-scaleDamping * dt);
-    cursorScale += cursorScaleVel * dt;
+        cursorX += cursorVX * dt;
+        cursorY += cursorVY * dt;
 
-    cursorRect.x = static_cast<int>(cursorX);
-    cursorRect.y = static_cast<int>(cursorY);
+        const float scaleStiffness = 22.0f;
+        const float scaleDamping   = 14.0f;
+
+        cursorScaleVel += (1.0f - cursorScale) * scaleStiffness * dt;
+        cursorScaleVel *= std::exp(-scaleDamping * dt);
+        cursorScale += cursorScaleVel * dt;
+
+        cursorRect.x = static_cast<int>(cursorX);
+        cursorRect.y = static_cast<int>(cursorY);
+    }
 }
 
 void MainMenu::activateSelected(GameState& gs,
-                                bool& running, bool& mRunning)
+                                bool& running, bool& mRunning, Difficulty& difficulty)
 {
-    switch (selectedIndex)
-    {
-        case MENU_START:
-            gs = GameState::Playing;
-            break;
+    if (optionsOpen) {
+        switch (selectedIndexOptions)
+        {
+            case DIFFICULTY_SELECT:
+                // Cycle through difficulties
+                switch (difficulty)
+                {
+                    case Difficulty::Easy:
+                        difficulty = Difficulty::Medium;
+                        break;
+                    case Difficulty::Medium:
+                        difficulty = Difficulty::Hard;
+                        break;
+                    case Difficulty::Hard:
+                        difficulty = Difficulty::Easy;
+                        break;
+                }
+                break;
+        
+            case BACK:
+                optionsOpen = false;
+                break;        
+        }
+    }
+    else {
+        switch (selectedIndex)
+        {
+            case MENU_START:
+                gs = GameState::Playing;
+                break;
 
-        case MENU_OPTIONS:
-            gs = GameState::MainMenu;
-            break;
+            case MENU_OPTIONS:
+                optionsOpen = true;
+                break;
 
-        case MENU_QUIT:
-            running = false;
-            mRunning = false;
-            break;
+            case MENU_QUIT:
+                running = false;
+                mRunning = false;
+                break;
+        }
     }
 }
 
@@ -232,11 +353,40 @@ void MainMenu::updateAndRenderAsh(SDL_Renderer* renderer, float dt)
     }
 }
 
-void MainMenu::render(SDL_Renderer* renderer)
+void MainMenu::render(SDL_Renderer* renderer, Difficulty& difficulty)
 {
     SDL_RenderClear(renderer);
 
+    // Main bg png
     SDL_RenderCopy(renderer, mainBgTexture, nullptr, &mainBgRect);
+
+    // Button bg panel parameters
+    const int panelWidth = screenW / 2 + cursorRect.w;
+    const int fadeWidth = 80;
+
+    // Main button bg panel
+    SDL_Rect solidRect = { 0, 0, panelWidth - fadeWidth, screenH };
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(renderer, 120, 25, 20, 80);
+    SDL_RenderFillRect(renderer, &solidRect);
+
+    // Feathered fade region
+    for (int i = 0; i < fadeWidth; ++i)
+    {
+        float t = 1.0f - (float)i / fadeWidth;
+        Uint8 alpha = static_cast<Uint8>(80 * t * t);
+
+        SDL_SetRenderDrawColor(renderer, 120, 25, 20, alpha);
+
+        SDL_Rect r = {
+            solidRect.w + i,
+            0,
+            1,
+            screenH
+        };
+
+        SDL_RenderFillRect(renderer, &r);
+    }
 
     // Glow pulse
     float t = SDL_GetTicks() * 0.001f;
@@ -258,9 +408,24 @@ void MainMenu::render(SDL_Renderer* renderer)
     updateAndRenderAsh(renderer, 1.0f / 60.0f);
 
     // Buttons
-    SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
-    SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);
-    SDL_RenderCopy(renderer, quitTexture, nullptr, &quitRect);
+    if (optionsOpen) {
+        SDL_RenderCopy(renderer, difficultyTexture, nullptr, &difficultyRect);
+        if (difficulty == Difficulty::Easy) {
+            SDL_RenderCopy(renderer, easyTexture, nullptr, &easyRect);
+        }
+        else if (difficulty == Difficulty::Hard) {
+            SDL_RenderCopy(renderer, hardTexture, nullptr, &hardRect);
+        }
+        else {
+            SDL_RenderCopy(renderer, mediumTexture, nullptr, &mediumRect);
+        }
+        SDL_RenderCopy(renderer, backTexture, nullptr, &backRect);
+    }
+    else {
+        SDL_RenderCopy(renderer, startTexture, nullptr, &startRect);
+        SDL_RenderCopy(renderer, optionsTexture, nullptr, &optionsRect);
+        SDL_RenderCopy(renderer, quitTexture, nullptr, &quitRect);
+    }
 
     // Cursor render
     SDL_Rect renderRect = cursorRect;
@@ -279,6 +444,11 @@ void MainMenu::shutdown()
     SDL_DestroyTexture(mainLogoBgTexture);
     SDL_DestroyTexture(startTexture);
     SDL_DestroyTexture(optionsTexture);
+    SDL_DestroyTexture(difficultyTexture);
+    SDL_DestroyTexture(easyTexture);
+    SDL_DestroyTexture(mediumTexture);
+    SDL_DestroyTexture(hardTexture);
+    SDL_DestroyTexture(backTexture);
     SDL_DestroyTexture(quitTexture);
     SDL_DestroyTexture(cursorTexture);
 }

@@ -724,6 +724,7 @@ src/CMakeFiles/RaycasterGame.dir/Menu/MainMenu.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/shift_right.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__algorithm/transform.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/GameState.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../settings/GameSettings.h \
   /opt/homebrew/include/SDL2/SDL_image.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \

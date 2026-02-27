@@ -12,7 +12,13 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
 
     weaponManager.loadAssets(renderer.getSDLRenderer());
 
-    bulletHoleManager.init("Assets/geometry_textures/bulletHole.png");
+    bulletHoleManager.loadVisual(
+        BulletHoleType::Pistol, "Assets/geometry_textures/bulletHole.png"
+    );
+
+    bulletHoleManager.loadVisual(
+        BulletHoleType::Shotgun, "Assets/geometry_textures/bulletHoleS.png"
+    );
 
     if (!hud.init(renderer.getSDLRenderer())) {
         std::cerr << "Failed to initialize HUD\n";
@@ -76,9 +82,11 @@ GameSession::GameSession(Renderer& renderer, int screenW, int screenH) {
     // Init pickup assets
     pickupManager.loadPickupAssets();
 
-    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
+    //pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Health, WeaponType::None);
 
-    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Mg);
+    pickupManager.addPickup(5.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Pistol);
+
+    pickupManager.addPickup(23.5f, 2.5f, 0.0f, PickupType::Weapon, WeaponType::Shotgun);
 
     doomRenderer->setPickupManager(pickupManager);
 
