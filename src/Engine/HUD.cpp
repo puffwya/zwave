@@ -4,11 +4,15 @@
 #include "../Utils/PathUtils.h"
 
 bool HUD::init(SDL_Renderer* renderer) {
+    std::string path;
+    std::string fullPath;
+    SDL_Surface* surface;
+
     // Load digits 0-9 + "/"
     for (int i = 0; i < 11; ++i) {
-        std::string path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
-        std::string fullPath = resolvePath(path);
-        SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
+        path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
+        fullPath = resolvePath(path);
+        surface = LoadSurfaceFromPNG(fullPath.c_str());
         if (!surface) {
             std::cerr << "Failed to load digit " << i
                       << " from path: " << path << "\n";
@@ -32,7 +36,9 @@ bool HUD::init(SDL_Renderer* renderer) {
     }
 
     // Load Wave PNG
-    SDL_Surface* surface = LoadSurfaceFromPNG("assets/pixWords/wave.png");
+    path = "Assets/pixWords/wave.png";
+    fullPath = resolvePath(path);
+    surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load wave.png\n";
         return false;
@@ -45,7 +51,9 @@ bool HUD::init(SDL_Renderer* renderer) {
     }
 
     // Load Enemies Left PNG
-    surface = LoadSurfaceFromPNG("assets/pixWords/enemiesLeft.png");
+    path = "assets/pixWords/enemiesLeft.png";
+    fullPath = resolvePath(path);
+    surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load enemiesLeft.png\n";
         return false;
@@ -58,7 +66,9 @@ bool HUD::init(SDL_Renderer* renderer) {
     }
 
     // Load Wave Starting In PNG
-    surface = LoadSurfaceFromPNG("assets/pixWords/waveStarting.png"); 
+    path = "assets/pixWords/waveStarting.png";
+    fullPath = resolvePath(path);
+    surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load waveStarting.png\n";
         return false;    

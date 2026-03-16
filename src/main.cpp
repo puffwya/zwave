@@ -127,7 +127,7 @@ int main() {
         if (gameState == GameState::StudioIntro) {
 
             audio.stopMusic();
-            audio.playMusic("Assets/audio/IntroJingle.mp3", false);
+            audio.playMusic(resolvePath("Assets/audio/IntroJingle.mp3"), false);
 
             studioIntro.start();
 
@@ -157,7 +157,7 @@ int main() {
         if (gameState == GameState::MainMenu) {
 
             audio.stopMusic();
-            audio.playMusic("Assets/audio/FurySyrgeMainTheme.mp3", true);
+            audio.playMusic(resolvePath("Assets/audio/FurySyrgeMainTheme.mp3"), true);
 
             while (running && gameState == GameState::MainMenu) {
                 Uint32 now = SDL_GetTicks();
@@ -196,7 +196,7 @@ int main() {
         else if (gameState == GameState::Playing && session) {
 
             audio.stopMusic();
-            audio.playMusic("Assets/audio/FurySyrgeLVL1Theme.mp3", true);
+            audio.playMusic(resolvePath("Assets/audio/FurySyrgeLVL1Theme.mp3"), true);
 
             while (running && gameState != GameState::MainMenu) {
                 Uint32 now = SDL_GetTicks();
@@ -209,7 +209,7 @@ int main() {
                 if (gameState == GameState::LevelEnd) {
                     if (!levelEnd.startedMusic) {
                         audio.stopMusic();   
-                        audio.playMusic("Assets/audio/FurySyrgeLvlComplete.mp3", false);
+                        audio.playMusic(resolvePath("Assets/audio/FurySyrgeLvlComplete.mp3"), false);
                         levelEnd.startedMusic = true;
                     }
 
@@ -242,7 +242,7 @@ int main() {
                 {
                     if (!gameOver.startedMusic) {
                         audio.stopMusic();
-                        audio.playMusic("Assets/audio/GameOver.mp3", false);
+                        audio.playMusic(resolvePath("Assets/audio/GameOver.mp3"), false);
                         audio.playSFX("GameOverOOF");
                         gameOver.startedMusic = true;
                     }
