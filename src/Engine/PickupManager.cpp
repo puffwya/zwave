@@ -5,10 +5,12 @@
 #include <cmath>
 #include <iostream>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 // Helper to load a PNG into a PickupVisual
 bool PickupManager::loadPickupFrame(const std::string& path, PickupVisual& out) {
-    SDL_Surface* surf = LoadSurfaceFromPNG(path.c_str());
+    std::string fullPath = resolvePath(path);
+    SDL_Surface* surf = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surf) {
         std::cerr << "Failed to load pickup: " << path << "\n";
         return false;

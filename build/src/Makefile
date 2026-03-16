@@ -610,6 +610,30 @@ Menu/PauseMenu.cpp.s:
 	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.s
 .PHONY : Menu/PauseMenu.cpp.s
 
+Utils/PathUtils.o: Utils/PathUtils.cpp.o
+.PHONY : Utils/PathUtils.o
+
+# target to build an object file
+Utils/PathUtils.cpp.o:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.o
+.PHONY : Utils/PathUtils.cpp.o
+
+Utils/PathUtils.i: Utils/PathUtils.cpp.i
+.PHONY : Utils/PathUtils.i
+
+# target to preprocess a source file
+Utils/PathUtils.cpp.i:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.i
+.PHONY : Utils/PathUtils.cpp.i
+
+Utils/PathUtils.s: Utils/PathUtils.cpp.s
+.PHONY : Utils/PathUtils.s
+
+# target to generate assembly for a file
+Utils/PathUtils.cpp.s:
+	cd /Users/wyattpuff/Raycaster/build && $(MAKE) $(MAKESILENT) -f src/CMakeFiles/FurySyrge.dir/build.make src/CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.s
+.PHONY : Utils/PathUtils.cpp.s
+
 audio/AudioManager.o: audio/AudioManager.cpp.o
 .PHONY : audio/AudioManager.o
 
@@ -751,6 +775,9 @@ help:
 	@echo "... Menu/PauseMenu.o"
 	@echo "... Menu/PauseMenu.i"
 	@echo "... Menu/PauseMenu.s"
+	@echo "... Utils/PathUtils.o"
+	@echo "... Utils/PathUtils.i"
+	@echo "... Utils/PathUtils.s"
 	@echo "... audio/AudioManager.o"
 	@echo "... audio/AudioManager.i"
 	@echo "... audio/AudioManager.s"

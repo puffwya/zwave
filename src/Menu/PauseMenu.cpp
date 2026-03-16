@@ -1,11 +1,13 @@
 #include "PauseMenu.h"
 #include <iostream>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 // Texture Loader helper
 SDL_Texture* PauseMenu::loadTexture(SDL_Renderer* renderer, const std::string& path)
 {
-    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+    std::string fullPath = resolvePath(path);
+    SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load: " << path << "\n";
         return nullptr;
@@ -29,13 +31,13 @@ bool PauseMenu::init(SDL_Renderer* renderer, int w, int h)
     const float buttonGap = screenH * 0.08f;
 
     // Load textures
-    mainBgTexture = loadTexture(renderer, "assets/pixDigit/mainBgPix.png");
-    mainLogoFgTexture = loadTexture(renderer, "assets/pixDigit/main_logo_fg.png");
-    mainLogoBgTexture = loadTexture(renderer, "assets/pixDigit/main_logo_bg.png");
-    startTexture = loadTexture(renderer, "assets/pixDigit/startPix.png");
-    optionsTexture = loadTexture(renderer, "assets/pixDigit/optionsPix.png");
-    quitTexture = loadTexture(renderer, "assets/pixDigit/quitPix.png");
-    cursorTexture = loadTexture(renderer, "assets/pixDigit/cursorPix.png");
+    mainBgTexture = loadTexture(renderer, "Assets/pixDigit/mainBgPix.png");
+    mainLogoFgTexture = loadTexture(renderer, "Assets/pixDigit/main_logo_fg.png");
+    mainLogoBgTexture = loadTexture(renderer, "Assets/pixDigit/main_logo_bg.png");
+    startTexture = loadTexture(renderer, "Assets/pixDigit/startPix.png");
+    optionsTexture = loadTexture(renderer, "Assets/pixDigit/optionsPix.png");
+    quitTexture = loadTexture(renderer, "Assets/pixDigit/quitPix.png");
+    cursorTexture = loadTexture(renderer, "Assets/pixDigit/cursorPix.png");
 
     if (!mainLogoFgTexture || !mainLogoBgTexture ||
         !startTexture || !optionsTexture ||

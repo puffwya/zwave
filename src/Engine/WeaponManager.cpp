@@ -4,11 +4,13 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include "../Utils/PathUtils.h"
 
 // Helper function: load PNG via wrapper and create SDL_Texture
 SDL_Texture* LoadTextureFromFile(SDL_Renderer* renderer, const char* path) {
     // Load surface using wrapper
-    SDL_Surface* surface = LoadSurfaceFromPNG(path);
+    std::string fullPath = resolvePath(path);
+    SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load image: " << path << "\n";
         return nullptr;

@@ -1,8 +1,8 @@
 #define MINIAUDIO_IMPLEMENTATION
 #include "../third_party/miniaudio.h"
-
 #include "AudioManager.h"
 #include <iostream>
+#include "../Utils/PathUtils.h"
 
 bool AudioManager::init()
 {
@@ -20,18 +20,19 @@ void AudioManager::loadSFX(const std::string& name, const std::string& path)
     if (sfx.contains(name))
         return;
 
-    // Construct sound IN-PLACE
     ma_sound& sound = sfx[name];
+
+    std::string fullPath = resolvePath(path);
 
     if (ma_sound_init_from_file(
             &engine,
-            path.c_str(),
-            0,          // not streamed
+            fullPath.c_str(),
+            0,
             nullptr,
             nullptr,
             &sound) != MA_SUCCESS)
     {
-        std::cerr << "Failed to load SFX: " << path << "\n";
+        std::cerr << "Failed to load SFX: " << fullPath << "\n";
         sfx.erase(name);
         return;
     }

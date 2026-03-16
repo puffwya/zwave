@@ -22,9 +22,16 @@ set(SOURCES
     Engine/TextureManager.cpp
     Intro/StudioIntro.cpp
     third_party/stb_image_wrapper.cpp
+    Utils/PathUtils.cpp
 )
 
 add_executable(FurySyrge ${SOURCES})
+
+add_custom_command(TARGET FurySyrge POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/src/Assets $<TARGET_FILE_DIR:FurySyrge>/Assets
+    COMMENT "Copying Assets folder into bin..."
+)
 
 # SDL2 include directory
 target_include_directories(FurySyrge PRIVATE /opt/homebrew/include)

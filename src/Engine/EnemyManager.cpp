@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <iostream>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 EnemyManager::EnemyManager() {
     for (int i = 0; i < MAX_ENEMIES; i++)
@@ -24,7 +25,9 @@ void EnemyManager::scanMapForSpawnPoints(const Map& map) {
 }
 
 bool loadSpriteFrame(const std::string& path, SpriteFrame& out) {
-    SDL_Surface* surf = LoadSurfaceFromPNG(path.c_str());
+    std::string fullPath = resolvePath(path);
+
+    SDL_Surface* surf = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surf) return false;
 
     SDL_Surface* formatted =

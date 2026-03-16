@@ -2,11 +2,13 @@
 #include <iostream>
 #include <cstring>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 bool TextureManager::load(const std::string& name, const std::string& path)
 {
     // Load surface using wrapper
-    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+    std::string fullPath = resolvePath(path);
+    SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load texture: " << name << " | " << path << "\n";
         return false;

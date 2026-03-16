@@ -4,12 +4,14 @@
 #include <cstdlib>
 #include <ctime>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 bool BulletHoleManager::loadVisual(
     BulletHoleType type,
     const std::string& texturePath
 ) {
-    SDL_Surface* surf = LoadSurfaceFromPNG(texturePath.c_str());
+    std::string fullPath = resolvePath(texturePath);
+    SDL_Surface* surf = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surf) {
         std::cerr << "Failed to load bullet hole texture: "
                   << texturePath << "\n";

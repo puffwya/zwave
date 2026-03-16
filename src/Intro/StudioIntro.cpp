@@ -2,12 +2,14 @@
 #include <iostream>
 #include <algorithm>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 // Texture Loader helper
 SDL_Texture* StudioIntro::loadTexture(SDL_Renderer* renderer,
                                       const std::string& path)
 {
-    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+    std::string fullPath = resolvePath(path);
+    SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load: " << path << "\n";
         return nullptr;

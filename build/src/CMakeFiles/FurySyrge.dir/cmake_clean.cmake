@@ -41,6 +41,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.o.d"
   "CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.o"
   "CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.o.d"
+  "CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.o"
+  "CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.o.d"
   "CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.o"
   "CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.o.d"
   "CMakeFiles/FurySyrge.dir/main.cpp.o"

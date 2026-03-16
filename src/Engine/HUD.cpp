@@ -1,13 +1,14 @@
 #include "HUD.h"
 #include <iostream>
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 bool HUD::init(SDL_Renderer* renderer) {
     // Load digits 0-9 + "/"
     for (int i = 0; i < 11; ++i) {
         std::string path = "Assets/pixDigit/pixelDigit-" + std::to_string(i) + ".png";
-
-        SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+        std::string fullPath = resolvePath(path);
+        SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
         if (!surface) {
             std::cerr << "Failed to load digit " << i
                       << " from path: " << path << "\n";

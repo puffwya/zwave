@@ -157,8 +157,6 @@ void GameSession::startWave(int index) {
     enemiesSpawned = 0;
     spawnTimer = 0.0f;
     waveState = WaveState::Spawning;
-
-    std::cout << "Wave " << index + 1 << " started\n";
 }
 
 void GameSession::startWaveWallAnimations(int waveIndex, AudioManager& audio) {
@@ -441,8 +439,6 @@ void GameSession::update(float dt, const Uint8* keys, GameState& gameState, Audi
                 waveState = WaveState::Spawning;
 
                 startWaveWallAnimations(currentWaveIndex, audio);
-
-                std::cout << "Wave " << currentWaveIndex + 1 << " started\n";
             }
             break;
         }

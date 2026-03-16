@@ -794,6 +794,7 @@ src/CMakeFiles/FurySyrge.dir/main.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Intro/StudioIntro.h \
   /Users/wyattpuff/Raycaster/src/Intro/../Engine/GameState.h \
   /Users/wyattpuff/Raycaster/src/audio/AudioManager.h \
+  /Users/wyattpuff/Raycaster/src/Utils/PathUtils.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/iostream \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/ios \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__locale \

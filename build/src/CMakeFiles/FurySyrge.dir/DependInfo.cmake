@@ -28,6 +28,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/wyattpuff/Raycaster/src/Menu/LevelEnd.cpp" "src/CMakeFiles/FurySyrge.dir/Menu/LevelEnd.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/Menu/LevelEnd.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/MainMenu.cpp" "src/CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/Menu/PauseMenu.cpp" "src/CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/Menu/PauseMenu.cpp.o.d"
+  "/Users/wyattpuff/Raycaster/src/Utils/PathUtils.cpp" "src/CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/Utils/PathUtils.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/audio/AudioManager.cpp" "src/CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/audio/AudioManager.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/main.cpp" "src/CMakeFiles/FurySyrge.dir/main.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/main.cpp.o.d"
   "/Users/wyattpuff/Raycaster/src/third_party/stb_image_wrapper.cpp" "src/CMakeFiles/FurySyrge.dir/third_party/stb_image_wrapper.cpp.o" "gcc" "src/CMakeFiles/FurySyrge.dir/third_party/stb_image_wrapper.cpp.o.d"

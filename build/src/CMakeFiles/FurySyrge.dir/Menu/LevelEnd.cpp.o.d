@@ -803,4 +803,5 @@ src/CMakeFiles/FurySyrge.dir/Menu/LevelEnd.cpp.o: \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/WeaponTypes.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/BulletHoleManager.h \
   /Users/wyattpuff/Raycaster/src/Menu/../Engine/MapToSegments.h \
-  /Users/wyattpuff/Raycaster/src/Menu/../third_party/stb_image_wrapper.h
+  /Users/wyattpuff/Raycaster/src/Menu/../third_party/stb_image_wrapper.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Utils/PathUtils.h

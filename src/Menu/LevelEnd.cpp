@@ -2,13 +2,15 @@
 #include <algorithm>
 #include "LevelEnd.h"
 #include "../third_party/stb_image_wrapper.h"
+#include "../Utils/PathUtils.h"
 
 constexpr int STAT_VERTICAL_SPACING = 40;
 constexpr int DIGIT_OFFSET_X = 150;
 
 SDL_Texture* LevelEnd::loadTexture(SDL_Renderer* renderer, const std::string& path)
 {
-    SDL_Surface* surface = LoadSurfaceFromPNG(path.c_str());
+    std::string fullPath = resolvePath(path);
+    SDL_Surface* surface = LoadSurfaceFromPNG(fullPath.c_str());
     if (!surface) {
         std::cerr << "Failed to load: " << path << "\n";
         return nullptr;

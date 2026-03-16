@@ -11,6 +11,8 @@
 
 #include "audio/AudioManager.h"
 
+#include "Utils/PathUtils.h"
+
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <memory>
@@ -19,6 +21,9 @@ int SCREEN_WIDTH = 1200;
 int SCREEN_HEIGHT = 900;
 
 int main() {
+    // Get Base base
+    initBasePath();
+
     Renderer renderer(SCREEN_WIDTH, SCREEN_HEIGHT);
 
     // UI / Engine lifetime

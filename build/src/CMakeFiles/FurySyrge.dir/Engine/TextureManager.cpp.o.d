@@ -792,4 +792,5 @@ src/CMakeFiles/FurySyrge.dir/Engine/TextureManager.cpp.o: \
   /opt/homebrew/include/SDL2/SDL_timer.h \
   /opt/homebrew/include/SDL2/SDL_version.h \
   /opt/homebrew/include/SDL2/SDL_locale.h \
-  /opt/homebrew/include/SDL2/SDL_misc.h
+  /opt/homebrew/include/SDL2/SDL_misc.h \
+  /Users/wyattpuff/Raycaster/src/Engine/../Utils/PathUtils.h

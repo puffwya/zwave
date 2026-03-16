@@ -795,4 +795,5 @@ src/CMakeFiles/FurySyrge.dir/Menu/MainMenu.cpp.o: \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/nl_types.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/_types/_nl_item.h \
   /Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/c++/v1/__bsd_locale_defaults.h \
-  /Users/wyattpuff/Raycaster/src/Menu/../third_party/stb_image_wrapper.h
+  /Users/wyattpuff/Raycaster/src/Menu/../third_party/stb_image_wrapper.h \
+  /Users/wyattpuff/Raycaster/src/Menu/../Utils/PathUtils.h
